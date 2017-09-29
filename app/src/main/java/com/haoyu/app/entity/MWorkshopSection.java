@@ -28,8 +28,6 @@ public class MWorkshopSection implements Serializable {
     @Expose
     @SerializedName("timePeriod")
     private TimePeriod timePeriod;
-
-
     /*活动列表*/
     private List<MWorkshopActivity> activities = new ArrayList<>();
 
@@ -58,6 +56,8 @@ public class MWorkshopSection implements Serializable {
     }
 
     public List<MWorkshopActivity> getActivities() {
+        if (activities == null)
+            return new ArrayList<>();
         return activities;
     }
 

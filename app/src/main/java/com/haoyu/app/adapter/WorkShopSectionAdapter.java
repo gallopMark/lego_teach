@@ -97,6 +97,10 @@ public class WorkShopSectionAdapter extends BaseArrayRecyclerAdapter<MWorkshopSe
             atRecyclerView.setFocusable(false);
             WorkShopAtAdapter adapter = new WorkShopAtAdapter(entity.getActivities(), position);
             atRecyclerView.setAdapter(adapter);
+            if (entity.getActivities().size() > 0)
+                iv_isExpand.setVisibility(View.VISIBLE);
+            else
+                iv_isExpand.setVisibility(View.GONE);
             if (arrayMap.get(position) != null && arrayMap.get(position)) {
                 atRecyclerView.setVisibility(View.VISIBLE);
                 iv_isExpand.setImageResource(R.drawable.course_dictionary_xiala);
@@ -130,20 +134,14 @@ public class WorkShopSectionAdapter extends BaseArrayRecyclerAdapter<MWorkshopSe
                 public void onClick(View v) {
                     switch (v.getId()) {
                         case R.id.ll_content:
-                            if (entity.getActivities() != null && entity.getActivities().size() > 0
-                                    && atRecyclerView.getVisibility() == View.GONE) {
-                                arrayMap.put(position, true);
-                                atRecyclerView.setVisibility(View.VISIBLE);
-                                iv_isExpand.setImageResource(R.drawable.course_dictionary_xiala);
-                            } else if (entity.getActivities() != null && entity.getActivities().size() > 0
-                                    && atRecyclerView.getVisibility() == View.VISIBLE) {
+                            if (atRecyclerView.getVisibility() == View.VISIBLE) {
                                 arrayMap.put(position, false);
                                 atRecyclerView.setVisibility(View.GONE);
                                 iv_isExpand.setImageResource(R.drawable.progress_goto);
                             } else {
-                                arrayMap.put(position, false);
-                                atRecyclerView.setVisibility(View.GONE);
-                                iv_isExpand.setImageResource(R.drawable.progress_goto);
+                                arrayMap.put(position, true);
+                                atRecyclerView.setVisibility(View.VISIBLE);
+                                iv_isExpand.setImageResource(R.drawable.course_dictionary_xiala);
                             }
                             break;
                         case R.id.tv_addTask:
