@@ -550,7 +550,7 @@ public class AppActivityViewEntity implements Serializable {
         @SerializedName("textbook")
         private String textbook;
         @Expose
-        @SerializedName("teach")
+        @SerializedName("teacher")
         private MobileUser teacher;
         @Expose
         @SerializedName("mVideo")

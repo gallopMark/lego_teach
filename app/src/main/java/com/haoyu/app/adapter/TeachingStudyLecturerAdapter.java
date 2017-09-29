@@ -1,10 +1,8 @@
 package com.haoyu.app.adapter;
 
-import android.view.View;
 import android.widget.TextView;
 
 import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
-
 import com.haoyu.app.entity.MobileUser;
 import com.haoyu.app.lego.teach.R;
 
@@ -19,7 +17,6 @@ public class TeachingStudyLecturerAdapter extends BaseArrayRecyclerAdapter<Mobil
         super(mDatas);
     }
 
-
     @Override
     public int bindView(int viewtype) {
         return R.layout.teaching_study_lecture_item;
@@ -29,28 +26,6 @@ public class TeachingStudyLecturerAdapter extends BaseArrayRecyclerAdapter<Mobil
     @Override
     public void onBindHoder(RecyclerHolder holder, final MobileUser mobileUser, int position) {
         TextView tv_name = holder.obtainView(R.id.tv_name);
-        if (mobileUser != null && mobileUser.getRealName() != null) {
-            tv_name.setText(mobileUser.getRealName());
-            tv_name.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    personName.setName(mobileUser);
-                }
-            });
-        } else {
-            tv_name.setText("匿名用户");
-        }
-
+        tv_name.setText(mobileUser.getRealName());
     }
-
-    public interface PersonName {
-        void setName(MobileUser mobileUser);
-    }
-
-    public PersonName personName;
-
-    public void setPersonName(PersonName personName) {
-        this.personName = personName;
-    }
-
 }

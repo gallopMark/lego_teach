@@ -7,7 +7,6 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.Selection;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -238,14 +237,13 @@ public class WorkShopEditTaskActivity extends BaseActivity implements View.OnCli
     private void alterTask() {
         String url = Constants.OUTRT_NET + "/master_" + workShopId + "/unique_uid_" + getUserId() +
                 "/m/workshop_section/" + taskId;
-        Log.e("url", url);
         final String title = et_title.getText().toString().trim();
         Map<String, String> map = new HashMap<>();
         map.put("_method", "put");
         map.put("title", title);
         map.put("startTime", startTime);
         map.put("endTime", endTime);
-        OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
             public void onBefore(Request request) {
                 showTipDialog();
@@ -273,7 +271,7 @@ public class WorkShopEditTaskActivity extends BaseActivity implements View.OnCli
                     toastFullScreen("修改失败", false);
                 }
             }
-        }, map);
+        }, map));
     }
 
     /**

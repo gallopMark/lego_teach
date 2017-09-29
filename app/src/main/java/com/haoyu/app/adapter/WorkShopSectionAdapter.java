@@ -87,6 +87,7 @@ public class WorkShopSectionAdapter extends BaseArrayRecyclerAdapter<MWorkshopSe
             ll_add_type.setVisibility(View.GONE);
             TextView tv_position = holder.obtainView(R.id.tv_position);
             TextView tv_title = holder.obtainView(R.id.tv_title);
+            final ImageView iv_isExpand = holder.obtainView(R.id.iv_isExpand);
             TextView tv_researchTime = holder.obtainView(R.id.tv_researchTime);
             final RecyclerView atRecyclerView = holder.obtainView(R.id.atRecyclerView);
             atRecyclerView.setNestedScrollingEnabled(false);
@@ -98,8 +99,10 @@ public class WorkShopSectionAdapter extends BaseArrayRecyclerAdapter<MWorkshopSe
             atRecyclerView.setAdapter(adapter);
             if (arrayMap.get(position) != null && arrayMap.get(position)) {
                 atRecyclerView.setVisibility(View.VISIBLE);
+                iv_isExpand.setImageResource(R.drawable.course_dictionary_xiala);
             } else {
                 atRecyclerView.setVisibility(View.GONE);
+                iv_isExpand.setImageResource(R.drawable.progress_goto);
             }
             //添加任务
             TextView task_add = holder.obtainView(R.id.tv_addTask);
@@ -131,13 +134,16 @@ public class WorkShopSectionAdapter extends BaseArrayRecyclerAdapter<MWorkshopSe
                                     && atRecyclerView.getVisibility() == View.GONE) {
                                 arrayMap.put(position, true);
                                 atRecyclerView.setVisibility(View.VISIBLE);
+                                iv_isExpand.setImageResource(R.drawable.course_dictionary_xiala);
                             } else if (entity.getActivities() != null && entity.getActivities().size() > 0
                                     && atRecyclerView.getVisibility() == View.VISIBLE) {
                                 arrayMap.put(position, false);
                                 atRecyclerView.setVisibility(View.GONE);
+                                iv_isExpand.setImageResource(R.drawable.progress_goto);
                             } else {
                                 arrayMap.put(position, false);
                                 atRecyclerView.setVisibility(View.GONE);
+                                iv_isExpand.setImageResource(R.drawable.progress_goto);
                             }
                             break;
                         case R.id.tv_addTask:

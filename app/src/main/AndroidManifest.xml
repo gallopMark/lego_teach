@@ -238,7 +238,6 @@
         <!--研修简报详情-->
         <activity android:name="com.haoyu.app.activity.BriefingDetailActivity" />
         <!--成员管理搜索-->
-        <activity android:name="com.haoyu.app.activity.SearchMemeberActivity" />
         <!--听课评课详情-->
         <activity android:name="com.haoyu.app.activity.TeachingStudyActivity" />
         <!--听课评课的结果-->
