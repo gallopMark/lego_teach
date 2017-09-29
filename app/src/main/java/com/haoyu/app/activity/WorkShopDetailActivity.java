@@ -336,7 +336,7 @@ public class WorkShopDetailActivity extends BaseActivity {
             @Override
             public void onItemCallBack(int position, String id) {
                 Intent intent = new Intent(context, BriefingDetailActivity.class);
-                intent.putExtra("id", id);
+                intent.putExtra("relationId", id);
                 startActivity(intent);
             }
         });
