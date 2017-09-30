@@ -86,7 +86,7 @@ public class AppCommentAdapter extends BaseArrayRecyclerAdapter<CommentEntity> {
         if (entity.getCreator() != null && entity.getCreator().getRealName() != null) {
             userName.setText(entity.getCreator().getRealName());
         } else {
-            userName.setText("匿名用户");
+            userName.setText("");
         }
         if (entity.getCreator() != null && entity.getCreator().getId() != null
                 && entity.getCreator().getId().equals(userId)) {

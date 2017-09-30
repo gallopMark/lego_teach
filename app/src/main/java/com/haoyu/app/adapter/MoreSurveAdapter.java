@@ -33,7 +33,7 @@ public class MoreSurveAdapter extends BaseArrayRecyclerAdapter<SurveyAnswerSubmi
                 if (surveyAnswerSubmission.getUser().getRealName() != null) {
                     tv_userName.setText(surveyAnswerSubmission.getUser().getRealName());
                 } else {
-                    tv_userName.setText("匿名用户");
+                    tv_userName.setText("");
                 }
                 GlideImgManager.loadCircleImage(context, surveyAnswerSubmission.getUser().getAvatar(),
                         R.drawable.user_default, R.drawable.user_default, ic_user);

@@ -29,7 +29,7 @@ public class RecyclerGridViewAdapter extends BaseArrayRecyclerAdapter<MobileUser
         if (mUsers.getRealName() != null) {
             personName.setText(mUsers.getRealName());
         } else {
-            personName.setText("匿名用户");
+            personName.setText("");
         }
         Glide.with(mContext)
                 .load(mUsers.getAvatar())

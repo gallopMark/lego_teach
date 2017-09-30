@@ -82,7 +82,7 @@ public class AppDiscussionAdapter extends BaseArrayRecyclerAdapter<ReplyEntity> 
         if (entity.getCreator() != null && entity.getCreator().getRealName() != null) {
             userName.setText(entity.getCreator().getRealName());
         } else {
-            userName.setText("匿名用户");
+            userName.setText("");
         }
         if (entity.getCreator() != null && entity.getCreator().getAvatar() != null) {
             GlideImgManager.loadCircleImage(mContext, entity.getCreator().getAvatar(),
