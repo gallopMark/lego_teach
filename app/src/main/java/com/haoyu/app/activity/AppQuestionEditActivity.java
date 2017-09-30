@@ -31,8 +31,6 @@ import java.util.Map;
 import butterknife.BindView;
 import okhttp3.Request;
 
-import static com.haoyu.app.lego.teach.R.id.tv_title;
-
 /**
  * 提问问题，修改问题，回答问题界面
  */

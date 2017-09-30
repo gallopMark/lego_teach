@@ -11,8 +11,8 @@ import android.widget.TextView;
 
 import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
 import com.haoyu.app.entity.CommentEntity;
-import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.imageloader.GlideImgManager;
+import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.utils.TimeUtil;
 import com.haoyu.app.view.FullyLinearLayoutManager;
 
@@ -164,32 +164,31 @@ public class AppCommentAdapter extends BaseArrayRecyclerAdapter<CommentEntity> {
         public void onBindHoder(RecyclerHolder holder, CommentEntity entity, int position) {
             TextView tv = holder.obtainView(R.id.tv_content);
             tv.setText(null);
-            SpannableString ss, ss1;
             if (entity.getCreator() != null && entity.getCreator().getRealName() != null) {
-                ss = new SpannableString(entity.getCreator().getRealName() + ": ");
+                SpannableString ss = new SpannableString(entity.getCreator().getRealName() + ": ");
                 ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext,
                         R.color.defaultColor)), 0, ss.length(),
                         SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
                 tv.append(ss);
             } else {
-                ss = new SpannableString("匿名用户" + ": ");
+                SpannableString ss = new SpannableString("" + ": ");
                 ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext,
                         R.color.defaultColor)), 0, ss.length(),
                         SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
                 tv.append(ss);
             }
             if (entity.getContent() != null) {
-                ss1 = new SpannableString(entity.getContent());
-                ss1.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext,
-                        R.color.black)), 0, ss1.length(),
+                SpannableString ss = new SpannableString(entity.getContent());
+                ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext,
+                        R.color.black)), 0, ss.length(),
                         SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-                tv.append(ss1);
+                tv.append(ss);
             } else {
-                ss1 = new SpannableString("");
-                ss1.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext,
-                        R.color.black)), 0, ss1.length(),
+                SpannableString ss = new SpannableString("");
+                ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext,
+                        R.color.black)), 0, ss.length(),
                         SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-                tv.append(ss1);
+                tv.append(ss);
             }
         }
     }
