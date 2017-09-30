@@ -27,7 +27,6 @@
         android:maxLines="1"
         android:padding="@dimen/margin_size_12"
         android:textColorHint="@color/blow_gray"
-        android:textCursorDrawable="@color/defaultColor"
         android:textSize="@dimen/font_size_16">
 
         <requestFocus />
@@ -46,6 +45,5 @@
         android:minLines="8"
         android:padding="@dimen/margin_size_10"
         android:textColorHint="@color/blow_gray"
-        android:textCursorDrawable="@color/defaultColor"
         android:textSize="@dimen/font_size_16" />
 </LinearLayout>
