@@ -1,14 +1,14 @@
 package com.haoyu.app.adapter;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.Html;
-import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
@@ -55,7 +55,7 @@ public class CourseSectionAdapter extends BaseArrayRecyclerAdapter<MultiItemEnti
         if (viewType == 0) {
             final CourseSectionEntity sectionEntity = (CourseSectionEntity) item;
             final TextView tv_title = holder.obtainView(R.id.section_title);
-            setSpannedText(sectionEntity.getTitle(), tv_title);
+            setSectionText(sectionEntity.getTitle(), tv_title);
             holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -66,11 +66,10 @@ public class CourseSectionAdapter extends BaseArrayRecyclerAdapter<MultiItemEnti
             });
         } else {
             final CourseChildSectionEntity childEntity = (CourseChildSectionEntity) item;
-            LinearLayout ll_layout = holder.obtainView(R.id.ll_layout);
             final TextView tv_title = holder.obtainView(R.id.tv_selection_title);
             ImageView ic_selection_state = holder.obtainView(R.id.ic_selection_state);
             ic_selection_state.setVisibility(View.GONE);
-            setSpannedText(childEntity.getTitle(), tv_title, ll_layout);
+            setSpannedText(childEntity.getTitle(), tv_title);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -89,64 +88,66 @@ public class CourseSectionAdapter extends BaseArrayRecyclerAdapter<MultiItemEnti
         }
     }
 
-    private void setSpannedText(String title, TextView tv) {
-        int left, top, right, bottom;
+    private void setSectionText(String title, TextView tv) {
+        int paddingLeft = tv.getPaddingLeft();
+        int paddingRight = tv.getPaddingRight();
+        int paddingTop = PixelFormat.formatDipToPx(context, 8);
+        int paddingBottom = paddingTop;
         if (title == null || title.trim().length() == 0) {
-            left = right = PixelFormat.dp2px(context, 12);
-            top = bottom = PixelFormat.dp2px(context, 6);
-            tv.setPadding(left, top, right, bottom);
             tv.setText("无标题");
         } else {
-            Spanned spanned = Html.fromHtml(title);
-            SpannableString ss = new SpannableString(spanned);
+            Spanned spanned;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                spanned = Html.fromHtml(title, Html.FROM_HTML_MODE_LEGACY);
+            else
+                spanned = Html.fromHtml(title);
+            SpannableStringBuilder ss = new SpannableStringBuilder(spanned);
             if (title.contains("<sup>")) {
                 ss.setSpan(new SuperscriptSpan(), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                left = right = PixelFormat.dp2px(context, 12);
-                top = bottom = PixelFormat.dp2px(context, 2);
-                tv.setPadding(left, top, right, bottom);
-                tv.setText(ss);
+                paddingTop = paddingBottom = PixelFormat.formatDipToPx(context, 2);
+                tv.setText(null);
+                tv.append(ss);
             } else if (title.contains("<sub>")) {
                 ss.setSpan(new SubscriptSpan(), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                left = right = PixelFormat.dp2px(context, 12);
-                top = bottom = PixelFormat.dp2px(context, 2);
-                tv.setPadding(left, top, right, bottom);
-                tv.setText(ss);
+                paddingTop = paddingBottom = PixelFormat.formatDipToPx(context, 2);
+                tv.setText(null);
+                tv.append(ss);
             } else {
-                left = right = PixelFormat.dp2px(context, 12);
-                top = bottom = PixelFormat.dp2px(context, 6);
-                tv.setPadding(left, top, right, bottom);
                 tv.setText(spanned);
             }
         }
+        tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     }
 
-    private void setSpannedText(String title, TextView tv_title, LinearLayout layout) {
-        int left, top, right, bottom;
+    private void setSpannedText(String title, TextView tv) {
+        int paddingLeft = tv.getPaddingLeft();
+        int paddingRight = tv.getPaddingRight();
+        int paddingTop = PixelFormat.formatDipToPx(context, 14);
+        int paddingBottom = paddingTop;
         if (title == null || title.trim().length() == 0) {
-            tv_title.setText("无标题");
-            left = right = top = bottom = PixelFormat.dp2px(context, 12);
-            layout.setPadding(left, top, right, bottom);
+            tv.setText("无标题");
         } else {
-            Spanned spanned = Html.fromHtml(title);
-            SpannableString ss = new SpannableString(spanned);
+            Spanned spanned;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                spanned = Html.fromHtml(title, Html.FROM_HTML_MODE_LEGACY);
+            else
+                spanned = Html.fromHtml(title);
+            SpannableStringBuilder ss = new SpannableStringBuilder(spanned);
             if (title.contains("<sup>")) {
                 ss.setSpan(new SuperscriptSpan(), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                left = right = PixelFormat.dp2px(context, 12);
-                top = bottom = PixelFormat.dp2px(context, 8);
-                layout.setPadding(left, top, right, bottom);
-                tv_title.setText(ss);
+                paddingTop = paddingBottom = PixelFormat.formatDipToPx(context, 8);
+                tv.setText(null);
+                tv.append(ss);
             } else if (title.contains("<sub>")) {
                 ss.setSpan(new SubscriptSpan(), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                left = right = PixelFormat.dp2px(context, 12);
-                top = bottom = PixelFormat.dp2px(context, 8);
-                layout.setPadding(left, top, right, bottom);
-                tv_title.setText(ss);
+                paddingTop = paddingBottom = PixelFormat.formatDipToPx(context, 8);
+                tv.setText(null);
+                tv.append(ss);
             } else {
-                left = right = top = bottom = PixelFormat.dp2px(context, 12);
-                layout.setPadding(left, top, right, bottom);
-                tv_title.setText(spanned);
+                tv.setText(spanned);
             }
         }
+        tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     }
 
     public interface OnSectionClickListener {
