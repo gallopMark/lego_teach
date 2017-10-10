@@ -57,7 +57,7 @@ public class CourseStudyAdapter extends BaseArrayRecyclerAdapter<MultiItemEntity
     private int padding_2, padding_8, padding_14;
 
     public CourseStudyAdapter(Context context, List<MultiItemEntity> mDatas) {
-        super(mDatas); 
+        super(mDatas);
         this.context = context;
         padding_2 = PixelFormat.formatDipToPx(context, 2);
         padding_8 = PixelFormat.formatDipToPx(context, 8);
