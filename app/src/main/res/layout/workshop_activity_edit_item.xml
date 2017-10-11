@@ -23,7 +23,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_gravity="center"
-                android:src="@drawable/workshop_courseware" />
+                android:src="@drawable/ws_courseware_default" />
 
             <TextView
                 android:id="@+id/tv_typeName"
