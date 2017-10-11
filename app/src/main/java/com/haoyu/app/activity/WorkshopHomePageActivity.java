@@ -713,7 +713,6 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                     MWorkshopSection section = response.getResponseData();
                     sectionList.add(section);
                     mAdapter.notifyItemInserted(sectionList.indexOf(section));
-                    mAdapter.notifyDataSetChanged();
                 } else {
                     toastFullScreen("添加失败", false);
                 }
@@ -828,6 +827,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
                     sectionList.remove(position);
                     mAdapter.notifyItemRangeRemoved(position, 1);
+                    mAdapter.notifyItemRangeChanged(position, sectionList.size());
                     if (sectionList.size() == 0) {
                         ll_empty.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);

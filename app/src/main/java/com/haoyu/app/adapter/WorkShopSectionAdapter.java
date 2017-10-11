@@ -49,7 +49,10 @@ public class WorkShopSectionAdapter extends BaseArrayRecyclerAdapter<MWorkshopSe
 
     public void setAddTask(boolean addTask) {
         this.addTask = addTask;
-        notifyDataSetChanged();
+        if (addTask)
+            notifyItemRangeChanged(getItemCount(), 1);
+        else
+            notifyItemRangeRemoved(getItemCount(), 1);
     }
 
     public void setAddTaskListener(OnAddTaskListener addTaskListener) {
