@@ -6,7 +6,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -36,6 +38,7 @@ import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.NetStatusUtil;
 import com.haoyu.app.utils.OkHttpClientManager;
+import com.haoyu.app.utils.ScreenUtils;
 import com.haoyu.app.view.AppToolBar;
 import com.haoyu.app.view.ColorArcProgressBar;
 import com.haoyu.app.view.LoadFailView;
@@ -111,6 +114,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
         workshopId = getIntent().getStringExtra("workshopId");
         String workshopTitle = getIntent().getStringExtra("workshopTitle");
         toolBar.setTitle_text(workshopTitle);
+        ((SimpleItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
@@ -250,6 +254,13 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
         ll_question.setOnClickListener(context);
         ll_exchange.setOnClickListener(context);
         task_add_phase_btn.setOnClickListener(context);
+
+        mAdapter.setOnSectionLongClickListener(new WorkShopSectionAdapter.OnSectionLongClickListener() {
+            @Override
+            public void onLongClickListener(String taskId, int position, MWorkshopSection entity) {
+                showTaskEditDialog(taskId, position, entity);
+            }
+        });
         mAdapter.setItemCallBack(new WorkShopSectionAdapter.ActivityItemCallBack() {
             @Override
             public void itemCallBack(final MWorkshopActivity activity, final int position) {
@@ -281,31 +292,6 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
             }
         });
 
-        mAdapter.setOnTaskEditListener(new WorkShopSectionAdapter.OnTaskEditListener() {
-            @Override
-            public void onAdd() {
-                smoothToBottom();
-            }
-
-            @Override
-            public void onAlter(String taskId, int position, MWorkshopSection entity) {
-                alterPosition = position;
-                Intent intent = new Intent(context, WorkShopEditTaskActivity.class);
-                intent.putExtra("title", entity.getTitle());
-                if (entity.getTimePeriod() != null) {
-                    intent.putExtra("startTime", entity.getTimePeriod().getStartTime());
-                    intent.putExtra("endTime", entity.getTimePeriod().getEndTime());
-                }
-                intent.putExtra("workShopId", workshopId);
-                intent.putExtra("relationId", taskId);
-                startActivityForResult(intent, 200);
-            }
-
-            @Override
-            public void onDelete(String taskId, int position) {
-                deleteTask(taskId, position);
-            }
-        });
         mAdapter.setAddTaskListener(new WorkShopSectionAdapter.OnAddTaskListener() {
             private String startTime, endTime;
 
@@ -379,6 +365,54 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
         });
     }
 
+    private void showTaskEditDialog(final String taskId, final int position, final MWorkshopSection entity) {
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_edit_workshop_task, null);
+        TextView tv_addTask = view.findViewById(R.id.tv_addTask);
+        TextView tv_alterTask = view.findViewById(R.id.tv_alterTask);
+        TextView tv_deleteTask = view.findViewById(R.id.tv_deleteTask);
+        TextView tv_cancel = view.findViewById(R.id.tv_cancel);
+        final AlertDialog dialog = new AlertDialog.Builder(context).create();
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (view.getId()) {
+                    case R.id.tv_addTask:
+                        smoothToBottom();
+                        break;
+                    case R.id.tv_alterTask:
+                        alterPosition = position;
+                        Intent intent = new Intent(context, WorkShopEditTaskActivity.class);
+                        intent.putExtra("title", entity.getTitle());
+                        if (entity.getTimePeriod() != null) {
+                            intent.putExtra("startTime", entity.getTimePeriod().getStartTime());
+                            intent.putExtra("endTime", entity.getTimePeriod().getEndTime());
+                        }
+                        intent.putExtra("workShopId", workshopId);
+                        intent.putExtra("relationId", taskId);
+                        startActivityForResult(intent, 200);
+                        break;
+                    case R.id.tv_deleteTask:
+                        deleteTask(taskId, position);
+                        break;
+                    case R.id.tv_cancel:
+                        break;
+                }
+                dialog.dismiss();
+            }
+        };
+        tv_addTask.setOnClickListener(listener);
+        tv_alterTask.setOnClickListener(listener);
+        tv_deleteTask.setOnClickListener(listener);
+        tv_cancel.setOnClickListener(listener);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.setCancelable(true);
+        dialog.show();
+        dialog.getWindow().setLayout(ScreenUtils.getScreenWidth(context), LinearLayout.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setWindowAnimations(R.style.dialog_anim);
+        dialog.getWindow().setContentView(view);
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -387,12 +421,12 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
             TimePeriod timePeriod = (TimePeriod) data.getSerializableExtra("timePeriod");
             sectionList.get(alterPosition).setTitle(title);
             sectionList.get(alterPosition).setTimePeriod(timePeriod);
-            mAdapter.notifyDataSetChanged();
+            mAdapter.notifyItemChanged(alterPosition);
         } else if (resultCode == RESULT_OK && requestCode == REQUEST_ACTIVITY) {
             if (data != null && data.getSerializableExtra("activity") != null && data.getSerializableExtra("activity") instanceof MWorkshopActivity) {
                 MWorkshopActivity mWorkshopActivity = (MWorkshopActivity) data.getSerializableExtra("activity");
                 sectionList.get(activityIndex).getActivities().add(mWorkshopActivity);
-                mAdapter.notifyDataSetChanged();
+                mAdapter.notifyItemChanged(activityIndex);
             }
         }
     }
@@ -611,7 +645,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
                     sectionList.get(mainIndex).getActivities().remove(position);
                     mAdapter.setPressIndex(mainIndex, position);
-                    mAdapter.notifyDataSetChanged();
+                    mAdapter.notifyItemChanged(mainIndex);
                 } else {
                     toast(context, "删除失败，请稍后再试");
                 }
@@ -676,7 +710,9 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                     if (recyclerView.getVisibility() == View.GONE) {
                         recyclerView.setVisibility(View.VISIBLE);
                     }
-                    sectionList.add(response.getResponseData());
+                    MWorkshopSection section = response.getResponseData();
+                    sectionList.add(section);
+                    mAdapter.notifyItemInserted(sectionList.indexOf(section));
                     mAdapter.notifyDataSetChanged();
                 } else {
                     toastFullScreen("添加失败", false);
@@ -769,12 +805,11 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
         }
     }
 
-
     private void deleteTask(String id, final int position) {
         String url = Constants.OUTRT_NET + "/master_" + workshopId + "/unique_uid_" + context.getUserId() + "/m/workshop_section/" + id;
         Map<String, String> map = new HashMap<>();
         map.put("_method", "delete");
-        OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
             public void onBefore(Request request) {
                 super.onBefore(request);
@@ -791,9 +826,8 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
             public void onResponse(BaseResponseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-                    toast(context, "删除成功");
                     sectionList.remove(position);
-                    mAdapter.notifyDataSetChanged();
+                    mAdapter.notifyItemRangeRemoved(position, 1);
                     if (sectionList.size() == 0) {
                         ll_empty.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
@@ -802,6 +836,6 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                     toast(context, "删除失败，请稍后再试");
                 }
             }
-        }, map);
+        }, map));
     }
 }
