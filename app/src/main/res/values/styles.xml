@@ -56,4 +56,9 @@
     <style name="TimeTheme" parent="@android:style/Theme.Holo.Light.NoActionBar">
         <item name="android:textSize">@dimen/font_size_16</item>
     </style>
+
+    <style name="AppToast" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="android:windowExitAnimation">@anim/fade_out</item>
+    </style>
 </resources>
