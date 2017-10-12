@@ -38,7 +38,7 @@ public abstract class BaseActivity extends FragmentActivity {
     private LoadingDialog loadingDialog;
     public String student = "student";
     public String manager = "manager";
-    public String teacher = "teach";
+    public String teacher = "teacher";
     public String RESULT_INFO = "paths";
     public CompositeDisposable rxSubscriptions = new CompositeDisposable();
     private Disposable rxBusable;
@@ -152,18 +152,28 @@ public abstract class BaseActivity extends FragmentActivity {
     }
 
     public void toast(Context context, String text) {
+        View v = LayoutInflater.from(context).inflate(R.layout.app_layout_toast, null);
+        TextView textView = v.findViewById(R.id.tv_text);
+        textView.setText(text);
         if (mToast == null) {
-            mToast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-        } else {
-            mToast.setText(text);
+            mToast = new Toast(context);
             mToast.setDuration(Toast.LENGTH_LONG);
-        }
+            mToast.setView(v);
+        } else
+            mToast.setView(v);
         mToast.show();
+    }
+
+    public void cancelToast() {
+        if (mToast != null) {
+            mToast.cancel();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        cancelToast();
         unRegistRxBus();
         unsubscribe();
         ExitApplication.getInstance().remove(this);
