@@ -396,7 +396,8 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
     private int interval;//更新时间间隔
 
     private void initContent() {
-        mVideoPath = getIntent().getStringExtra("videoUrl");
+        //  mVideoPath = getIntent().getStringExtra("videoUrl");
+        mVideoPath = "http://www.modrails.com/videos/passenger_nginx.mov";
 
         summary = getIntent().getStringExtra("summary");
         String fileName = getIntent().getStringExtra("fileName");
@@ -463,10 +464,9 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
         RecyclerView recyclerView = getView(view, R.id.recyclerView);
         if (summary == null && mFileInfoList.size() == 0) {
             mRead.setVisibility(View.GONE);
-        }else{
+        } else {
             read_guide_content.setText(Html.fromHtml(summary));
         }
-
 
 
         if (mFileInfoList.size() > 0) {
