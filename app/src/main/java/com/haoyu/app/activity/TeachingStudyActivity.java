@@ -88,8 +88,12 @@ public class TeachingStudyActivity extends BaseActivity implements View.OnClickL
     LinearLayout ll_video;  //视频文件
     @BindView(R.id.tv_videoName)
     TextView tv_videoName;  //视频名称
-    @BindView(R.id.htv)
-    HtmlTextView htv;
+    @BindView(R.id.ll_evaluation)
+    LinearLayout ll_evaluation;
+    @BindView(R.id.iv_expand)
+    ImageView iv_expand;
+    @BindView(R.id.tv_content)
+    HtmlTextView tv_content;
     @BindView(R.id.ll_discussion)
     LinearLayout ll_discussion;
     @BindView(R.id.tv_discussCount)
@@ -145,8 +149,7 @@ public class TeachingStudyActivity extends BaseActivity implements View.OnClickL
     }
 
     private void setSupportToolbar() {
-        String activityTitle = getIntent().getStringExtra("activityTitle");
-        toolBar.setTitle_text(activityTitle);
+        toolBar.setTitle_text("听课评课");
         toolBar.setOnLeftClickListener(new AppToolBar.OnLeftClickListener() {
             @Override
             public void onLeftClick(View view) {
@@ -177,8 +180,25 @@ public class TeachingStudyActivity extends BaseActivity implements View.OnClickL
             ll_insert.setVisibility(View.VISIBLE);
             ll_detail.setVisibility(View.GONE);
         }
-        tv_study_title.setText(lcecEntity.getTitle());
-        htv.setHtml(lcecEntity.getContent(), new HtmlHttpImageGetter(htv, Constants.REFERER));
+        if (lcecEntity.getTitle() != null)
+            tv_study_title.setText(Html.fromHtml(lcecEntity.getTitle()));
+        tv_content.setHtml(lcecEntity.getContent(), new HtmlHttpImageGetter(tv_content, Constants.REFERER));
+        ll_evaluation.setOnClickListener(new View.OnClickListener() {
+            private boolean isExpand = true;
+
+            @Override
+            public void onClick(View view) {
+                if (isExpand) {
+                    tv_content.setVisibility(View.VISIBLE);
+                    iv_expand.setImageResource(R.drawable.course_dictionary_shouqi);
+                    isExpand = false;
+                } else {
+                    tv_content.setVisibility(View.GONE);
+                    iv_expand.setImageResource(R.drawable.course_dictionary_xiala);
+                    isExpand = true;
+                }
+            }
+        });
         String activityType = "活动类型：";
         if (lcecEntity.getType() != null && lcecEntity.getType().equals("offLine"))
             tv_activity_type.setText(activityType + "现场评课");
@@ -435,7 +455,6 @@ public class TeachingStudyActivity extends BaseActivity implements View.OnClickL
         switch (view.getId()) {
             case R.id.ll_insert:
                 //填写评课表
-
                 if (running) {
                     intent.setClass(context, TeachingStudyFillActivity.class);
                     intent.putExtra("workshopId", workshopId);

@@ -16,8 +16,8 @@ import com.haoyu.app.entity.CommentEntity;
 import com.haoyu.app.entity.CommentListResult;
 import com.haoyu.app.entity.MobileUser;
 import com.haoyu.app.entity.Paginator;
-import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.imageloader.GlideImgManager;
+import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.rxBus.RxBus;
 import com.haoyu.app.utils.Action;
@@ -26,9 +26,11 @@ import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.utils.ScreenUtils;
 import com.haoyu.app.utils.TimeUtil;
 import com.haoyu.app.view.AppToolBar;
-import com.haoyu.app.view.ExpandableTextView;
 import com.haoyu.app.view.RippleView;
 import com.haoyu.app.xrecyclerview.XRecyclerView;
+
+import org.sufficientlysecure.htmltextview.HtmlHttpImageGetter;
+import org.sufficientlysecure.htmltextview.HtmlTextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,13 +91,13 @@ public class FreeChatDetailActivity extends BaseActivity implements XRecyclerVie
     private void initHead() {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         headView.setLayoutParams(params);
-        ExpandableTextView tv_discussion_content = headView.findViewById(R.id.tv_discussion_content);
+        HtmlTextView tv_content = headView.findViewById(R.id.tv_discussion_content);
         TextView tv_userName = headView.findViewById(R.id.tv_userName);
         ImageView ic_user = headView.findViewById(R.id.ic_user);
         TextView tv_createTime = headView.findViewById(R.id.tv_createTime);
         tv_commentCount = headView.findViewById(R.id.tv_commentCount);
         tv_empty = headView.findViewById(R.id.tv_empty);
-        tv_discussion_content.setHtmlText(commentEntity.getContent());
+        tv_content.setHtml(commentEntity.getContent(), new HtmlHttpImageGetter(tv_content, Constants.REFERER));
         tv_commentCount.setText("评论(" + commentEntity.getChildNum() + ")");
         tv_createTime.setText("发表于" + TimeUtil.converTime(commentEntity.getCreateTime()));
         if (commentEntity.getCreator() != null && commentEntity.getCreator().getRealName() != null)
