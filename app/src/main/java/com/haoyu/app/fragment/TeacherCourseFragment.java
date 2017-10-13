@@ -374,11 +374,12 @@ public class TeacherCourseFragment extends BaseFragment {
                 intent.putExtra("running", true);
             else
                 intent.putExtra("running", false);
-            intent.putExtra("lastViewTime", videoEntity.getLastViewTime());
+
             if (video != null) {
                 intent.putExtra("interval", video.getInterval());
                 intent.putExtra("attach", video);
             }
+            intent.putExtra("lastViewTime", videoEntity.getLastViewTime());
             intent.putExtra("type", "course");
             intent.putExtra("courseId", courseId);
             intent.putExtra("activityId", activity.getId());
