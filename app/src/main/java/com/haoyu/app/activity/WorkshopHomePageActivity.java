@@ -114,7 +114,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
         workshopId = getIntent().getStringExtra("workshopId");
         String workshopTitle = getIntent().getStringExtra("workshopTitle");
         toolBar.setTitle_text(workshopTitle);
-        ((SimpleItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
@@ -491,30 +491,22 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                 intent.putExtra("running", true);
             else
                 intent.putExtra("running", false);
+            intent.putExtra("activityTitle", activity.getTitle());
+            intent.putExtra("activityId", activity.getId());
+            intent.putExtra("summary", videoEntity.getmVideo().getSummary());
             if (video != null && video.getVideoFiles() != null && video.getVideoFiles().size() > 0) {
-                intent.putExtra("summary", videoEntity.getmVideo().getSummary());
                 intent.putExtra("videoUrl", video.getVideoFiles().get(0).getUrl());
-                intent.putExtra("fileName", video.getVideoFiles().get(0).getFileName());
                 intent.putExtra("videoId", video.getVideoFiles().get(0).getId());
-                intent.putExtra("activityId", activity.getId());
                 intent.putExtra("attach", video);
                 startActivity(intent);
             } else if (video != null && video.getUrls() != null) {
-                intent.putExtra("activityId", activity.getId());
-                intent.putExtra("activityTitle", activity.getTitle());
-                intent.putExtra("summary", videoEntity.getmVideo().getSummary());
                 intent.putExtra("videoUrl", video.getUrls());
                 intent.putExtra("attach", video);
                 startActivity(intent);
             } else if (video != null && video.getAttchFiles() != null && video.getAttchFiles().size() > 0) {
                 //教学观摩
-                intent.putExtra("activityId", activity.getId());
-                intent.putExtra("activityTitle", activity.getTitle());
-                intent.putExtra("summary", videoEntity.getmVideo().getSummary());
                 intent.putExtra("videoUrl", video.getAttchFiles().get(0).getUrl());
                 intent.putExtra("attach", video);
-                intent.putExtra("fileName", video.getAttchFiles().get(0).getFileName());
-                startActivity(intent);
                 startActivity(intent);
             } else {
                 toast(context, "系统暂不支持浏览，请到网站完成。");
