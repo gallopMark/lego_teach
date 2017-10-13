@@ -139,7 +139,7 @@ public class TeachingDiscussionActivity extends BaseActivity implements View.OnC
         subNum = getIntent().getIntExtra("subNum", 0);
         discussEntity = (AppActivityViewEntity.DiscussionUserMobileEntity) getIntent().getSerializableExtra("discussUser");
         if (discussType != null && discussType.equals("course")) {
-            baseUrl = Constants.OUTRT_NET + "/" + activityId + "/study/m/discussion/post";
+            baseUrl = Constants.OUTRT_NET + "/" + activityId + "/teach/m/discussion/post";
             postUrl = Constants.OUTRT_NET + "/" + activityId + "unique_uid_" + getUserId() + "/m/discussion/post";
         } else {
             baseUrl = Constants.OUTRT_NET + "/student_" + workshopId + "/m/discussion/post";
@@ -791,7 +791,7 @@ public class TeachingDiscussionActivity extends BaseActivity implements View.OnC
     private void getActivityInfo() {
         String url;
         if (discussType != null && discussType.equals("course"))
-            url = Constants.OUTRT_NET + "/" + activityId + "/study/m/activity/ncts/" + activityId + "/view";
+            url = Constants.OUTRT_NET + "/" + activityId + "/teach/m/activity/ncts/" + activityId + "/view";
         else
             url = Constants.OUTRT_NET + "/student_" + workshopId + "/m/activity/wsts/" + activityId + "/view";
         addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<AppActivityViewResult>() {
