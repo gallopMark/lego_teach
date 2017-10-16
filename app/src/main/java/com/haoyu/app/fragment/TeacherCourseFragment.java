@@ -374,11 +374,12 @@ public class TeacherCourseFragment extends BaseFragment {
                 intent.putExtra("running", true);
             else
                 intent.putExtra("running", false);
-            intent.putExtra("lastViewTime", videoEntity.getLastViewTime());
+
             if (video != null) {
                 intent.putExtra("interval", video.getInterval());
                 intent.putExtra("attach", video);
             }
+            intent.putExtra("lastViewTime", videoEntity.getLastViewTime());
             intent.putExtra("type", "course");
             intent.putExtra("courseId", courseId);
             intent.putExtra("activityId", activity.getId());
@@ -389,7 +390,7 @@ public class TeacherCourseFragment extends BaseFragment {
                 DownloadFileInfo fileInfo = FileDownloader.getDownloadFile(video.getUrls());
                 if (fileInfo != null && fileInfo.getFilePath() != null && new File(fileInfo.getFilePath()).exists()) {
                     intent.putExtra("videoUrl", fileInfo.getFilePath());
-                    intent.putExtra("fileName", fileInfo.getFileName());
+
                 } else
                     intent.putExtra("videoUrl", video.getUrls());
                 startActivity(intent);
@@ -398,10 +399,10 @@ public class TeacherCourseFragment extends BaseFragment {
                 DownloadFileInfo fileInfo = FileDownloader.getDownloadFile(url);
                 if (fileInfo != null && fileInfo.getFilePath() != null && new File(fileInfo.getFilePath()).exists()) {
                     intent.putExtra("videoUrl", fileInfo.getFilePath());
-                    intent.putExtra("fileName", fileInfo.getFileName());
+
                 } else {
                     intent.putExtra("videoUrl", url);
-                    intent.putExtra("fileName", video.getVideoFiles().get(0).getFileName());
+
                 }
                 startActivity(intent);
             } else if (video != null && video.getAttchFiles() != null && video.getAttchFiles().size() > 0) {
@@ -410,10 +411,10 @@ public class TeacherCourseFragment extends BaseFragment {
                 DownloadFileInfo fileInfo = FileDownloader.getDownloadFile(url);
                 if (fileInfo != null && fileInfo.getFilePath() != null && new File(fileInfo.getFilePath()).exists()) {
                     intent.putExtra("videoUrl", fileInfo.getFilePath());
-                    intent.putExtra("fileName", fileInfo.getFileName());
+
                 } else {
                     intent.putExtra("videoUrl", video.getAttchFiles().get(0).getUrl());
-                    intent.putExtra("fileName", video.getAttchFiles().get(0).getFileName());
+
                 }
                 startActivity(intent);
             } else {
