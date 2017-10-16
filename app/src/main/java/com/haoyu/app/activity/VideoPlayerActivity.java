@@ -20,7 +20,6 @@ import android.support.v7.widget.RecyclerView;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
@@ -501,7 +500,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
                 }
             }
         });
-        window.showAtLocation(parentView, Gravity.RIGHT, 0, 0);
+        window.showAsDropDown(topControll, MyUtils.getWidth(context) * 2 / 5, 0);
     }
 
     //显示弹出内容
@@ -1166,6 +1165,8 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
 
                     @Override
                     public void onResponse(String response) {
+
+
 
 
                     }
