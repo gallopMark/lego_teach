@@ -20,7 +20,6 @@ import android.support.v7.widget.RecyclerView;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
@@ -246,7 +245,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
         if (entity != null && entity.getAttchFiles() != null && entity.getAttchFiles().size() > 0) {
             mFileInfoList.addAll(entity.getAttchFiles());
         }
-
+        initContent();
         mVideoView.setBufferingIndicator(loadingView);
         linear_centercontroll.getBackground().setAlpha(80);
         screenWidthPixels = MyUtils.screenWidthPixels(context);
@@ -259,7 +258,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
         mMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         updateVideoCatch();
         //开启播放
-        initContent();
+
         MyUtils.Land(context);//取消手机的状态栏
         MyUtils.hideBottomUIMenu(context);//如果手机又虚拟按键则隐藏改虚拟按键
         myOrientationListener = new MyOrientationListener(context);//设置手机屏幕旋转监听
@@ -452,16 +451,13 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
 
     private void showPopWindow() {
         View view = LayoutInflater.from(context).inflate(R.layout.video_courseread_guide, null);
-        View parentView = LayoutInflater.from(context).inflate(R.layout.activity_videoplayer, null);
         popClose = getView(view, R.id.pop_close);
         TextView read_guide_content = getView(view, R.id.read_guide_content);
         RecyclerView recyclerView = getView(view, R.id.recyclerView);
-        if (summary == null && mFileInfoList.size() == 0) {
-            mRead.setVisibility(View.GONE);
-        } else {
+
+        if (summary != null) {
             read_guide_content.setText(Html.fromHtml(summary));
         }
-
 
         if (mFileInfoList.size() > 0) {
             LinearLayoutManager manager = new LinearLayoutManager(context);
@@ -501,7 +497,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
                 }
             }
         });
-        window.showAtLocation(parentView, Gravity.RIGHT, 0, 0);
+        window.showAsDropDown(topControll, MyUtils.getWidth(context) * 2 / 5, 0);
     }
 
     //显示弹出内容
