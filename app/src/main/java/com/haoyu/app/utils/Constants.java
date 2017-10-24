@@ -26,6 +26,7 @@ public class Constants {
     /*******************************************************************************************/
     /* 图片存放路径 */
     public static String mediaCache;
+    public static String compressor;
     /* 异常文件存放路径 */
     public static String exceptionCrash;
     /* 下载文件存放的路径 */
@@ -52,6 +53,7 @@ public class Constants {
             rootDir = GdeiApplication.getInstance().getFilesDir().getAbsolutePath();
             mediaCache = SDCardUtil.getRootDirectoryPath() + "/gdei_study/media_cache";
         }
+        compressor = rootDir + "/compressor";
         /* imageloader加载图片存放sdCard的路径 */
         /* 文件下载存放的路径 */
         fileDownDir = rootDir + "/file_downloader";

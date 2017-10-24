@@ -178,6 +178,11 @@ public class MediaGridActivity extends BaseActivity {
             }
 
             @Override
+            public void onOverChoice(int limit) {
+                toast(context, "您最多可选择" + limit + "张图");
+            }
+
+            @Override
             public void onMultipleChoice(final List<MediaItem> mSelects) {
                 preViewPhoto(mSelects);
             }

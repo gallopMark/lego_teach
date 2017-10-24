@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -46,7 +48,6 @@ import com.haoyu.app.view.LoadingView;
 import com.haoyu.app.view.RippleView;
 
 import org.sufficientlysecure.htmltextview.HtmlHttpImageGetter;
-import org.sufficientlysecure.htmltextview.HtmlTextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,7 +92,7 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
     @BindView(R.id.tv_viewNum)
     TextView tv_viewNum; //浏览人数
     @BindView(R.id.tv_content)
-    HtmlTextView tv_content;  //研说内容
+    TextView tv_content;  //研说内容
     @BindView(R.id.mFileImg)
     ImageView mFileImg;
     @BindView(R.id.bt_support)
@@ -177,7 +178,8 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
             tv_commentNum.setText("共有" + replyNum + "条评论");
         }
         tv_trTitle.setText(entity.getTitle());
-        tv_content.setHtml(entity.getContent(), new HtmlHttpImageGetter(tv_content, Constants.REFERER));
+        Spanned spanned = Html.fromHtml(entity.getContent(), new HtmlHttpImageGetter(tv_content, Constants.REFERER), null);
+        tv_content.setText(spanned);
         if (entity.getmFileInfos() != null && entity.getmFileInfos().size() > 0) {
             GlideImgManager.loadImage(context, entity.getmFileInfos().get(0).getUrl(),
                     R.drawable.app_default, R.drawable.app_default, mFileImg);

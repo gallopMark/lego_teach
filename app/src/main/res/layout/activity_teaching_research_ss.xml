@@ -114,7 +114,7 @@
                     android:orientation="horizontal"
                     android:visibility="gone" />
 
-                <org.sufficientlysecure.htmltextview.HtmlTextView
+                <TextView
                     android:id="@+id/tv_content"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

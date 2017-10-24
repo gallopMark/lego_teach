@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -54,7 +56,6 @@ import com.haoyu.app.view.LoadingView;
 import com.haoyu.app.view.StickyScrollView;
 
 import org.sufficientlysecure.htmltextview.HtmlHttpImageGetter;
-import org.sufficientlysecure.htmltextview.HtmlTextView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -117,7 +118,7 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
     @BindView(R.id.iv_expand)
     ImageView iv_expand;
     @BindView(R.id.at_content)
-    HtmlTextView at_content;  //活动内容
+    TextView at_content;  //活动内容
     @BindView(R.id.videoRV)
     RecyclerView videoRV;  //活动视频列表
     private List<MFileInfo> mFileInfos = new ArrayList<>();
@@ -251,7 +252,8 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
         }
         if (entity.getContent() != null && entity.getContent().length() > 0) {
             ll_content.setVisibility(View.VISIBLE);
-            at_content.setHtml(entity.getContent(), new HtmlHttpImageGetter(at_content, Constants.REFERER));
+            Spanned spanned = Html.fromHtml(entity.getContent(), new HtmlHttpImageGetter(at_content, Constants.REFERER), null);
+            at_content.setText(spanned);
             at_content.setVisibility(View.VISIBLE);
             iv_expand.setImageResource(R.drawable.course_dictionary_shouqi);
             ll_sticky.setOnClickListener(new View.OnClickListener() {

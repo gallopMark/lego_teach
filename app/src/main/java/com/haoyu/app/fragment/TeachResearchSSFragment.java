@@ -304,6 +304,10 @@ public class TeachResearchSSFragment extends BaseFragment implements XRecyclerVi
         } else if (event.getAction().equals(Action.DELETE_STUDY_SAYS)) {   //删除研说
             mDatas.remove(selected);
             adapter.notifyDataSetChanged();
+            if (mDatas.size() == 0) {
+                xRecyclerView.setVisibility(View.GONE);
+                emptyView.setVisibility(View.VISIBLE);
+            }
         }
     }
 }
