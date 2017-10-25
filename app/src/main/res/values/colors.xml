@@ -3,6 +3,7 @@
     <color name="defaultColor">#11B1D5</color>
     <color name="pressedColor">#CC11A1D5</color>
     <color name="lightdefault">#ACEFFA</color>
+    <color name="tintdefault">#E8F7FC</color>
     <color name="common_pressed">#20000000</color>  <!--白色背景按下去的颜色-->
     <color name="windowbackground">#66000000</color>
     <color name="transdefaultColor">#e611B1D5</color>

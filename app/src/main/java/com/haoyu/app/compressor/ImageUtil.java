@@ -16,35 +16,42 @@ import java.io.IOException;
  */
 public class ImageUtil {
 
-    public static File compressImage(File imageFile, int reqWidth, int reqHeight, Bitmap.CompressFormat compressFormat, int quality, String destinationPath) throws IOException {
-        FileOutputStream fileOutputStream = null;
+    public static File compressImage(File imageFile, int reqWidth, int reqHeight, Bitmap.CompressFormat compressFormat, int quality, String destinationPath) {
         File file = new File(destinationPath).getParentFile();
         if (!file.exists()) {
             file.mkdirs();
         }
+        FileOutputStream fileOutputStream = null;
         try {
             fileOutputStream = new FileOutputStream(destinationPath);
             decodeSampledBitmapFromFile(imageFile, reqWidth, reqHeight).compress(compressFormat, quality, fileOutputStream);
+        } catch (Exception e) {
+            return imageFile;
         } finally {
             if (fileOutputStream != null) {
-                fileOutputStream.flush();
-                fileOutputStream.close();
+                try {
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                }
             }
         }
         return new File(destinationPath);
     }
 
-    public static Bitmap decodeSampledBitmapFromFile(File imageFile, int reqWidth, int reqHeight) throws IOException {
+    public static Bitmap decodeSampledBitmapFromFile(File imageFile, int reqWidth, int reqHeight) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(imageFile.getAbsolutePath(), options);
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
         Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), options);
+        ExifInterface exif;
+        Matrix matrix;
         try {
-            ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+            exif = new ExifInterface(imageFile.getAbsolutePath());
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
-            Matrix matrix = new Matrix();
+            matrix = new Matrix();
             if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
                 matrix.postRotate(90);
             } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {

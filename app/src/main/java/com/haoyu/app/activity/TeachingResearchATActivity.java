@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -45,6 +46,7 @@ import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.rxBus.RxBus;
 import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
+import com.haoyu.app.utils.HtmlTagHandler;
 import com.haoyu.app.utils.MediaFile;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.utils.ScreenUtils;
@@ -143,6 +145,7 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
     TextView tv_joinNum;
     @BindView(R.id.bt_type)
     Button bt_type;
+    private TeachingMovementEntity movementEntity;
     private String acId;
     private int page = 1;
     private boolean register;
@@ -159,7 +162,8 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
 
     @Override
     public void initView() {
-        acId = getIntent().getStringExtra("id");
+        movementEntity = (TeachingMovementEntity) getIntent().getSerializableExtra("entity");
+        acId = movementEntity.getId();
         /*设置活动封面占屏幕高度的1/4*/
         LinearLayout.LayoutParams imgParams = new LinearLayout
                 .LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ScreenUtils.getScreenHeight(context) / 7 * 2);
@@ -180,7 +184,7 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
 
     public void initData() {
         String url = Constants.OUTRT_NET + "/m/movement/view/" + acId;
-        OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<TeachingMovementSingleResult>() {
+        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<TeachingMovementSingleResult>() {
             @Override
             public void onBefore(Request request) {
                 loadingView.setVisibility(View.VISIBLE);
@@ -202,7 +206,7 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
                     empty_detail.setVisibility(View.VISIBLE);
                 }
             }
-        });
+        }));
     }
 
     /*更新活动相关信息*/
@@ -252,7 +256,20 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
         }
         if (entity.getContent() != null && entity.getContent().length() > 0) {
             ll_content.setVisibility(View.VISIBLE);
-            Spanned spanned = Html.fromHtml(entity.getContent(), new HtmlHttpImageGetter(at_content, Constants.REFERER), null);
+            HtmlTagHandler tagHandler = new HtmlTagHandler(new HtmlTagHandler.OnImageClickListener() {
+                @Override
+                public void onImageClick(View view, String url) {
+                    ArrayList<String> imgList = new ArrayList<>();
+                    imgList.add(Constants.REFERER + url);
+                    Intent intent = new Intent(context, AppMultiImageShowActivity.class);
+                    intent.putStringArrayListExtra("photos", imgList);
+                    context.startActivity(intent);
+                    context.overridePendingTransition(R.anim.zoom_in, 0);
+                }
+            });
+            Html.ImageGetter imageGetter = new HtmlHttpImageGetter(at_content, Constants.REFERER, true);
+            Spanned spanned = Html.fromHtml(entity.getContent(), imageGetter, tagHandler);
+            at_content.setMovementMethod(LinkMovementMethod.getInstance());
             at_content.setText(spanned);
             at_content.setVisibility(View.VISIBLE);
             iv_expand.setImageResource(R.drawable.course_dictionary_shouqi);
@@ -833,6 +850,7 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
                     MessageEvent event = new MessageEvent();
                     event.action = Action.DELETE_MOVEMENT;
+                    event.obj = movementEntity;
                     RxBus.getDefault().post(event);
                     toastFullScreen("已成功删除，返回首页", true);
                     new Handler().postDelayed(new Runnable() {
@@ -867,7 +885,7 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
             @Override
             public void onResponse(TeachingRegistAtResult response) {
                 hideTipDialog();
-                if (response != null && response.getResponseData() != null && response.getResponseData().getId() != null) {
+                if (response != null && response.getResponseData() != null) {
                     registerId = response.getResponseData().getId();
                     register = false;
                     bt_type.setText("取消报名");
@@ -876,7 +894,11 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
                     toast(context, "报名成功");
                     MessageEvent event = new MessageEvent();
                     event.action = Action.REGIST_MOVEMENT;
-                    event.obj = registerId;
+                    movementEntity.getmMovementRegisters().add(0, response.getResponseData());
+                    if (movementEntity.getmMovementRelations().size() > 0) {
+                        movementEntity.getmMovementRelations().get(0).setParticipateNum(participateNum);
+                    }
+                    event.obj = movementEntity;
                     RxBus.getDefault().post(event);
                 } else {
                     toast(context, "报名失败");
@@ -915,6 +937,10 @@ public class TeachingResearchATActivity extends BaseActivity implements View.OnC
                     tv_joinNum.setText(String.valueOf(participateNum));
                     MessageEvent event = new MessageEvent();
                     event.action = Action.UNREGIST_MOVEMENT;
+                    movementEntity.getmMovementRegisters().clear();
+                    if (movementEntity.getmMovementRelations().size() > 0) {
+                        movementEntity.getmMovementRelations().get(0).setParticipateNum(participateNum);
+                    }
                     RxBus.getDefault().post(event);
                 } else {
                     toast(context, "取消报名失败");

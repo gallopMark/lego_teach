@@ -39,7 +39,6 @@ import com.haoyu.app.utils.PixelFormat;
 import com.haoyu.app.view.AppToolBar;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -151,27 +150,23 @@ public class TeachingResearchCreateSSActivity extends BaseActivity {
                 @Override
                 public void onSelected(final List<MediaItem> mSelects) {
                     showTipDialog();
-                    Flowable.just(mSelects).map(new Function<List<MediaItem>, List<MediaItem>>() {
+                    Flowable.fromArray(mSelects).map(new Function<List<MediaItem>, List<MediaItem>>() {
                         @Override
                         public List<MediaItem> apply(List<MediaItem> mSelects) {
                             List<MediaItem> items = new ArrayList<>();
                             for (int i = 0; i < mSelects.size(); i++) {
-                                try {
-                                    String filePath = mSelects.get(i).getPath();
-                                    File file = new File(filePath);
-                                    File target = new Compressor(context).setMaxWidth(400).setMaxHeight(480).setQuality(80)
-                                            .setCompressFormat(Bitmap.CompressFormat.JPEG)
-                                            .setDestinationDirectoryPath(Constants.compressor)
-                                            .compressToFile(file);
-                                    mSelects.get(i).setPath(target.getAbsolutePath());
-                                    items.add(mSelects.get(i));
-                                } catch (IOException e) {
-                                    continue;
-                                }
+                                String filePath = mSelects.get(i).getPath();
+                                File file = new File(filePath);
+                                File target = new Compressor(context).setMaxWidth(400).setMaxHeight(320).setQuality(100)
+                                        .setCompressFormat(Bitmap.CompressFormat.JPEG)
+                                        .setDestinationDirectoryPath(Constants.compressor)
+                                        .compressToFile(file);
+                                mSelects.get(i).setPath(target.getAbsolutePath());
+                                items.add(mSelects.get(i));
                             }
                             return items;
                         }
-                    }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<List<MediaItem>>() {
+                    }).subscribe(new Consumer<List<MediaItem>>() {
                         @Override
                         public void accept(List<MediaItem> mediaItems) throws Exception {
                             hideTipDialog();

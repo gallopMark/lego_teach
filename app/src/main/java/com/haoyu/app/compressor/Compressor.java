@@ -50,11 +50,11 @@ public class Compressor {
         return this;
     }
 
-    public File compressToFile(File imageFile) throws IOException {
+    public File compressToFile(File imageFile) {
         return compressToFile(imageFile, imageFile.getName());
     }
 
-    public File compressToFile(File imageFile, String compressedFileName) throws IOException {
+    public File compressToFile(File imageFile, String compressedFileName) {
         return ImageUtil.compressImage(imageFile, maxWidth, maxHeight, compressFormat, quality,
                 destinationDirectoryPath + File.separator + compressedFileName);
     }
@@ -71,11 +71,7 @@ public class Compressor {
         return Flowable.defer(new Callable<Flowable<File>>() {
             @Override
             public Flowable<File> call() {
-                try {
-                    return Flowable.just(compressToFile(imageFile, compressedFileName));
-                } catch (IOException e) {
-                    return Flowable.error(e);
-                }
+                return Flowable.just(compressToFile(imageFile, compressedFileName));
             }
         });
     }

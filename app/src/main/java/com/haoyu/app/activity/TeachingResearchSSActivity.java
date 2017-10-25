@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -37,6 +38,7 @@ import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.rxBus.RxBus;
 import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
+import com.haoyu.app.utils.HtmlTagHandler;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.utils.ScreenUtils;
 import com.haoyu.app.utils.TimeUtil;
@@ -111,6 +113,7 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
     private AppDiscussionAdapter replyAdapter;
     @BindView(R.id.bottomView)
     View bottomView;  //底部评论布局
+    private DiscussEntity discussEntity;
     private String relationId, uuid;  //研说id,研说关系Id
     private int supportNum, replyNum;  //点赞数,评论数
     private int page = 1;
@@ -122,8 +125,10 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
 
     @Override
     public void initView() {
-        relationId = getIntent().getStringExtra("id");
-        uuid = getIntent().getStringExtra("uuid");
+        discussEntity = (DiscussEntity) getIntent().getSerializableExtra("entity");
+        relationId = discussEntity.getId();
+        if (discussEntity.getmDiscussionRelations() != null && discussEntity.getmDiscussionRelations().size() > 0)
+            uuid = discussEntity.getmDiscussionRelations().get(0).getId();
         replyAdapter = new AppDiscussionAdapter(context, replyList, getUserId());
         FullyLinearLayoutManager layoutManager = new FullyLinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -178,7 +183,19 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
             tv_commentNum.setText("共有" + replyNum + "条评论");
         }
         tv_trTitle.setText(entity.getTitle());
-        Spanned spanned = Html.fromHtml(entity.getContent(), new HtmlHttpImageGetter(tv_content, Constants.REFERER), null);
+        Html.ImageGetter imageGetter = new HtmlHttpImageGetter(tv_content, Constants.REFERER, true);
+        Spanned spanned = Html.fromHtml(entity.getContent(), imageGetter, new HtmlTagHandler(new HtmlTagHandler.OnImageClickListener() {
+            @Override
+            public void onImageClick(View view, String url) {
+                ArrayList<String> imgList = new ArrayList<>();
+                imgList.add(Constants.REFERER + url);
+                Intent intent = new Intent(context, AppMultiImageShowActivity.class);
+                intent.putStringArrayListExtra("photos", imgList);
+                context.startActivity(intent);
+                context.overridePendingTransition(R.anim.zoom_in, 0);
+            }
+        }));
+        tv_content.setMovementMethod(LinkMovementMethod.getInstance());
         tv_content.setText(spanned);
         if (entity.getmFileInfos() != null && entity.getmFileInfos().size() > 0) {
             GlideImgManager.loadImage(context, entity.getmFileInfos().get(0).getUrl(),
@@ -356,7 +373,7 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
         map.put("mainPostId", replyList.get(position).getId());
         map.put("discussionUser.discussionRelation.id", uuid);
         String url = Constants.OUTRT_NET + "/m/discussion/post";
-        OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<ReplyResult>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<ReplyResult>() {
             @Override
             public void onBefore(Request request) {
                 showTipDialog();
@@ -397,7 +414,7 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
                     toastFullScreen("评论失败", false);
                 }
             }
-        }, map);
+        }, map));
     }
 
     /*创建主回复*/
@@ -447,6 +464,12 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
                     }
                     MessageEvent event = new MessageEvent();
                     event.action = Action.CREATE_MAIN_REPLY;
+                    if (discussEntity.getmDiscussionRelations() != null
+                            && discussEntity.getmDiscussionRelations().size() > 0) {
+                        int replyNum = discussEntity.getmDiscussionRelations().get(0).getReplyNum() + 1;
+                        discussEntity.getmDiscussionRelations().get(0).setReplyNum(replyNum);
+                    }
+                    event.obj = discussEntity;
                     RxBus.getDefault().post(event);
                     replyNum++;
                     tv_commentNum.setText("共有" + replyNum + "条评论");
@@ -469,7 +492,7 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
         map.put("attitude", "support");
         map.put("relation.id", relationId);
         map.put("relation.type", "discussion_post");
-        OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<AttitudeMobileResult>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<AttitudeMobileResult>() {
             public void onError(Request request, Exception exception) {
                 onNetWorkError(context);
             }
@@ -485,7 +508,7 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
                     toast(context, "点赞失败");
                 }
             }
-        }, map);
+        }, map));
     }
 
     private void deleteReply(String id, final int position) {
@@ -615,6 +638,7 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
                     MessageEvent event = new MessageEvent();
                     event.action = Action.DELETE_STUDY_SAYS;
+                    event.obj = discussEntity;
                     RxBus.getDefault().post(event);
                     toastFullScreen("已成功删除，返回首页", true);
                     new Handler().postDelayed(new Runnable() {
@@ -638,7 +662,7 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
         map.put("attitude", "support");
         map.put("relation.id", relationId);
         map.put("relation.type", "discussion");
-        OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<AttitudeMobileResult>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<AttitudeMobileResult>() {
             @Override
             public void onBefore(Request request) {
                 showTipDialog();
@@ -662,7 +686,10 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
                     goodView.show(bt_support);
                     MessageEvent event = new MessageEvent();
                     event.action = Action.SUPPORT_STUDY_SAYS;
-                    event.arg1 = supportNum;
+                    if (discussEntity.getmDiscussionRelations() != null && discussEntity.getmDiscussionRelations().size() > 0) {
+                        discussEntity.getmDiscussionRelations().get(0).setSupportNum(supportNum);
+                    }
+                    event.obj = discussEntity;
                     RxBus.getDefault().post(event);
                 } else {
                     if (response != null && response.getResponseMsg() != null) {
@@ -670,7 +697,7 @@ public class TeachingResearchSSActivity extends BaseActivity implements View.OnC
                     }
                 }
             }
-        }, map);
+        }, map));
     }
 
     @Override
