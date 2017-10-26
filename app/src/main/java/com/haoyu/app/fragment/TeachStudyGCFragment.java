@@ -1,34 +1,30 @@
-package com.haoyu.app.activity;
+package com.haoyu.app.fragment;
 
-import android.app.AlertDialog;
 import android.content.Intent;
-import android.os.Handler;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
-import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.haoyu.app.activity.AppMoreChildReplyActivity;
+import com.haoyu.app.activity.AppMoreMainReplyActivity;
+import com.haoyu.app.activity.AppMultiImageShowActivity;
+import com.haoyu.app.activity.MFileInfoActivity;
+import com.haoyu.app.activity.MFileInfosActivity;
 import com.haoyu.app.adapter.AppDiscussionAdapter;
 import com.haoyu.app.adapter.MFileInfoAdapter;
-import com.haoyu.app.base.BaseActivity;
+import com.haoyu.app.base.BaseFragment;
 import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.dialog.CommentDialog;
-import com.haoyu.app.dialog.FileUploadDialog;
-import com.haoyu.app.dialog.MaterialDialog;
 import com.haoyu.app.entity.AttitudeMobileResult;
-import com.haoyu.app.entity.FileUploadDataResult;
-import com.haoyu.app.entity.FileUploadResult;
 import com.haoyu.app.entity.MFileInfo;
 import com.haoyu.app.entity.MFileInfoData;
 import com.haoyu.app.entity.MobileUser;
@@ -36,232 +32,267 @@ import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.entity.ReplyEntity;
 import com.haoyu.app.entity.ReplyListResult;
 import com.haoyu.app.entity.ReplyResult;
+import com.haoyu.app.entity.TeachingLessonAttribute;
 import com.haoyu.app.entity.TeachingLessonEntity;
-import com.haoyu.app.entity.TeachingLessonSingleResult;
-import com.haoyu.app.filePicker.LFilePicker;
 import com.haoyu.app.imageloader.GlideImgManager;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.rxBus.RxBus;
 import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
+import com.haoyu.app.utils.HtmlTagHandler;
 import com.haoyu.app.utils.OkHttpClientManager;
-import com.haoyu.app.utils.ScreenUtils;
 import com.haoyu.app.utils.TimeUtil;
-import com.haoyu.app.view.AppToolBar;
 import com.haoyu.app.view.FullyLinearLayoutManager;
 import com.haoyu.app.view.GoodView;
 import com.haoyu.app.view.LoadFailView;
 import com.haoyu.app.view.LoadingView;
 import com.haoyu.app.view.RoundRectProgressBar;
-import com.haoyu.app.view.StickyScrollView;
 
 import org.sufficientlysecure.htmltextview.HtmlHttpImageGetter;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
+import butterknife.BindViews;
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Request;
 
 /**
- * 创建日期：2017/1/11 on 13:29
- * 描述: 社区创课详情
+ * 创建日期：2017/10/26 on 9:40
+ * 描述:创课详情fragment
  * 作者:马飞奔 Administrator
  */
-public class TeachingResearchCCActivity extends BaseActivity implements View.OnClickListener {
-    private TeachingResearchCCActivity context = this;
-    @BindView(R.id.toolBar)
-    AppToolBar toolBar;
-    @BindView(R.id.loadingView)
-    LoadingView loadingView;
-    @BindView(R.id.empty_detail)
-    TextView empty_detail;
-    @BindView(R.id.detailLayout)
-    LinearLayout detailLayout;
-    @BindView(R.id.contentView)
-    StickyScrollView contentView;
-    @BindView(R.id.loadFailView)
-    LoadFailView loadFailView;
-    @BindView(R.id.loadFailView1)
-    LoadFailView loadFailView1;
+public class TeachStudyGCFragment extends BaseFragment implements View.OnClickListener {
     @BindView(R.id.mRrogressBar)
-    RoundRectProgressBar roundBar;
+    RoundRectProgressBar mRrogressBar; //创课进度
     @BindView(R.id.tv_day)
-    TextView tv_day;
-    @BindView(R.id.tv_ccTitle)
-    TextView tv_ccTitle;
+    TextView tv_day; //创课剩余天数
+    @BindView(R.id.tv_title)
+    TextView tv_title; //创课标题
     @BindView(R.id.iv_userIco)
-    ImageView iv_userIco;
+    ImageView iv_userIco; //创建人头像
     @BindView(R.id.tv_userName)
-    TextView tv_userName;
+    TextView tv_userName; //创建人
     @BindView(R.id.tv_createTime)
-    TextView tv_createTime;
-    @BindView(R.id.bt_heatNum)
-    Button bt_heatNum;
-    @BindView(R.id.bt_supportNum)
-    Button bt_supportNum;
-    @BindView(R.id.bt_adviseNum)
-    Button bt_adviseNum;
-    private int supportNum, adviseNum;
-    @BindView(R.id.ll_ccContent)
-    LinearLayout ll_ccContent;
-    @BindView(R.id.ll_sticky)
-    LinearLayout ll_sticky;
-    @BindView(R.id.iv_expand)
-    ImageView iv_expand;
-    @BindView(R.id.tv_ccContent)
-    TextView tv_ccContent;
+    TextView tv_createTime; //创建时间
+    @BindView(R.id.tv_heatNum)
+    TextView tv_heatNum;  //热度
+    @BindView(R.id.tv_supportNum)
+    TextView tv_supportNum; //点赞数
+    @BindView(R.id.tv_adviseNum)
+    TextView tv_adviseNum; //提建议
+    /***************/
+    @BindView(R.id.tag_introduce)
+    LinearLayout tag_introduce;   //创课介绍
+    @BindView(R.id.iv_introduce)
+    ImageView iv_introduce;  //创课介绍展开或收起
+    @BindView(R.id.ll_introduce)
+    LinearLayout ll_introduce;   //创课介绍详细布局
+    @BindViews({R.id.tv_topicSummary, R.id.tv_realia, R.id.tv_realiaSummary, R.id.tv_userReason})
+    TextView[] introduceTvs; //主题描述,乐高教具,教具介绍,教具使用理由
+    /***************/
+    @BindView(R.id.tag_frame)
+    LinearLayout tag_frame;  //课程框架设计
+    @BindView(R.id.iv_frame)
+    ImageView iv_frame; //课程框架设计展开或收起
+    @BindView(R.id.ll_frame)
+    LinearLayout ll_frame; //框架设计内容布局
+    @BindViews({R.id.tv_topicBase, R.id.tv_learnDetail, R.id.tv_designPrinciple})
+    TextView[] frameTvs; //课标依据,如何学习,设计原则
+    /***************/
+    @BindView(R.id.tag_activity)
+    LinearLayout tag_activity;  //教学活动设计
+    @BindView(R.id.iv_activity)
+    ImageView iv_activity;  //教学活动设计展开或收起
+    @BindView(R.id.ll_activity)
+    LinearLayout ll_activity;  //教学活动设计详细布局
+    @BindViews({R.id.tv_stem, R.id.tv_examples, R.id.tv_models, R.id.tv_rethink, R.id.tv_expand})
+    TextView[] activityTvs;  //STEM元素,联系,建构,反思,拓展
     @BindView(R.id.tv_checkAll)
-    TextView tv_checkAll;
-    @BindView(R.id.tv_error)
-    TextView tv_error;
+    TextView tv_checkAll; //查看全部资源按钮
     @BindView(R.id.loadingFile)
-    LoadingView loadingFile;
+    LoadingView loadingFile; //加载资源进度提示
+    @BindView(R.id.loadfileError)
+    LoadFailView loadfileError;  //加载资源失败
     @BindView(R.id.rv_file)
-    RecyclerView rv_file;
+    RecyclerView rv_file; //资源文件列表
     @BindView(R.id.empty_resources)
-    View empty_resources;
-    @BindView(R.id.ll_advise)
-    View ll_advise;
-    @BindView(R.id.tv_advise)
-    TextView tv_advise;
+    LinearLayout empty_resources; //空资源文件
+    @BindView(R.id.tv_adviseCount)
+    TextView tv_adviseCount;  //收到建议数
+    @BindView(R.id.errorAdvise)
+    LoadFailView errorAdvise;  //加载建议失败
+    @BindView(R.id.tv_emptyAdvise)
+    TextView tv_emptyAdvise;    //空建议列表
+    @BindView(R.id.rv_advise)
+    RecyclerView rv_advise;   //建议列表
+    @BindView(R.id.tv_more_reply)
+    TextView tv_more_reply;  //更多建议按钮
+    @BindView(R.id.bottomView)
+    TextView bottomView; //底部提建议按钮
+    private TeachingLessonEntity lessonEntity;
+    private String lessonId, relationId;  //创课id，关联关系id
+    private int browseNum, supportNum, adviseNum;  //热度,点赞数，提建议数
     private List<ReplyEntity> adviseList = new ArrayList<>();
     private AppDiscussionAdapter adviseAdapter;
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
-    @BindView(R.id.tv_more_reply)
-    View tv_more_reply;
-    @BindView(R.id.empty_advise)
-    LinearLayout empty_advise;
-    @BindView(R.id.tv_giveAdvise)
-    TextView tv_giveAdvise;
-    @BindView(R.id.bottomView)
-    View bottomView;
-    private TeachingLessonEntity lessonEntity;
-    private String id, relationId;
-    private File uploadFile;
+    private int childPosition, replyPosition;
 
     @Override
-    public int setLayoutResID() {
-        return R.layout.activity_teaching_research_cc;
+    public int createView() {
+        return R.layout.fragment_teaching_genclass;
     }
 
     @Override
-    public void initView() {
-        lessonEntity = (TeachingLessonEntity) getIntent().getSerializableExtra("entity");
-        id = lessonEntity.getId();
-        int remainDay = lessonEntity.getRemainDay();
+    public void initView(View view) {
+        Bundle bundle = getArguments();
+        lessonEntity = (TeachingLessonEntity) bundle.getSerializable("entity");
+        lessonId = lessonEntity.getId();
         if (lessonEntity.getmDiscussionRelations() != null && lessonEntity.getmDiscussionRelations().size() > 0)
             relationId = lessonEntity.getmDiscussionRelations().get(0).getId();
-        FullyLinearLayoutManager manager = new FullyLinearLayoutManager(context);
-        manager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(manager);
+        int remainDay = lessonEntity.getRemainDay();
+        setProgress(remainDay);
+        TeachingLessonEntity mLesson = (TeachingLessonEntity) bundle.getSerializable("mLesson");
+        TeachingLessonAttribute mLessonAttribute = (TeachingLessonAttribute) bundle.getSerializable("attribute");
+        if (mLesson != null)
+            setLesson(mLesson);
+        if (mLessonAttribute != null)
+            setLessonAttribute(mLessonAttribute);
+        FullyLinearLayoutManager llm_file = new FullyLinearLayoutManager(context);
+        llm_file.setOrientation(FullyLinearLayoutManager.VERTICAL);
+        rv_file.setLayoutManager(llm_file);
+        FullyLinearLayoutManager llm_advise = new FullyLinearLayoutManager(context);
+        llm_advise.setOrientation(FullyLinearLayoutManager.VERTICAL);
+        rv_advise.setLayoutManager(llm_advise);
         adviseAdapter = new AppDiscussionAdapter(context, adviseList, getUserId());
-        recyclerView.setAdapter(adviseAdapter);
-        roundBar.setMax(60);
-        roundBar.setProgress(60 - remainDay);
-        tv_day.setText("还剩" + remainDay + "天");
-        registRxBus();
+        rv_advise.setAdapter(adviseAdapter);
     }
 
-    public void initData() {
-        final String url = Constants.OUTRT_NET + "/m/lesson/cmts/view/" + id;
-        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<TeachingLessonSingleResult>() {
-            @Override
-            public void onBefore(Request request) {
-                loadingView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onError(Request request, Exception e) {
-                loadingView.setVisibility(View.GONE);
-                loadFailView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onResponse(TeachingLessonSingleResult singleResult) {
-                loadingView.setVisibility(View.VISIBLE);
-                if (singleResult != null && singleResult.getResponseData() != null && singleResult.getResponseData().getmLesson() != null) {
-                    contentView.setVisibility(View.VISIBLE);
-                    updateUI(singleResult.getResponseData().getmLesson());
-                    getFiles();
-                    getAdvise();
-                } else {
-                    empty_detail.setVisibility(View.VISIBLE);
-                }
-            }
-        }));
+    public void setProgress(int remainDay) {
+        mRrogressBar.setMax(60);
+        mRrogressBar.setProgress(60 - remainDay);
+        if (remainDay <= 0) {
+            tv_day.setText("已结束");
+        } else {
+            tv_day.setText("还剩" + remainDay + "天");
+        }
     }
 
-    private void updateUI(TeachingLessonEntity entity) {
-        tv_ccTitle.setText(entity.getTitle());
-        if (entity.getCreator() != null && entity.getCreator().getAvatar() != null)
-            GlideImgManager.loadCircleImage(context, entity.getCreator().getAvatar(),
+    public void setLesson(TeachingLessonEntity mLesson) {
+        tv_title.setText(mLesson.getTitle());
+        if (mLesson.getCreator() != null && mLesson.getCreator().getAvatar() != null)
+            GlideImgManager.loadCircleImage(context, mLesson.getCreator().getAvatar(),
                     R.drawable.user_default, R.drawable.user_default, iv_userIco);
         else
             iv_userIco.setImageResource(R.drawable.user_default);
-        if (entity.getCreator() != null)
-            tv_userName.setText(entity.getCreator().getRealName());
-        if (entity.getCreator() != null && entity.getCreator().getId() != null
-                && entity.getCreator().getId().equals(getUserId()))
-            toolBar.setShow_right_button(true);
-        tv_createTime.setText("发布于" + TimeUtil.getSlashDate(entity.getCreateTime()));
-        if (entity.getmDiscussionRelations() != null && entity.getmDiscussionRelations().size() > 0) {
-            supportNum = entity.getmDiscussionRelations().get(0).getSupportNum();
-            adviseNum = entity.getmDiscussionRelations().get(0).getReplyNum();
-            bt_heatNum.setText("热度（" + entity.getmDiscussionRelations().get(0).getBrowseNum() + "）");
-            bt_supportNum.setText("赞（" + entity.getmDiscussionRelations().get(0).getSupportNum() + "）");
-            bt_adviseNum.setText("提建议（" + adviseNum + "）");
-            tv_advise.setText("收到" + adviseNum + "条建议");
-        } else {
-            bt_heatNum.setText("热度（" + 0 + "）");
-            bt_supportNum.setText("赞（" + 0 + "）");
-            bt_adviseNum.setText("提建议（" + 0 + "）");
-            tv_advise.setText("收到" + 0 + "条建议");
+        if (mLesson.getCreator() != null)
+            tv_userName.setText(mLesson.getCreator().getRealName());
+        tv_createTime.setText("发布于" + TimeUtil.getSlashDate(mLesson.getCreateTime()));
+        if (mLesson.getmDiscussionRelations() != null && mLesson.getmDiscussionRelations().size() > 0) {
+            browseNum = mLesson.getmDiscussionRelations().get(0).getBrowseNum();
+            supportNum = mLesson.getmDiscussionRelations().get(0).getSupportNum();
+            adviseNum = mLesson.getmDiscussionRelations().get(0).getReplyNum();
         }
-        if (entity.getContent() != null && entity.getContent().trim().length() > 0) {
-            ll_ccContent.setVisibility(View.VISIBLE);
-            Html.ImageGetter imageGetter = new HtmlHttpImageGetter(tv_ccContent, Constants.REFERER, true);
-            Spanned spanned = Html.fromHtml(entity.getContent(), imageGetter, null);
-            tv_ccContent.setText(spanned);
-            tv_ccContent.setVisibility(View.VISIBLE);
-            iv_expand.setImageResource(R.drawable.course_dictionary_shouqi);
-            ll_sticky.setOnClickListener(new View.OnClickListener() {
-                private boolean isExpand = false;
+        tv_heatNum.setText("热度（" + browseNum + "）");
+        tv_supportNum.setText("赞（" + supportNum + "）");
+        tv_adviseNum.setText("提建议（" + adviseNum + "）");
+        tv_adviseCount.setText("收到" + adviseNum + "条建议");
+        setSpannedText(introduceTvs[0], mLesson.getContent());
+    }
 
-                @Override
-                public void onClick(View view) {
-                    if (isExpand) {
-                        tv_ccContent.setVisibility(View.VISIBLE);
-                        iv_expand.setImageResource(R.drawable.course_dictionary_shouqi);
-                        isExpand = false;
-                    } else {
-                        contentView.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                contentView.smoothScrollTo(0, ll_sticky.getTop());
-                            }
-                        }, 10);
-                        tv_ccContent.setVisibility(View.GONE);
-                        iv_expand.setImageResource(R.drawable.course_dictionary_xiala);
-                        isExpand = true;
-                    }
+    public void setLessonAttribute(TeachingLessonAttribute att) {
+        setSpannedText(introduceTvs[1], att.getRealia());
+        setSpannedText(introduceTvs[2], att.getRealiaSummary());
+        setSpannedText(introduceTvs[3], att.getRealiaUseReason());
+        setSpannedText(frameTvs[0], att.getTopicBase());
+        setSpannedText(frameTvs[1], att.getLearnDetail());
+        setSpannedText(frameTvs[2], att.getDesignPrinciple());
+        setSpannedText(activityTvs[0], att.getStemElement());
+        setSpannedText(activityTvs[1], att.getExamples());
+        setSpannedText(activityTvs[2], att.getModels());
+        setSpannedText(activityTvs[3], att.getRethink());
+        setSpannedText(activityTvs[4], att.getExpand());
+        tag_introduce.setOnClickListener(new View.OnClickListener() {
+            boolean isExpand = false;
+
+            @Override
+            public void onClick(View view) {
+                if (isExpand) {
+                    ll_introduce.setVisibility(View.VISIBLE);
+                    iv_introduce.setImageResource(R.drawable.course_dictionary_shouqi);
+                    isExpand = false;
+                } else {
+                    ll_introduce.setVisibility(View.GONE);
+                    iv_introduce.setImageResource(R.drawable.course_dictionary_xiala);
+                    isExpand = true;
                 }
-            });
+            }
+        });
+        tag_frame.setOnClickListener(new View.OnClickListener() {
+            private boolean isExpand = true;
+
+            @Override
+            public void onClick(View view) {
+                if (isExpand) {
+                    ll_frame.setVisibility(View.VISIBLE);
+                    iv_frame.setImageResource(R.drawable.course_dictionary_shouqi);
+                    isExpand = false;
+                } else {
+                    ll_frame.setVisibility(View.GONE);
+                    iv_frame.setImageResource(R.drawable.course_dictionary_xiala);
+                    isExpand = true;
+                }
+            }
+        });
+        tag_activity.setOnClickListener(new View.OnClickListener() {
+            private boolean isExpand = true;
+
+            @Override
+            public void onClick(View view) {
+                if (isExpand) {
+                    ll_activity.setVisibility(View.VISIBLE);
+                    iv_activity.setImageResource(R.drawable.course_dictionary_shouqi);
+                    isExpand = false;
+                } else {
+                    ll_activity.setVisibility(View.GONE);
+                    iv_activity.setImageResource(R.drawable.course_dictionary_xiala);
+                    isExpand = true;
+                }
+            }
+        });
+    }
+
+    private void setSpannedText(TextView tv, String text) {
+        Html.ImageGetter imageGetter = new HtmlHttpImageGetter(tv, Constants.REFERER, true);
+        HtmlTagHandler tagHandler = new HtmlTagHandler(new HtmlTagHandler.OnImageClickListener() {
+            @Override
+            public void onImageClick(View view, String url) {
+                ArrayList<String> imgList = new ArrayList<>();
+                imgList.add(Constants.REFERER + url);
+                Intent intent = new Intent(context, AppMultiImageShowActivity.class);
+                intent.putStringArrayListExtra("photos", imgList);
+                startActivity(intent);
+            }
+        });
+        if (text != null) {
+            Spanned spanned = Html.fromHtml(text, imageGetter, tagHandler);
+            tv.setText(spanned);
         } else {
-            ll_ccContent.setVisibility(View.GONE);
+            tv.setText(null);
         }
-        detailLayout.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void initData() {
+        getFiles();
+        getAdvise();
     }
 
     private void getFiles() {
@@ -275,7 +306,7 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
             @Override
             public void onError(Request request, Exception e) {
                 loadingFile.setVisibility(View.GONE);
-                tv_error.setVisibility(View.VISIBLE);
+                loadfileError.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -349,7 +380,7 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        loadFailView1.setVisibility(View.VISIBLE);
+                        errorAdvise.setVisibility(View.VISIBLE);
                     }
                 }));
     }
@@ -390,45 +421,35 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
             if (paginator != null && paginator.getHasNextPage()) {
                 tv_more_reply.setVisibility(View.VISIBLE);
             }
-            recyclerView.setVisibility(View.VISIBLE);
+            rv_advise.setVisibility(View.VISIBLE);
         } else {
-            empty_advise.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
+            tv_emptyAdvise.setVisibility(View.VISIBLE);
+            String text = "目前还没人提建议，<br/>赶紧去<font color='#11B1D5'>发表您的建议</font>吧！";
+            tv_emptyAdvise.setText(Html.fromHtml(text));
+            rv_advise.setVisibility(View.GONE);
         }
         bottomView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void setListener() {
-        toolBar.setOnTitleClickListener(new AppToolBar.TitleOnClickListener() {
-            @Override
-            public void onLeftClick(View view) {
-                finish();
-            }
-
-            @Override
-            public void onRightClick(View view) {
-                showBottomDialog();
-            }
-        });
-        bt_supportNum.setOnClickListener(context);
-        bt_adviseNum.setOnClickListener(context);
-        loadFailView.setOnRetryListener(new LoadFailView.OnRetryListener() {
+        tv_supportNum.setOnClickListener(this);
+        tv_adviseNum.setOnClickListener(this);
+        loadfileError.setOnRetryListener(new LoadFailView.OnRetryListener() {
             @Override
             public void onRetry(View v) {
-                initData();
+                getFiles();
             }
         });
-        loadFailView1.setOnRetryListener(new LoadFailView.OnRetryListener() {
+        errorAdvise.setOnRetryListener(new LoadFailView.OnRetryListener() {
             @Override
             public void onRetry(View v) {
                 getAdvise();
             }
         });
-        tv_error.setOnClickListener(context);
-        tv_more_reply.setOnClickListener(context);
-        tv_giveAdvise.setOnClickListener(context);
-        bottomView.setOnClickListener(context);
+        tv_more_reply.setOnClickListener(this);
+        tv_emptyAdvise.setOnClickListener(this);
+        bottomView.setOnClickListener(this);
         adviseAdapter.setOnPostClickListener(new AppDiscussionAdapter.OnPostClickListener() {
             @Override
             public void onTargetClick(View view, int position, ReplyEntity entity) {
@@ -480,7 +501,7 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
         map.put("relation.type", "discussion_post");
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<AttitudeMobileResult>() {
             public void onError(Request request, Exception exception) {
-                onNetWorkError(context);
+                onNetWorkError();
             }
 
             public void onResponse(AttitudeMobileResult response) {
@@ -493,9 +514,9 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
                     adviseList.get(position).setSupportNum(count);
                     adviseAdapter.notifyDataSetChanged();
                 } else if (response != null && response.getResponseMsg() != null) {
-                    toast(context, "您已点赞过");
+                    toast("您已点赞过");
                 } else {
-                    toast(context, "点赞失败");
+                    toast("点赞失败");
                 }
             }
         }, map));
@@ -515,7 +536,7 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
 
             public void onError(Request request, Exception exception) {
                 hideTipDialog();
-                onNetWorkError(context);
+                onNetWorkError();
             }
 
             public void onResponse(ReplyResult response) {
@@ -564,7 +585,7 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
             @Override
             public void onError(Request request, Exception e) {
                 hideTipDialog();
-                onNetWorkError(context);
+                onNetWorkError();
             }
 
             @Override
@@ -575,18 +596,16 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
                     adviseList.remove(position);
                     adviseAdapter.notifyDataSetChanged();
                     if (adviseList.size() == 0) {
-                        empty_advise.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
+                        tv_emptyAdvise.setVisibility(View.VISIBLE);
+                        rv_advise.setVisibility(View.GONE);
                     }
                     adviseNum--;
-                    tv_advise.setText("收到" + adviseNum + "条建议");
+                    tv_adviseCount.setText("收到" + adviseNum + "条建议");
                     getAdvise();
                 }
             }
         }, map));
     }
-
-    private int childPosition, replyPosition;
 
     @Override
     public void onClick(View v) {
@@ -594,13 +613,10 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
             case R.id.tv_error:
                 getFiles();
                 break;
-            case R.id.bt_supportNum:
+            case R.id.tv_supportNum:
                 createLike();
                 break;
-            case R.id.bt_adviseNum:
-                contentView.smoothScrollTo(0, (int) ll_advise.getY());
-                break;
-            case R.id.tv_giveAdvise:
+            case R.id.tv_emptyAdvise:
                 showCommentDialog(false);
                 break;
             case R.id.bottomView:
@@ -619,12 +635,12 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
         String url = Constants.OUTRT_NET + "/m/attitude";
         Map<String, String> map = new HashMap<>();
         map.put("attitude", "support");
-        map.put("relation.id", id);
+        map.put("relation.id", lessonId);
         map.put("relation.type", "discussion");
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<AttitudeMobileResult>() {
             @Override
             public void onError(Request request, Exception exception) {
-                onNetWorkError(context);
+                onNetWorkError();
             }
 
             @Override
@@ -633,9 +649,9 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
                     GoodView goodView = new GoodView(context);
                     int defaultColor = ContextCompat.getColor(context, R.color.defaultColor);
                     goodView.setTextInfo("+1", defaultColor, 16);
-                    goodView.show(bt_supportNum);
+                    goodView.show(tv_supportNum);
                     supportNum++;
-                    bt_supportNum.setText("赞（" + supportNum + "）");
+                    tv_supportNum.setText("赞（" + supportNum + "）");
                     MessageEvent event = new MessageEvent();
                     event.action = Action.SUPPORT_STUDY_CLASS;
                     if (lessonEntity.getmDiscussionRelations() != null && lessonEntity.getmDiscussionRelations().size() > 0) {
@@ -644,9 +660,9 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
                     event.obj = lessonEntity;
                     RxBus.getDefault().post(event);
                 } else if (response != null && response.getResponseMsg() != null) {
-                    toast(context, "您已点赞过");
+                    toast("您已点赞过");
                 } else {
-                    toast(context, "点赞失败");
+                    toast("点赞失败");
                 }
             }
         }, map));
@@ -667,240 +683,6 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
         });
     }
 
-    private void showBottomDialog() {
-        View view = getLayoutInflater().inflate(R.layout.dialog_teaching_cc, null);
-        final AlertDialog dialog = new AlertDialog.Builder(context).create();
-        TextView tv_upload = view.findViewById(R.id.tv_upload);
-        TextView tv_delete = view.findViewById(R.id.tv_delete);
-        TextView tv_cancel = view.findViewById(R.id.tv_cancel);
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (view.getId()) {
-                    case R.id.tv_upload:
-                        openFilePicker();
-                        break;
-                    case R.id.tv_delete:
-                        showTipsDialog();
-                        break;
-                    case R.id.tv_cancel:
-                        break;
-                }
-                dialog.dismiss();
-            }
-        };
-        tv_upload.setOnClickListener(listener);
-        tv_delete.setOnClickListener(listener);
-        tv_cancel.setOnClickListener(listener);
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.setCancelable(true);
-        dialog.show();
-        Window window = dialog.getWindow();
-        window.setLayout(ScreenUtils.getScreenWidth(context), LinearLayout.LayoutParams.WRAP_CONTENT);
-        window.setWindowAnimations(R.style.dialog_anim);
-        window.setContentView(view);
-        window.setGravity(Gravity.BOTTOM);
-    }
-
-    private void openFilePicker() {
-        new LFilePicker()
-                .withActivity(context)
-                .withRequestCode(1)
-                .withMutilyMode(false)
-                .start();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            List<String> list = data.getStringArrayListExtra(RESULT_INFO);
-            if (list != null && list.size() > 0) {
-                String filePath = list.get(0);
-                uploadFile = new File(filePath);
-                uploadFile();
-            }
-        }
-    }
-
-    private void uploadFile() {
-        if (uploadFile != null && uploadFile.exists()) {
-            String url = Constants.OUTRT_NET + "/m/file/uploadTemp";
-            final FileUploadDialog uploadDialog = new FileUploadDialog(context, uploadFile.getName(), "正在上传");
-            uploadDialog.setCancelable(false);
-            uploadDialog.setCanceledOnTouchOutside(false);
-            uploadDialog.show();
-            final Disposable mSubscription = Flowable.just(url).map(new Function<String, FileUploadResult>() {
-                @Override
-                public FileUploadResult apply(String url) throws Exception {
-                    return commitFile(url, uploadDialog);
-                }
-            }).map(new Function<FileUploadResult, FileUploadDataResult>() {
-                @Override
-                public FileUploadDataResult apply(FileUploadResult mResult) throws Exception {
-                    return commitContent(mResult);
-                }
-            }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<FileUploadDataResult>() {
-                        @Override
-                        public void accept(FileUploadDataResult response) throws Exception {
-                            uploadDialog.dismiss();
-                            if (response != null && response.getResponseCode() != null &&
-                                    response.getResponseCode().equals("00")) {
-                                toastFullScreen("上传成功", true);
-                                initData();
-                            } else {
-                                showErrorDialog();
-                            }
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            uploadDialog.dismiss();
-                        }
-                    });
-            uploadDialog.setCancelListener(new FileUploadDialog.CancelListener() {
-                @Override
-                public void cancel() {
-                    showCancelDialog(mSubscription, uploadDialog);
-                }
-            });
-        } else {
-            showMaterialDialog("提示", "上传的文件不存在，请重新选择文件");
-        }
-    }
-
-    /*上传资源到临时文件*/
-    private FileUploadResult commitFile(String url, final FileUploadDialog dialog) throws Exception {
-        Gson gson = new GsonBuilder().create();
-        String resultStr = OkHttpClientManager.post(context, url, uploadFile, uploadFile.getName(), new OkHttpClientManager.ProgressListener() {
-            @Override
-            public void onProgress(long totalBytes, long remainingBytes, boolean done, File file) {
-                Flowable.just(new long[]{totalBytes, remainingBytes}).observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Consumer<long[]>() {
-                            @Override
-                            public void accept(long[] params) throws Exception {
-                                dialog.setUploadProgressBar(params[0], params[1]);
-                                dialog.setUploadText(params[0], params[1]);
-                            }
-                        });
-            }
-        });
-        FileUploadResult mResult = gson.fromJson(resultStr, FileUploadResult.class);
-        return mResult;
-    }
-
-    /*拿到上传临时文件返回的结果再次提交到创课表*/
-    private FileUploadDataResult commitContent(FileUploadResult mResult) throws Exception {
-        if (mResult != null && mResult.getResponseData() != null) {
-            String url = Constants.OUTRT_NET + "/m/lesson/cmts/" + id + "/upload";
-            Gson gson = new GsonBuilder().create();
-            Map<String, String> map = new HashMap<>();
-            map.put("fileInfos[0].id", mResult.getResponseData().getId());
-            map.put("fileInfos[0].url", mResult.getResponseData().getUrl());
-            map.put("fileInfos[0].fileName", mResult.getResponseData().getFileName());
-            String responseStr = OkHttpClientManager.postAsString(context, url, map);
-            FileUploadDataResult uploadResult = gson.fromJson(responseStr, FileUploadDataResult.class);
-            return uploadResult;
-        }
-        return null;
-    }
-
-    /*上传失败显示dialog*/
-    private void showErrorDialog() {
-        MaterialDialog dialog = new MaterialDialog(context);
-        dialog.setTitle("上传结果");
-        dialog.setMessage("由于网络问题上传资源失败，您可以点击重新上传再次上传");
-        dialog.setNegativeTextColor(ContextCompat.getColor(context, R.color.gray));
-        dialog.setPositiveTextColor(ContextCompat.getColor(context, R.color.defaultColor));
-        dialog.setNegativeButton("取消", null);
-        dialog.setPositiveButton("重新上传", new MaterialDialog.ButtonClickListener() {
-            @Override
-            public void onClick(View v, AlertDialog dialog) {
-                uploadFile();
-            }
-        });
-        dialog.show();
-    }
-
-    /*取消上传显示dialog*/
-    private void showCancelDialog(final Disposable mSubscription, final FileUploadDialog uploadDialog) {
-        MaterialDialog dialog = new MaterialDialog(context);
-        dialog.setTitle("提示");
-        dialog.setMessage("你确定取消本次上传吗？");
-        dialog.setPositiveTextColor(ContextCompat.getColor(context, R.color.defaultColor));
-        dialog.setPositiveButton("确定", new MaterialDialog.ButtonClickListener() {
-            @Override
-            public void onClick(View v, AlertDialog dialog) {
-                dialog.dismiss();
-                mSubscription.dispose();
-            }
-        });
-        dialog.setNegativeButton("关闭", new MaterialDialog.ButtonClickListener() {
-            @Override
-            public void onClick(View v, AlertDialog dialog) {
-                dialog.dismiss();
-                if (uploadDialog != null && !uploadDialog.isShowing()) {
-                    uploadDialog.show();
-                }
-            }
-        });
-        dialog.show();
-    }
-
-    private void showTipsDialog() {
-        MaterialDialog materialDialog = new MaterialDialog(context);
-        materialDialog.setTitle("提示");
-        materialDialog.setMessage("你确定删除吗？");
-        materialDialog.setNegativeButton("确定", new MaterialDialog.ButtonClickListener() {
-            @Override
-            public void onClick(View v, AlertDialog dialog) {
-                deleteCc();
-            }
-        });
-        materialDialog.setPositiveButton("取消", null);
-        materialDialog.show();
-    }
-
-    /*删除创课*/
-    private void deleteCc() {
-        String url = Constants.OUTRT_NET + "/m/lesson/cmts/" + id;
-        Map<String, String> map = new HashMap<>();
-        map.put("_method", "delete");
-        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
-            @Override
-            public void onBefore(Request request) {
-                showTipDialog();
-            }
-
-            @Override
-            public void onError(Request request, Exception e) {
-                onNetWorkError(context);
-                hideTipDialog();
-            }
-
-            @Override
-            public void onResponse(BaseResponseResult response) {
-                hideTipDialog();
-                if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-                    MessageEvent event = new MessageEvent();
-                    event.action = Action.DELETE_GEN_CLASS;
-                    event.obj = lessonEntity;
-                    RxBus.getDefault().post(event);
-                    toastFullScreen("已成功删除，返回首页", true);
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            finish();
-                        }
-                    }, 3000);
-                } else {
-                    toast(context, "删除失败");
-                }
-            }
-        }, map));
-    }
-
     private void giveAdvice(final String content) {
         String url = Constants.OUTRT_NET + "/m/discussion/post";
         Map<String, String> map = new HashMap<>();
@@ -915,15 +697,15 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
             @Override
             public void onError(Request request, Exception e) {
                 hideTipDialog();
-                onNetWorkError(context);
+                onNetWorkError();
             }
 
             @Override
             public void onResponse(ReplyResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseData() != null) {
-                    recyclerView.setVisibility(View.VISIBLE);
-                    empty_advise.setVisibility(View.GONE);
+                    rv_advise.setVisibility(View.VISIBLE);
+                    tv_emptyAdvise.setVisibility(View.GONE);
                     if (adviseList.size() < 5) {
                         ReplyEntity entity = response.getResponseData();
                         if (entity.getCreator() == null) {
@@ -942,15 +724,15 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
                         }
                         adviseList.add(entity);
                         adviseAdapter.notifyDataSetChanged();
-                        if (recyclerView.getVisibility() != View.VISIBLE) {
-                            recyclerView.setVisibility(View.VISIBLE);
+                        if (rv_advise.getVisibility() != View.VISIBLE) {
+                            rv_advise.setVisibility(View.VISIBLE);
                         }
                     } else {
                         tv_more_reply.setVisibility(View.VISIBLE);
                         toastFullScreen("发送成功", true);
                     }
                     adviseNum++;
-                    tv_advise.setText("收到" + adviseNum + "条建议");
+                    tv_adviseCount.setText("收到" + adviseNum + "条建议");
                     MessageEvent event = new MessageEvent();
                     event.action = Action.GIVE_STUDY_ADVICE;
                     if (lessonEntity.getmDiscussionRelations() != null && lessonEntity.getmDiscussionRelations().size() > 0) {
@@ -969,7 +751,7 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
     public void obBusEvent(MessageEvent event) {
         if (event.action.equals(Action.CREATE_MAIN_REPLY) && event.obj != null && event.obj instanceof ReplyEntity) {
             adviseNum++;
-            tv_advise.setText("收到" + adviseNum + "条建议");
+            tv_adviseCount.setText("收到" + adviseNum + "条建议");
             ReplyEntity entity = (ReplyEntity) event.obj;
             if (adviseList.size() < 5) {
                 adviseList.add(entity);
@@ -1017,7 +799,9 @@ public class TeachingResearchCCActivity extends BaseActivity implements View.OnC
                 getAdvise();
             }
             adviseNum--;
-            tv_advise.setText("收到" + adviseNum + "条建议");
+            tv_adviseCount.setText("收到" + adviseNum + "条建议");
+        } else if (event.action.equals("fileUpload")) {
+            getFiles();
         }
     }
 }
