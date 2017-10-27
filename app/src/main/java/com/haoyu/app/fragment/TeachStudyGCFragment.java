@@ -1,11 +1,15 @@
 package com.haoyu.app.fragment;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,7 +31,6 @@ import com.haoyu.app.dialog.CommentDialog;
 import com.haoyu.app.entity.AttitudeMobileResult;
 import com.haoyu.app.entity.MFileInfo;
 import com.haoyu.app.entity.MFileInfoData;
-import com.haoyu.app.entity.MobileUser;
 import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.entity.ReplyEntity;
 import com.haoyu.app.entity.ReplyListResult;
@@ -42,12 +45,14 @@ import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.HtmlTagHandler;
 import com.haoyu.app.utils.OkHttpClientManager;
+import com.haoyu.app.utils.PixelFormat;
 import com.haoyu.app.utils.TimeUtil;
 import com.haoyu.app.view.FullyLinearLayoutManager;
 import com.haoyu.app.view.GoodView;
 import com.haoyu.app.view.LoadFailView;
 import com.haoyu.app.view.LoadingView;
 import com.haoyu.app.view.RoundRectProgressBar;
+import com.haoyu.app.view.StickyScrollView;
 
 import org.sufficientlysecure.htmltextview.HtmlHttpImageGetter;
 
@@ -57,7 +62,6 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
-import butterknife.BindViews;
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -71,6 +75,8 @@ import okhttp3.Request;
  * 作者:马飞奔 Administrator
  */
 public class TeachStudyGCFragment extends BaseFragment implements View.OnClickListener {
+    @BindView(R.id.contentView)
+    StickyScrollView contentView;
     @BindView(R.id.mRrogressBar)
     RoundRectProgressBar mRrogressBar; //创课进度
     @BindView(R.id.tv_day)
@@ -96,26 +102,24 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
     ImageView iv_introduce;  //创课介绍展开或收起
     @BindView(R.id.ll_introduce)
     LinearLayout ll_introduce;   //创课介绍详细布局
-    @BindViews({R.id.tv_topicSummary, R.id.tv_realia, R.id.tv_realiaSummary, R.id.tv_userReason})
-    TextView[] introduceTvs; //主题描述,乐高教具,教具介绍,教具使用理由
     /***************/
+    @BindView(R.id.layout_frame)
+    LinearLayout layout_frame;
     @BindView(R.id.tag_frame)
     LinearLayout tag_frame;  //课程框架设计
     @BindView(R.id.iv_frame)
     ImageView iv_frame; //课程框架设计展开或收起
     @BindView(R.id.ll_frame)
     LinearLayout ll_frame; //框架设计内容布局
-    @BindViews({R.id.tv_topicBase, R.id.tv_learnDetail, R.id.tv_designPrinciple})
-    TextView[] frameTvs; //课标依据,如何学习,设计原则
     /***************/
+    @BindView(R.id.layout_activity)
+    LinearLayout layout_activity;
     @BindView(R.id.tag_activity)
     LinearLayout tag_activity;  //教学活动设计
     @BindView(R.id.iv_activity)
     ImageView iv_activity;  //教学活动设计展开或收起
     @BindView(R.id.ll_activity)
     LinearLayout ll_activity;  //教学活动设计详细布局
-    @BindViews({R.id.tv_stem, R.id.tv_examples, R.id.tv_models, R.id.tv_rethink, R.id.tv_expand})
-    TextView[] activityTvs;  //STEM元素,联系,建构,反思,拓展
     @BindView(R.id.tv_checkAll)
     TextView tv_checkAll; //查看全部资源按钮
     @BindView(R.id.loadingFile)
@@ -140,7 +144,7 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
     TextView bottomView; //底部提建议按钮
     private TeachingLessonEntity lessonEntity;
     private String lessonId, relationId;  //创课id，关联关系id
-    private int browseNum, supportNum, adviseNum;  //热度,点赞数，提建议数
+    private int supportNum, adviseNum;  //点赞数，提建议数
     private List<ReplyEntity> adviseList = new ArrayList<>();
     private AppDiscussionAdapter adviseAdapter;
     private int childPosition, replyPosition;
@@ -195,6 +199,7 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
         if (mLesson.getCreator() != null)
             tv_userName.setText(mLesson.getCreator().getRealName());
         tv_createTime.setText("发布于" + TimeUtil.getSlashDate(mLesson.getCreateTime()));
+        int browseNum = 0, adviseNum = 0;
         if (mLesson.getmDiscussionRelations() != null && mLesson.getmDiscussionRelations().size() > 0) {
             browseNum = mLesson.getmDiscussionRelations().get(0).getBrowseNum();
             supportNum = mLesson.getmDiscussionRelations().get(0).getSupportNum();
@@ -203,22 +208,69 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
         tv_heatNum.setText("热度（" + browseNum + "）");
         tv_supportNum.setText("赞（" + supportNum + "）");
         tv_adviseNum.setText("提建议（" + adviseNum + "）");
-        tv_adviseCount.setText("收到" + adviseNum + "条建议");
-        setSpannedText(introduceTvs[0], mLesson.getContent());
+        if (!isEmpty(mLesson.getContent())) {
+            String title = getResources().getString(R.string.gen_class_topic);
+            addView(title, mLesson.getContent(), ll_introduce);
+        }
     }
 
     public void setLessonAttribute(TeachingLessonAttribute att) {
-        setSpannedText(introduceTvs[1], att.getRealia());
-        setSpannedText(introduceTvs[2], att.getRealiaSummary());
-        setSpannedText(introduceTvs[3], att.getRealiaUseReason());
-        setSpannedText(frameTvs[0], att.getTopicBase());
-        setSpannedText(frameTvs[1], att.getLearnDetail());
-        setSpannedText(frameTvs[2], att.getDesignPrinciple());
-        setSpannedText(activityTvs[0], att.getStemElement());
-        setSpannedText(activityTvs[1], att.getExamples());
-        setSpannedText(activityTvs[2], att.getModels());
-        setSpannedText(activityTvs[3], att.getRethink());
-        setSpannedText(activityTvs[4], att.getExpand());
+        if (!isEmpty(att.getRealia())) {
+            String realia = getResources().getString(R.string.gen_class_realia);
+            addView(realia, att.getRealia(), ll_introduce);
+        }
+        if (!isEmpty(att.getRealiaSummary())) {
+            String realiaSummary = getResources().getString(R.string.gen_class_realiaSummary);
+            addView(realiaSummary, att.getRealiaSummary(), ll_introduce);
+        }
+        if (!isEmpty(att.getRealiaUseReason())) {
+            String userReason = getResources().getString(R.string.gen_class_realiaUseReason);
+            addView(userReason, att.getRealiaUseReason(), ll_introduce);
+        }
+        if (isEmpty(att.getTopicBase()) && isEmpty(att.getLearnDetail()) && isEmpty(att.getDesignPrinciple())) {
+            layout_frame.setVisibility(View.GONE);
+        } else {
+            layout_frame.setVisibility(View.VISIBLE);
+            Resources resources = getResources();
+            if (!isEmpty(att.getTopicBase())) {
+                String topicBase = resources.getString(R.string.gen_class_topicBase);
+                addView(topicBase, att.getTopic(), ll_frame);
+            }
+            if (!isEmpty(att.getLearnDetail())) {
+                String learnDetail = resources.getString(R.string.gen_class_learnDetail);
+                addView(learnDetail, att.getLearnDetail(), ll_frame);
+            }
+            if (!isEmpty(att.getDesignPrinciple())) {
+                String designPrinciple = resources.getString(R.string.gen_class_designPrinciple);
+                addView(designPrinciple, att.getDesignPrinciple(), ll_frame);
+            }
+        }
+        if (isEmpty(att.getStemElement()) && isEmpty(att.getExamples()) && isEmpty(att.getModels()) && isEmpty(att.getRethink()) && isEmpty(att.getExpand())) {
+            layout_activity.setVisibility(View.GONE);
+        } else {
+            layout_activity.setVisibility(View.VISIBLE);
+            Resources resources = getResources();
+            if (!isEmpty(att.getStemElement())) {
+                String stem = resources.getString(R.string.gen_class_stem_element);
+                addView(stem, att.getStemElement(), ll_activity);
+            }
+            if (!isEmpty(att.getExamples())) {
+                String examples = resources.getString(R.string.gen_class_examples);
+                addView(examples, att.getExamples(), ll_activity);
+            }
+            if (!isEmpty(att.getModels())) {
+                String models = resources.getString(R.string.gen_class_models);
+                addView(models, att.getModels(), ll_activity);
+            }
+            if (!isEmpty(att.getRethink())) {
+                String rethink = resources.getString(R.string.gen_class_rethink);
+                addView(rethink, att.getRethink(), ll_activity);
+            }
+            if (!isEmpty(att.getExpand())) {
+                String expand = resources.getString(R.string.gen_class_expand);
+                addView(expand, att.getExpand(), ll_activity);
+            }
+        }
         tag_introduce.setOnClickListener(new View.OnClickListener() {
             boolean isExpand = false;
 
@@ -229,6 +281,12 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
                     iv_introduce.setImageResource(R.drawable.course_dictionary_shouqi);
                     isExpand = false;
                 } else {
+                    contentView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            contentView.smoothScrollBy(0, tag_introduce.getTop());
+                        }
+                    }, 10);
                     ll_introduce.setVisibility(View.GONE);
                     iv_introduce.setImageResource(R.drawable.course_dictionary_xiala);
                     isExpand = true;
@@ -245,6 +303,12 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
                     iv_frame.setImageResource(R.drawable.course_dictionary_shouqi);
                     isExpand = false;
                 } else {
+                    contentView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            contentView.smoothScrollBy(0, tag_frame.getTop());
+                        }
+                    }, 10);
                     ll_frame.setVisibility(View.GONE);
                     iv_frame.setImageResource(R.drawable.course_dictionary_xiala);
                     isExpand = true;
@@ -261,12 +325,52 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
                     iv_activity.setImageResource(R.drawable.course_dictionary_shouqi);
                     isExpand = false;
                 } else {
+                    contentView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            contentView.smoothScrollBy(0, tag_activity.getTop());
+                        }
+                    }, 10);
                     ll_activity.setVisibility(View.GONE);
                     iv_activity.setImageResource(R.drawable.course_dictionary_xiala);
                     isExpand = true;
                 }
             }
         });
+    }
+
+    private boolean isEmpty(String text) {
+        if (text == null)
+            return true;
+        if (text.trim().length() == 0)
+            return true;
+        return false;
+    }
+
+    private void addView(String title, String content, LinearLayout parent) {
+        TextView tv_title = createTitleView();
+        tv_title.setText(title);
+        TextView tv_content = createContentView();
+        setSpannedText(tv_content, content);
+        parent.addView(tv_title);
+        parent.addView(tv_content);
+    }
+
+    private TextView createTitleView() {
+        TextView tv = new TextView(context);
+        tv.setTextSize(16);
+        tv.setTextColor(ContextCompat.getColor(context, R.color.defaultColor));
+        return tv;
+    }
+
+    private TextView createContentView() {
+        TextView tv = new TextView(context);
+        tv.setTextSize(16);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.topMargin = PixelFormat.dp2px(context, 12);
+        params.bottomMargin = PixelFormat.dp2px(context, 12);
+        tv.setLayoutParams(params);
+        return tv;
     }
 
     private void setSpannedText(TextView tv, String text) {
@@ -283,6 +387,7 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
         });
         if (text != null) {
             Spanned spanned = Html.fromHtml(text, imageGetter, tagHandler);
+            tv.setMovementMethod(LinkMovementMethod.getInstance());
             tv.setText(spanned);
         } else {
             tv.setText(null);
@@ -418,14 +523,21 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
         if (mDatas.size() > 0) {
             adviseList.addAll(mDatas);
             adviseAdapter.notifyDataSetChanged();
-            if (paginator != null && paginator.getHasNextPage()) {
-                tv_more_reply.setVisibility(View.VISIBLE);
+            if (paginator != null) {
+                adviseNum = paginator.getTotalCount();
+                setAdvise(adviseNum);
+                if (paginator.getHasNextPage()) {
+                    tv_more_reply.setVisibility(View.VISIBLE);
+                }
             }
             rv_advise.setVisibility(View.VISIBLE);
         } else {
             tv_emptyAdvise.setVisibility(View.VISIBLE);
-            String text = "目前还没人提建议，<br/>赶紧去<font color='#11B1D5'>发表您的建议</font>吧！";
-            tv_emptyAdvise.setText(Html.fromHtml(text));
+            String text = "目前还没人提建议，\n赶紧去发表您的建议吧！";
+            SpannableString ssb = new SpannableString(text);
+            ssb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.defaultColor)), text.indexOf("去") + 1, text.indexOf("吧"), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+            tv_emptyAdvise.setText(null);
+            tv_emptyAdvise.append(ssb);
             rv_advise.setVisibility(View.GONE);
         }
         bottomView.setVisibility(View.VISIBLE);
@@ -543,20 +655,6 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
                 hideTipDialog();
                 if (response != null && response.getResponseData() != null) {
                     ReplyEntity entity = response.getResponseData();
-                    if (entity.getCreator() == null) {
-                        MobileUser creator = new MobileUser();
-                        creator.setId(getUserId());
-                        creator.setAvatar(getAvatar());
-                        creator.setRealName(getRealName());
-                        entity.setCreator(creator);
-                    } else {
-                        if (entity.getCreator().getId() == null || (entity.getCreator().getId() != null && entity.getCreator().getId().toLowerCase().equals("null")))
-                            entity.getCreator().setId(getUserId());
-                        if (entity.getCreator().getAvatar() == null || (entity.getCreator().getAvatar() != null && entity.getCreator().getAvatar().toLowerCase().equals("null")))
-                            entity.getCreator().setAvatar(getAvatar());
-                        if (entity.getCreator().getRealName() == null || (entity.getCreator().getRealName() != null && entity.getCreator().getRealName().toLowerCase().equals("null")))
-                            entity.getCreator().setRealName(getRealName());
-                    }
                     int childPostCount = adviseList.get(position).getChildPostCount() + 1;
                     adviseList.get(position).setChildPostCount(childPostCount);
                     if (adviseList.get(position).getChildReplyEntityList() != null && adviseList.get(position).getChildReplyEntityList().size() < 10) {
@@ -600,7 +698,7 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
                         rv_advise.setVisibility(View.GONE);
                     }
                     adviseNum--;
-                    tv_adviseCount.setText("收到" + adviseNum + "条建议");
+                    setAdvise(adviseNum);
                     getAdvise();
                 }
             }
@@ -708,20 +806,6 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
                     tv_emptyAdvise.setVisibility(View.GONE);
                     if (adviseList.size() < 5) {
                         ReplyEntity entity = response.getResponseData();
-                        if (entity.getCreator() == null) {
-                            MobileUser creator = new MobileUser();
-                            creator.setId(getUserId());
-                            creator.setAvatar(getAvatar());
-                            creator.setRealName(getRealName());
-                            entity.setCreator(creator);
-                        } else {
-                            if (entity.getCreator().getId() == null || (entity.getCreator().getId() != null && entity.getCreator().getId().toLowerCase().equals("null")))
-                                entity.getCreator().setId(getUserId());
-                            if (entity.getCreator().getAvatar() == null || (entity.getCreator().getAvatar() != null && entity.getCreator().getAvatar().toLowerCase().equals("null")))
-                                entity.getCreator().setAvatar(getAvatar());
-                            if (entity.getCreator().getRealName() == null || (entity.getCreator().getRealName() != null && entity.getCreator().getRealName().toLowerCase().equals("null")))
-                                entity.getCreator().setRealName(getRealName());
-                        }
                         adviseList.add(entity);
                         adviseAdapter.notifyDataSetChanged();
                         if (rv_advise.getVisibility() != View.VISIBLE) {
@@ -732,7 +816,7 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
                         toastFullScreen("发送成功", true);
                     }
                     adviseNum++;
-                    tv_adviseCount.setText("收到" + adviseNum + "条建议");
+                    setAdvise(adviseNum);
                     MessageEvent event = new MessageEvent();
                     event.action = Action.GIVE_STUDY_ADVICE;
                     if (lessonEntity.getmDiscussionRelations() != null && lessonEntity.getmDiscussionRelations().size() > 0) {
@@ -799,9 +883,13 @@ public class TeachStudyGCFragment extends BaseFragment implements View.OnClickLi
                 getAdvise();
             }
             adviseNum--;
-            tv_adviseCount.setText("收到" + adviseNum + "条建议");
+            setAdvise(adviseNum);
         } else if (event.action.equals("fileUpload")) {
             getFiles();
         }
+    }
+
+    private void setAdvise(int adviseNum) {
+        tv_adviseCount.setText("收到" + adviseNum + "条建议");
     }
 }

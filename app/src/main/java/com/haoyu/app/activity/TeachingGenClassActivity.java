@@ -67,6 +67,7 @@ public class TeachingGenClassActivity extends BaseActivity {
     @BindView(R.id.empty_detail)
     TextView empty_detail;
     private TeachingLessonEntity lessonEntity;
+    private String lessonId;
     private TeachStudyGCFragment fragment;
 
     @Override
@@ -77,10 +78,10 @@ public class TeachingGenClassActivity extends BaseActivity {
     @Override
     public void initData() {
         lessonEntity = (TeachingLessonEntity) getIntent().getSerializableExtra("entity");
-        String lessonId = lessonEntity.getId();
+        lessonId = lessonEntity.getId();
         setSupportToolBar();
         final String url = Constants.OUTRT_NET + "/m/lesson/cmts/view/" + lessonId;
-        addSubscription(OkHttpClientManager.getAsyn(this, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<TeachingLessonData>>() {
+        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<TeachingLessonData>>() {
             @Override
             public void onBefore(Request request) {
                 loadingView.setVisibility(View.VISIBLE);
@@ -116,7 +117,7 @@ public class TeachingGenClassActivity extends BaseActivity {
 
             @Override
             public void onRightClick(View view) {
-
+                showBottomDialog();
             }
         });
     }
@@ -319,7 +320,7 @@ public class TeachingGenClassActivity extends BaseActivity {
 
     /*删除创课*/
     private void deleteCc() {
-        String url = Constants.OUTRT_NET + "/m/lesson/cmts/" + id;
+        String url = Constants.OUTRT_NET + "/m/lesson/cmts/" + lessonId;
         Map<String, String> map = new HashMap<>();
         map.put("_method", "delete");
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {

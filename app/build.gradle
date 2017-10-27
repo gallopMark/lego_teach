@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.0'
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.haoyu.app.lego.teach"
         minSdkVersion 14
@@ -31,7 +31,6 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     /*android support*/
     /*libs*/
-    compile 'com.android.support:design:26.0.0-alpha1'
     compile files('libs/pldroid-player-1.3.0.jar')
     compile files('libs/nineoldandroids-2.4.0.jar')
     compile files('libs/PersistentCookieJar-v1.0.0.jar')
@@ -46,10 +45,10 @@ dependencies {
     /*gson*/
     compile 'com.google.code.gson:gson:2.8.1'
     /*fileDownloader*/
-//    compile 'com.liulishuo.filedownloader:library:1.6.2'
+    //    compile 'com.liulishuo.filedownloader:library:1.6.2'
     compile 'org.wlf:FileDownloader:0.3.2'
     /*greenDao*/
-//    compile 'org.greenrobot:greendao:3.2.0'
+    //    compile 'org.greenrobot:greendao:3.2.0'
     /*htmlTextView*/
     compile 'org.sufficientlysecure:html-textview:3.5'
     /*glide*/
@@ -62,4 +61,6 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     /*pdfViewer*/
     compile 'com.github.barteksc:android-pdf-viewer:2.7.0'
+    compile 'com.android.support:design:26.0.0-beta1'
+    compile 'com.android.support:recyclerview-v7:26.0.0-beta1'
 }
