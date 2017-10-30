@@ -251,7 +251,7 @@ public class TestAssignmentActivity extends BaseActivity implements OnClickListe
 
                 }
 
-                if (type.equals("teach")) {
+                if (type.equals("teacher")) {
                     mHuPing.setVisibility(View.GONE);
                 } else {
                     mHuPing.setVisibility(View.VISIBLE);
@@ -318,7 +318,7 @@ public class TestAssignmentActivity extends BaseActivity implements OnClickListe
                     }
                 }
                 if (mAssignmentEntity != null && mAssignmentEntity.getContent() != null) {
-                    htv.setHtml(mAssignmentEntity.getContent(),new HtmlHttpImageGetter(htv,Constants.REFERER));
+                    htv.setHtml(mAssignmentEntity.getContent(), new HtmlHttpImageGetter(htv, Constants.REFERER));
                 } else {
                     htv.setHtml("暂无内容");
                 }
