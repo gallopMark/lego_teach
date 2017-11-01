@@ -43,7 +43,7 @@
             android:textSize="@dimen/font_size_16"
             android:visibility="gone" />
 
-        <ScrollView
+        <com.haoyu.app.view.VerticalScrollView
             android:id="@+id/contentView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -131,8 +131,8 @@
                     android:layout_marginTop="@dimen/margin_size_1"
                     android:background="@color/white"
                     android:gravity="top"
-                    android:minLines="4"
                     android:maxLines="4"
+                    android:minLines="4"
                     android:padding="@dimen/margin_size_10"
                     android:textColorHint="@color/blow_gray"
                     android:textSize="@dimen/font_size_16" />
@@ -166,7 +166,7 @@
                         android:textSize="@dimen/font_size_16" />
                 </LinearLayout>
             </LinearLayout>
-        </ScrollView>
+        </com.haoyu.app.view.VerticalScrollView>
 
         <LinearLayout
             android:id="@+id/bottomView"
