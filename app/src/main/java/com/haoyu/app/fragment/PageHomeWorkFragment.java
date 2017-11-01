@@ -7,6 +7,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -42,11 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.BindViews;
 import okhttp3.Request;
-
-import static com.haoyu.app.lego.teach.R.id.ll_assignment;
-import static com.haoyu.app.lego.teach.R.id.ll_state;
 
 /**
  * 创建日期：2017/2/4 on 17:14
@@ -61,32 +59,29 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
     LoadFailView loadFailView;
     @BindView(R.id.contentView)
     LinearLayout contentView;
-    @BindView(R.id.rl_shake)
-    View rl_shake;
+    @BindView(R.id.ll_shake)
+    LinearLayout ll_shake;
     @BindView(R.id.ic_state)
     ImageView ic_state;  //领取状态图片标识
-    @BindView(R.id.tv_readOverNum)
-    TextView tv_readOverNum;  //领取的作业数
-    @BindView(R.id.ll_notReceivedNum)
-    View ll_notReceivedNum;
-    @BindView(R.id.empty_receivedNum)
-    View empty_receivedNum;
-    @BindView(R.id.tv_notReceivedNum)
-    TextView tv_notReceivedNum;
-    @BindView(R.id.tv_shark)
-    View tv_shark;
-    @BindViews({R.id.ll_assignment, R.id.ll_state})
-    LinearLayout[] layouts;  //作业列表查看类型 （作业Id，作业状态）
+    @BindView(R.id.tv_tips)
+    TextView tv_tips;
     private List<MAssignmentEntity> mAssignments = new ArrayList<>();
-    @BindViews({R.id.tv_assignmentId, R.id.tv_assignmentState})
-    TextView[] textViews;
+    @BindView(R.id.tv_assignment)
+    TextView tv_assignment;
+    @BindView(R.id.tv_assignmentState)
+    TextView tv_assignmentState;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
+    @BindView(R.id.tv_empty)
+    TextView tv_empty;
     private List<MAssignmentUser> mDatas = new ArrayList<>();
     private AssignmentListAdapter adapter;
-    private boolean isRefresh, isLoadMore, needDialog = true;
+    private boolean isFirst = true, isRefresh, isLoadMore, needDialog = true;
     private int page = 1;
     private int limit = 20;
+    private boolean isLoad = false;
+    private int selectId, selectState;
+    private String assignmentId, state;
 
     @Override
     public int createView() {
@@ -114,7 +109,9 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
         addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<AssignmentUserNumResult>() {
             @Override
             public void onBefore(Request request) {
-                loadView.setVisibility(View.VISIBLE);
+                if (isFirst) {
+                    loadView.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -125,12 +122,41 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
 
             @Override
             public void onResponse(AssignmentUserNumResult response) {
+                isFirst = false;
                 loadView.setVisibility(View.GONE);
                 contentView.setVisibility(View.VISIBLE);
                 updateUI(response);
                 getAssignmentList();
             }
         }));
+    }
+
+    private void updateUI(AssignmentUserNumResult result) {
+        if (result != null && result.getResponseData() != null) {
+            int allNum = result.getResponseData().getAllNum();  //作业总数
+            int markNum = result.getResponseData().getMarkNum(); //批阅数
+            int notReceiveNum = result.getResponseData().getNotReceivedNum();
+            SpannableString ssb;
+            if (notReceiveNum > 0) {
+                ic_state.setImageResource(R.drawable.assignment_queren_tip);
+                String text = "您已批阅 " + markNum + "/" + allNum + " 份作业，还有 " + notReceiveNum
+                        + " 份待领取，点击领取作业";
+                ssb = new SpannableString(text);
+                ssb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.orange)), text.indexOf("阅") + 1, text.indexOf("份"), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ssb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.orange)), text.indexOf("有") + 1, text.lastIndexOf("份"), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+                tv_tips.setText(null);
+                tv_tips.append(ssb);
+                ll_shake.setEnabled(true);
+            } else {
+                ic_state.setImageResource(R.drawable.assignment_get_tips);
+                String text = "您已批阅 " + markNum + "/" + allNum + " 份作业，暂无待领取的作业。";
+                ssb = new SpannableString(text);
+                ssb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.orange)), text.indexOf("阅") + 1, text.indexOf("份"), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+                tv_tips.setText(null);
+                tv_tips.append(ssb);
+                ll_shake.setEnabled(false);
+            }
+        }
     }
 
     /*获取作业列表*/
@@ -166,16 +192,23 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
             @Override
             public void onResponse(AssignmentUserListResult response) {
                 hideTipDialog();
-                if (response != null && response.getResponseData() != null
-                        && response.getResponseData().getmAssignmentUsers() != null) {
-                    updateUI(response.getResponseData().getmAssignmentUsers(),
-                            response.getResponseData().getPaginator());
+                if (response != null && response.getResponseData() != null && response.getResponseData().getmAssignmentUsers() != null
+                        && response.getResponseData().getmAssignmentUsers().size() > 0) {
+                    updateUI(response.getResponseData().getmAssignmentUsers(), response.getResponseData().getPaginator());
+                } else {
+                    xRecyclerView.setVisibility(View.GONE);
+                    tv_empty.setVisibility(View.VISIBLE);
+                    tv_empty.setText("没有作业噢~");
                 }
             }
         }));
     }
 
     private void updateUI(List<MAssignmentUser> mAssignmentUsers, Paginator paginator) {
+        if (tv_empty.getVisibility() != View.GONE)
+            tv_empty.setVisibility(View.VISIBLE);
+        if (xRecyclerView.getVisibility() != View.VISIBLE)
+            xRecyclerView.setVisibility(View.VISIBLE);
         if (isRefresh) {
             mDatas.clear();
             xRecyclerView.refreshComplete(true);
@@ -201,9 +234,9 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
                 initData();
             }
         });
-        rl_shake.setOnClickListener(this);
-        layouts[0].setOnClickListener(this);
-        layouts[1].setOnClickListener(this);
+        tv_assignment.setOnClickListener(this);
+        tv_assignmentState.setOnClickListener(this);
+        ll_shake.setOnClickListener(this);
         adapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
@@ -221,22 +254,20 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
         });
     }
 
-    private boolean isLoad = false;
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.rl_shake:
+            case R.id.ll_shake:
                 getHomeWork();
                 break;
-            case ll_assignment:
+            case R.id.tv_assignment:
                 if (!isLoad) {
                     getAssignment();
                 } else {
                     setAssignmentPopupView(mAssignments);
                 }
                 break;
-            case ll_state:
+            case R.id.tv_assignmentState:
                 List<State> mStates = getStates();
                 setStatePopupView(mStates);
                 break;
@@ -264,10 +295,14 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
             public void onResponse(BaseResponseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseData() != null) {
-                    toastFullScreen("成功领取了" + response.getResponseData() + "分作业", true);
+                    try {
+                        int num = Integer.parseInt((String) response.getResponseData());
+                        toastFullScreen("成功领取了" + num + "分作业", true);
+                    } catch (Exception e) {
+                    }
                     isRefresh = true;
                     page = 1;
-                    getAssignmentList();
+                    initData();
                 } else {
                     if (response != null && response.getResponseMsg() != null) {
                         toast("暂时没有未批阅的作业");
@@ -307,9 +342,6 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
         return mDatas;
     }
 
-    private int selectItem;
-    private String assignmentId;
-
     private void setAssignmentPopupView(final List<MAssignmentEntity> list) {
         Drawable shouqi = ContextCompat.getDrawable(context,
                 R.drawable.assignment_shouqi);
@@ -319,31 +351,30 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
                 R.drawable.assignment_zhankai);
         zhankai.setBounds(0, 0, zhankai.getMinimumWidth(),
                 zhankai.getMinimumHeight());
-        textViews[0].setCompoundDrawables(null, null, shouqi, null);
-        View view = View.inflate(context, R.layout.popupwindow_listview,
-                null);
-        final PopupWindow AssignmentPopupWindow = new PopupWindow(view, layouts[0].getWidth(),
+        tv_assignment.setCompoundDrawables(null, null, shouqi, null);
+        View view = View.inflate(context, R.layout.popupwindow_listview, null);
+        final PopupWindow AssignmentPopupWindow = new PopupWindow(view, tv_assignment.getWidth(),
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         ListView lv = view.findViewById(R.id.listView);
-        final AssignmentAdapter adapter = new AssignmentAdapter(context, list, 0);
+        final AssignmentAdapter adapter = new AssignmentAdapter(context, list, selectId);
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 AssignmentPopupWindow.dismiss();
-                selectItem = position;
-                adapter.setSelectItem(selectItem);
+                selectId = position;
+                adapter.setSelectItem(selectId);
                 if (position == 0) {
                     assignmentId = null;
-                    textViews[0].setText("全部作业");
+                    tv_assignment.setText("全部作业");
                 } else {
                     assignmentId = list.get(position).getId();
-                    textViews[0].setText(list.get(position).getTitle());
+                    tv_assignment.setText(list.get(position).getTitle());
                 }
                 isRefresh = true;
-                page = 1;
                 needDialog = true;
+                page = 1;
                 getAssignmentList();
             }
         });
@@ -353,7 +384,7 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
         AssignmentPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
-                textViews[0].setCompoundDrawables(null, null, zhankai, null);
+                tv_assignment.setCompoundDrawables(null, null, zhankai, null);
             }
         });
         view.setOnClickListener(new View.OnClickListener() {
@@ -362,10 +393,8 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
                 AssignmentPopupWindow.dismiss();
             }
         });
-        AssignmentPopupWindow.showAsDropDown(layouts[0]);
+        AssignmentPopupWindow.showAsDropDown(tv_assignment);
     }
-
-    private String state;
 
     private void setStatePopupView(final List<State> list) {
         Drawable shouqi = ContextCompat.getDrawable(context,
@@ -376,30 +405,30 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
                 R.drawable.assignment_zhankai);
         zhankai.setBounds(0, 0, zhankai.getMinimumWidth(),
                 zhankai.getMinimumHeight());
-        textViews[1].setCompoundDrawables(null, null, shouqi, null);
+        tv_assignmentState.setCompoundDrawables(null, null, shouqi, null);
         View view = View.inflate(context, R.layout.popupwindow_listview,
                 null);
-        final PopupWindow statePopupWindow = new PopupWindow(view, layouts[1].getWidth(),
+        final PopupWindow statePopupWindow = new PopupWindow(view, tv_assignmentState.getWidth(),
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         ListView lv = view.findViewById(R.id.listView);
-        final StateAdapter adapter = new StateAdapter(context, list, 0);
+        final StateAdapter adapter = new StateAdapter(context, list, selectState);
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 statePopupWindow.dismiss();
-                selectItem = position;
-                adapter.setSelectItem(selectItem);
-                textViews[1].setText(list.get(position).getContent());
+                selectState = position;
+                adapter.setSelectItem(selectState);
+                tv_assignmentState.setText(list.get(position).getContent());
                 if (position == 0) {
                     state = null;
                 } else {
                     state = list.get(position).getState();
                 }
                 isRefresh = true;
-                page = 1;
                 needDialog = true;
+                page = 1;
                 getAssignmentList();
             }
         });
@@ -409,10 +438,10 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
         statePopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
-                textViews[1].setCompoundDrawables(null, null, zhankai, null);
+                tv_assignmentState.setCompoundDrawables(null, null, zhankai, null);
             }
         });
-        statePopupWindow.showAsDropDown(layouts[1]);
+        statePopupWindow.showAsDropDown(tv_assignmentState);
     }
 
     @Override
@@ -431,23 +460,6 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
         needDialog = false;
         page += 1;
         getAssignmentList();
-    }
-
-    private void updateUI(AssignmentUserNumResult userNumResult) {
-        if (userNumResult != null && userNumResult.getResponseData() != null) {
-            tv_readOverNum.setText(userNumResult.getResponseData().getMarkNum() + "/" + userNumResult.getResponseData().getAllNum());
-            if (userNumResult.getResponseData().getNotReceivedNum() > 0) {
-                ll_notReceivedNum.setVisibility(View.VISIBLE);
-                ic_state.setImageResource(R.drawable.assignment_queren_tip);
-                tv_notReceivedNum.setText(String.valueOf(userNumResult.getResponseData().getNotReceivedNum()));
-                tv_shark.setVisibility(View.VISIBLE);
-                rl_shake.setEnabled(true);
-            } else {
-                ic_state.setImageResource(R.drawable.assignment_get_tips);
-                empty_receivedNum.setVisibility(View.VISIBLE);
-                rl_shake.setEnabled(false);
-            }
-        }
     }
 
     @Override

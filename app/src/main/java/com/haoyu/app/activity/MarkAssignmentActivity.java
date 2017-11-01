@@ -2,20 +2,22 @@ package com.haoyu.app.activity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.haoyu.app.adapter.EvaluateItemAdapter;
+import com.haoyu.app.adapter.MFileInfoAdapter;
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
+import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.dialog.MaterialDialog;
 import com.haoyu.app.entity.EvaluateItemSubmissions;
 import com.haoyu.app.entity.MAssignmentUser;
@@ -25,10 +27,9 @@ import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.rxBus.RxBus;
 import com.haoyu.app.utils.Action;
-import com.haoyu.app.utils.Common;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
-import com.haoyu.app.utils.Page;
+import com.haoyu.app.view.AppToolBar;
 import com.haoyu.app.view.FullyLinearLayoutManager;
 import com.haoyu.app.view.LoadFailView;
 import com.haoyu.app.view.LoadingView;
@@ -48,36 +49,32 @@ import okhttp3.Request;
  */
 public class MarkAssignmentActivity extends BaseActivity implements View.OnClickListener {
     private MarkAssignmentActivity context = this;
-    @BindView(R.id.iv_back)
-    View iv_back;
-    @BindView(R.id.tv_userName)
-    TextView tv_userName;   //用户名称
+    @BindView(R.id.toolBar)
+    AppToolBar toolBar;
     @BindView(R.id.loadingView)
     LoadingView loadingView;
     @BindView(R.id.loadFailView)
     LoadFailView loadFailView;
+    @BindView(R.id.tv_empty)
+    TextView tv_empty;
     @BindView(R.id.contentView)
-    View contentView;
-    @BindView(R.id.tv_assignmentName)
-    TextView tv_assignmentName;  //作业名称
-    @BindView(R.id.mFilePager)
-    ViewPager mFilePager;  //文件列表
-    @BindView(R.id.mFileIndicator)
-    LinearLayout mFileIndicator;  //文件列表指示器
+    ScrollView contentView;
+    @BindView(R.id.bottomView)
+    LinearLayout bottomView;
+    @BindView(R.id.tv_name)
+    TextView tv_name;  //作业名称
+    @BindView(R.id.rv_file)
+    RecyclerView rv_file;
     @BindView(R.id.contentRV)
     RecyclerView contentRV;  //评价内容列表
-    @BindView(R.id.scoreLayout)
-    View scoreLayout;   //作业打分布局（默认不可见）
     @BindView(R.id.tv_score)
-    TextView tv_score;  //作业打分
-    @BindView(R.id.tv_fullScore)
-    TextView tv_fullScore;  //满分
+    TextView tv_score;   //作业打分布局（默认不可见）
     @BindView(R.id.bt_return)
     Button bt_return;
     @BindView(R.id.bt_submit)
     Button bt_submit;   //发回重做，提交按钮
     private String courseId, userName, relationId, state, mEvaluateSubmissionId, evaluateRelationId;
-    private double fullScore;
+    private int fullScore = 100;
 
     @Override
     public int setLayoutResID() {
@@ -90,12 +87,12 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         userName = getIntent().getStringExtra("userName");
         relationId = getIntent().getStringExtra("relationId");
         state = getIntent().getStringExtra("state");
-        tv_userName.setText(userName);
+        toolBar.setTitle_text(userName);
     }
 
     public void initData() {
         String url = Constants.OUTRT_NET + "/" + courseId + "/teach/m/assignment/mark/" + relationId + "/markByTeacher";
-        OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<MarkAssignmentResult>() {
+        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<MarkAssignmentResult>() {
             @Override
             public void onBefore(Request request) {
                 loadingView.setVisibility(View.VISIBLE);
@@ -110,63 +107,60 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
             @Override
             public void onResponse(MarkAssignmentResult response) {
                 loadingView.setVisibility(View.GONE);
-                contentView.setVisibility(View.VISIBLE);
-                if (response != null && response.getResponseData() != null && response.getResponseData().getmEvaluateSubmission() != null) {
-                    mEvaluateSubmissionId = response.getResponseData().getmEvaluateSubmission().getId();
-                    evaluateRelationId = response.getResponseData().getmEvaluateSubmission().getEvaluateRelationId();
-                }
-                if (response != null && response.getResponseData() != null && response.getResponseData().getmAssignmentUser() != null) {
-                    updateUI(response.getResponseData().getmAssignmentUser());
-                }
-                if (response != null && response.getResponseData() != null && response.getResponseData().getmEvaluateSubmission() != null
-                        && response.getResponseData().getmEvaluateSubmission().getmEvaluateItemSubmissions() != null) {
-                    updateUI(response.getResponseData().getmEvaluateSubmission().getmEvaluateItemSubmissions());
+                if (response != null && response.getResponseData() != null) {
+                    updateUI(response.getResponseData());
+                } else {
+                    tv_empty.setVisibility(View.VISIBLE);
                 }
             }
-        });
+        }));
     }
 
-    private ImageView[] indicatorViews;
-
-    private void updateUI(MAssignmentUser mAssignmentUser) {
-        if (mAssignmentUser.getmFileInfos() != null && mAssignmentUser.getmFileInfos().size() > 0) {
-            Page page = new Page(mAssignmentUser.getmFileInfos(), 2);
-            ArrayMap<Integer, List<MFileInfo>> mFileDatas = new ArrayMap<>();
-            int totalPage = page.getTotalPage();
-            for (int i = 0; i < totalPage; i++) {
-                mFileDatas.put(i, page.getPage(i + 1));
+    private void updateUI(MarkAssignmentResult.MarkAssignment markAssignment) {
+        if (markAssignment.getmAssignmentUser() != null) {
+            contentView.setVisibility(View.VISIBLE);
+            bottomView.setVisibility(View.VISIBLE);
+            MAssignmentUser mAssignmentUser = markAssignment.getmAssignmentUser();
+            if (mAssignmentUser.getmFileInfos() != null && mAssignmentUser.getmFileInfos().size() > 0) {
+                final List<MFileInfo> mDatas = mAssignmentUser.getmFileInfos();
+                FullyLinearLayoutManager layoutManager = new FullyLinearLayoutManager(context);
+                layoutManager.setOrientation(FullyLinearLayoutManager.VERTICAL);
+                rv_file.setLayoutManager(layoutManager);
+                MFileInfoAdapter adapter = new MFileInfoAdapter(mDatas);
+                rv_file.setAdapter(adapter);
+                adapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
+                        Intent intent = new Intent(context, MFileInfoActivity.class);
+                        intent.putExtra("fileInfo", mDatas.get(position));
+                        startActivity(intent);
+                    }
+                });
             }
-            if (totalPage > 1) {
-                indicatorViews = new ImageView[totalPage];
-                for (int i = 0; i < totalPage; i++) {   //位置从0开始 页数从1开始
-                    indicatorViews[i] = new ImageView(context);
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                    params.leftMargin = (int) getResources().getDimension(R.dimen.margin_size_4);
-                    indicatorViews[i].setLayoutParams(params);
-                    indicatorViews[i].setImageResource(R.drawable.course_yuandian_default);
-                    mFileIndicator.addView(indicatorViews[i]);
-                }
-                indicatorViews[0].setImageResource(R.drawable.course_yuandian_press);
+            if (mAssignmentUser.getState() != null && mAssignmentUser.getState().equals("return")) {
+                bt_return.setText("已退回重做");
+                bt_return.setEnabled(false);
+                bt_submit.setVisibility(View.GONE);
+            } else if (mAssignmentUser.getState() != null && mAssignmentUser.getState().equals("complete")) {
+                bt_submit.setText("重新批阅");
+                bt_submit.setEnabled(false);
+                tv_score.setText(String.valueOf(getScore(mAssignmentUser.getResponseScore())));
             }
-            FilePageAdapter adapter = new FilePageAdapter(mFileDatas);
-            mFilePager.setAdapter(adapter);
-        }
-        if (mAssignmentUser.getState() != null && mAssignmentUser.getState().equals("return")) {
-            bt_return.setText("已退回重做");
-            bt_return.setEnabled(false);
-            bt_submit.setVisibility(View.GONE);
-        } else if (mAssignmentUser.getState() != null && mAssignmentUser.getState().equals("complete")) {
-            bt_submit.setText("重新批阅");
-            bt_submit.setEnabled(false);
-            tv_score.setText(String.valueOf(getScore(mAssignmentUser.getResponseScore())));
-        }
-        if (mAssignmentUser.getmAssignment() != null) {
-            tv_assignmentName.setText(mAssignmentUser.getmAssignment().getTitle());
-            tv_fullScore.setText(String.valueOf((int) (100 - mAssignmentUser.getmAssignment().getMarkScorePct())));
-            fullScore = 100 - mAssignmentUser.getmAssignment().getMarkScorePct();
+            if (mAssignmentUser.getmAssignment() != null) {
+                tv_name.setText(mAssignmentUser.getmAssignment().getTitle());
+                fullScore = (int) (100 - mAssignmentUser.getmAssignment().getMarkScorePct());
+            } else {
+                fullScore = 100;
+            }
         } else {
-            tv_fullScore.setText(String.valueOf(100));
-            fullScore = 100;
+            tv_empty.setVisibility(View.VISIBLE);
+            return;
+        }
+        if (markAssignment.getmEvaluateSubmission() != null) {
+            mEvaluateSubmissionId = markAssignment.getmEvaluateSubmission().getId();
+            evaluateRelationId = markAssignment.getmEvaluateSubmission().getEvaluateRelationId();
+            if (markAssignment.getmEvaluateSubmission().getmEvaluateItemSubmissions() != null)
+                updateUI(markAssignment.getmEvaluateSubmission().getmEvaluateItemSubmissions());
         }
     }
 
@@ -188,23 +182,37 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         evaluateAdapter.setScoreChangeListener(new EvaluateItemAdapter.ScoreChangeListener() {
             @Override
             public void scoreChange(ArrayMap<Integer, EvaluateItemSubmissions> evaluateMap) {
-                scoreLayout.setVisibility(View.VISIBLE);
                 itemSubmissionsMap = evaluateMap;
                 bt_submit.setEnabled(true);
                 int score = 0;
                 for (Integer index : evaluateMap.keySet()) {
                     score += evaluateMap.get(index).getScore();
                 }
-                tv_score.setText(String.valueOf(score));
+                tv_score.setVisibility(View.VISIBLE);
+                setScoreText(score);
             }
         });
+    }
+
+    private void setScoreText(int score) {
+        String text = "您为作业打分：" + score + "分/满分" + fullScore + "分";
+        SpannableString ss = new SpannableString(text);
+        ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.orange)), text.indexOf("：") + 1, text.indexOf("/") - 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.orange)), text.lastIndexOf("满分") + 2, text.lastIndexOf("分"), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tv_score.setText(null);
+        tv_score.append(ss);
     }
 
     private ArrayMap<Integer, EvaluateItemSubmissions> itemSubmissionsMap;
 
     @Override
     public void setListener() {
-        iv_back.setOnClickListener(context);
+        toolBar.setOnLeftClickListener(new AppToolBar.OnLeftClickListener() {
+            @Override
+            public void onLeftClick(View view) {
+                finish();
+            }
+        });
         loadFailView.setOnRetryListener(new LoadFailView.OnRetryListener() {
             @Override
             public void onRetry(View v) {
@@ -213,37 +221,11 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         });
         bt_return.setOnClickListener(context);
         bt_submit.setOnClickListener(context);
-        mFilePager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (indicatorViews != null && indicatorViews.length > 0) {
-                    for (int i = 0; i < indicatorViews.length; i++) {
-                        if (i == position)
-                            indicatorViews[i].setImageResource(R.drawable.course_yuandian_press);
-                        else
-                            indicatorViews[i].setImageResource(R.drawable.course_yuandian_default);
-                    }
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.iv_back:
-                finish();
-                break;
             case R.id.bt_return:   //发回重做
                 MaterialDialog dialog = new MaterialDialog(context);
                 dialog.setTitle("提示");
@@ -261,7 +243,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
             case R.id.bt_submit:  //提交批阅
                 MaterialDialog mainDialog = new MaterialDialog(context);
                 mainDialog.setTitle("提示");
-                mainDialog.setMessage("确定要提交对作业\n的打分吗？");
+                mainDialog.setMessage("确定要提交对作业的打分吗？");
                 mainDialog.setNegativeButton("取消", null);
                 mainDialog.setPositiveButton("确定", new MaterialDialog.ButtonClickListener() {
                     @Override
@@ -358,91 +340,5 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
                 }
             }
         }, map);
-    }
-
-    class FilePageAdapter extends PagerAdapter {
-        private ArrayMap<Integer, List<MFileInfo>> mFileDatas;
-
-        public FilePageAdapter(ArrayMap<Integer, List<MFileInfo>> mFileDatas) {
-            this.mFileDatas = mFileDatas;
-        }
-
-        public int getItemPosition(Object object) {
-            return POSITION_NONE;
-        }
-
-        @Override
-        public int getCount() {
-            return mFileDatas.size();
-        }
-
-        @Override
-        public boolean isViewFromObject(View view, Object obj) {
-            return view == obj;
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            View view = getLayoutInflater().inflate(R.layout.assignment_file_item, null);
-            final List<MFileInfo> mFileInfos = mFileDatas.get(position);
-            ImageView iv_fileType1 = (ImageView) view.findViewById(R.id.iv_fileType1);
-            ImageView iv_fileType2 = (ImageView) view.findViewById(R.id.iv_fileType2);
-            TextView tv_mFileName1 = (TextView) view.findViewById(R.id.tv_mFileName1);
-            TextView tv_mFileName2 = (TextView) view.findViewById(R.id.tv_mFileName2);
-            View line = view.findViewById(R.id.line);
-            View file_layout1 = view.findViewById(R.id.file_layout1);
-            View file_layout2 = view.findViewById(R.id.file_layout2);
-            if (mFileInfos != null && mFileInfos.size() > 0) {
-                final MFileInfo fileInfo1 = mFileInfos.get(0);
-                Common.setFileType(fileInfo1.getUrl(), iv_fileType1);
-                tv_mFileName1.setText(fileInfo1.getFileName());
-                file_layout1.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (fileInfo1 != null && fileInfo1.getUrl() != null) {
-                            Intent intent = new Intent(context, MFileInfoActivity.class);
-                            intent.putExtra("fileInfo", fileInfo1);
-                            startActivity(intent);
-                        } else {
-                            toast(context, "文件链接不存在");
-                        }
-                    }
-                });
-                if (mFileInfos.size() > 1) {
-                    final MFileInfo fileInfo2 = mFileInfos.get(1);
-                    Common.setFileType(fileInfo2.getUrl(), iv_fileType2);
-                    tv_mFileName2.setText(fileInfo2.getFileName());
-                    file_layout2.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (fileInfo2 != null && fileInfo2.getUrl() != null) {
-                                Intent intent = new Intent(context, MFileInfoActivity.class);
-                                intent.putExtra("fileInfo", fileInfo2);
-                                startActivity(intent);
-                            } else {
-                                toast(context, "文件链接不存在");
-                            }
-                        }
-                    });
-
-                } else {
-                    line.setVisibility(View.GONE);
-                    file_layout2.setVisibility(View.GONE);
-                }
-            }
-            container.addView(view, 0);//添加页卡
-            return view;
-        }
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View) object);//删除页卡
-        }
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 }

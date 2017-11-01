@@ -37,7 +37,7 @@ import okhttp3.Request;
  * 描述:
  * 作者:马飞奔 Administrator
  */
-public class TeachStudyAllCCFragment extends BaseFragment implements XRecyclerView.LoadingListener {
+public class TSLessonChildFragment extends BaseFragment implements XRecyclerView.LoadingListener {
     @BindView(R.id.loadingView)
     LoadingView loadingView;
     @BindView(R.id.loadFailView)
@@ -50,6 +50,8 @@ public class TeachStudyAllCCFragment extends BaseFragment implements XRecyclerVi
     private TeachingLessonAdapter adapter;
     private boolean isRefresh, isLoadMore;
     private int page = 1;
+    private String baseUrl;
+    private int type = 1;
     private OnResponseListener onResponseListener;
 
     @Override
@@ -66,12 +68,20 @@ public class TeachStudyAllCCFragment extends BaseFragment implements XRecyclerVi
         xRecyclerView.setAdapter(adapter);
         xRecyclerView.setLoadingListener(this);
         emptyView.setText(getResources().getString(R.string.gen_class_emptylist));
+        type = getArguments().getInt("type", 1);
+        if (type == 1) {
+            baseUrl = Constants.OUTRT_NET + "/m/lesson/cmts/new?discussionRelations[0].relation.id=cmts"
+                    + "&discussionRelations[0].relation.type=lesson&orders=CREATE_TIME.DESC";
+        } else {
+            baseUrl = Constants.OUTRT_NET + "/m/lesson/cmts/new?discussionRelations[0].relation.id=cmts"
+                    + "&discussionRelations[0].relation.type=lesson&orders=CREATE_TIME.DESC"
+                    + "&creator.id=" + getUserId();
+        }
     }
 
     @Override
     public void initData() {
-        String url = Constants.OUTRT_NET + "/m/lesson/cmts/new?discussionRelations[0].relation.id=cmts"
-                + "&discussionRelations[0].relation.type=lesson&page=" + page + "&orders=CREATE_TIME.DESC";
+        String url = baseUrl + "&page=" + page;
         addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<TeachingLessonListResult>() {
             @Override
             public void onBefore(Request request) {

@@ -1,5 +1,6 @@
 package com.haoyu.app.fragment;
 
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.RadioButton;
@@ -14,23 +15,22 @@ import butterknife.BindString;
 import butterknife.BindView;
 
 /**
- * 创建日期：2017/8/15 on 10:12
- * 描述:教研研说
+ * 创建日期：2017/8/15 on 10:47
+ * 描述:教研活动
  * 作者:马飞奔 Administrator
  */
-public class TeachResearchSSFragment extends BaseFragment {
+public class TSMovementMainFragment extends BaseFragment {
     @BindView(R.id.radioGroup)
     RadioGroup radioGroup;
     @BindView(R.id.rb_all)
     RadioButton rb_all;
     @BindView(R.id.rb_my)
     RadioButton rb_my;
-    @BindString(R.string.study_says_all)
+    @BindString(R.string.teach_active_all)
     String text_all;
-    @BindString(R.string.study_says_my)
+    @BindString(R.string.teach_active_my)
     String text_my;
-    private TeachStudyAllSSFragment allSSFragment;
-    private TeachStudyMySSFragment mySSFragment;
+    private TSMovementChildFragment f1, f2;
     private FragmentManager fragmentManager;
     private int checkIndex = 1;
 
@@ -52,31 +52,37 @@ public class TeachResearchSSFragment extends BaseFragment {
         hideFragments(transaction);
         switch (checkIndex) {
             case 1:
-                if (allSSFragment == null) {
-                    allSSFragment = new TeachStudyAllSSFragment();
-                    allSSFragment.setOnResponseListener(new TeachStudyAllSSFragment.OnResponseListener() {
+                if (f1 == null) {
+                    f1 = new TSMovementChildFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("type", 1);
+                    f1.setArguments(bundle);
+                    f1.setOnResponseListener(new TSMovementChildFragment.OnResponseListener() {
                         @Override
                         public void getTotalCount(int totalCount) {
                             rb_all.setText(text_all + "（" + getCount(totalCount) + "）");
                         }
                     });
-                    transaction.add(R.id.content, allSSFragment);
+                    transaction.add(R.id.content, f1);
                 } else {
-                    transaction.show(allSSFragment);
+                    transaction.show(f1);
                 }
                 break;
             case 2:
-                if (mySSFragment == null) {
-                    mySSFragment = new TeachStudyMySSFragment();
-                    mySSFragment.setOnResponseListener(new TeachStudyMySSFragment.OnResponseListener() {
+                if (f2 == null) {
+                    f2 = new TSMovementChildFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("type", 2);
+                    f2.setArguments(bundle);
+                    f2.setOnResponseListener(new TSMovementChildFragment.OnResponseListener() {
                         @Override
                         public void getTotalCount(int totalCount) {
                             rb_my.setText(text_my + "（" + getCount(totalCount) + "）");
                         }
                     });
-                    transaction.add(R.id.content, mySSFragment);
+                    transaction.add(R.id.content, f2);
                 } else {
-                    transaction.show(mySSFragment);
+                    transaction.show(f2);
                 }
                 break;
         }
@@ -84,10 +90,10 @@ public class TeachResearchSSFragment extends BaseFragment {
     }
 
     private void hideFragments(FragmentTransaction transaction) {
-        if (allSSFragment != null)
-            transaction.hide(allSSFragment);
-        if (mySSFragment != null)
-            transaction.hide(mySSFragment);
+        if (f1 != null)
+            transaction.hide(f1);
+        if (f2 != null)
+            transaction.hide(f2);
     }
 
     private String getCount(int count) {

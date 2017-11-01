@@ -1,28 +1,21 @@
 package com.haoyu.app.fragment;
 
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.haoyu.app.adapter.CourseRegisterStatsAdapter;
 import com.haoyu.app.base.BaseFragment;
-import com.haoyu.app.entity.CourseRegisterStats;
 import com.haoyu.app.entity.CourseStatisticsResult;
-import com.haoyu.app.entity.Paginator;
-import com.haoyu.app.entity.StudentStatisticListResult;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.utils.TimeUtil;
 import com.haoyu.app.view.LoadFailView;
 import com.haoyu.app.view.LoadingView;
-import com.haoyu.app.xrecyclerview.XRecyclerView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.BindViews;
@@ -34,37 +27,25 @@ import okhttp3.Request;
  * 描述:
  * 作者:马飞奔 Administrator
  */
-public class PageStatisticsFragment extends BaseFragment implements View.OnClickListener, XRecyclerView.LoadingListener {
+public class PageStatisticsFragment extends BaseFragment {
     private String courseId;   //课程Id
-    @BindViews({R.id.loadView, R.id.loadView1, R.id.loadView2, R.id.loadView3})
-    LoadingView[] loadingViews;
+    @BindView(R.id.loadingView)
+    LoadingView loadingView;
     @BindView(R.id.loadFailView)
     LoadFailView loadFailView;
-    @BindViews({R.id.empty_msg1, R.id.empty_msg2, R.id.empty_msg3})
-    TextView[] emptyMsgs;
+    @BindView(R.id.tv_empty)
+    TextView tv_empty;
     @BindView(R.id.contentView)
     LinearLayout contentView;
-    @BindViews({R.id.allLayout, R.id.qualifiedLayout, R.id.noQualifiedLayout})
-    View[] layoutViews;
-    @BindViews({R.id.errorView1, R.id.errorView2, R.id.errorView3})
-    TextView[] errorViews;
     @BindViews({R.id.course_title, R.id.course_time, R.id.course_period, R.id.course_enroll})
     TextView[] courseViews;//课程标题,课程开课时间,课程学时,课程报读人数
     @BindViews({R.id.questionNUm, R.id.answerNum, R.id.noteNum, R.id.resourcesNum, R.id.discussNum})
     TextView[] numViews;//提问数，回答数，笔记数，资源数，研讨数
-    @BindViews({R.id.rb_all, R.id.rb_qualified, R.id.rb_noqualified})
-    RadioButton[] radioButtons;
-    @BindViews({R.id.allRV, R.id.qualifiedRV, R.id.noQualifiedRV})
-    XRecyclerView[] xRecyclerViews;
-    private List<CourseRegisterStats> allDatas = new ArrayList<>();
-    private List<CourseRegisterStats> qualifiedDatas = new ArrayList<>();
-    private List<CourseRegisterStats> noqualifiedDatas = new ArrayList<>();
-    private CourseRegisterStatsAdapter allAdapter, qualifiedAdapter, noqualifiedAdapter;
-    private boolean isLoadAll, isLoadQualified, isLoadNoqualified;
-    private boolean isRefresh, isLoadMore, needDialog = true;
-    private int page1 = 1, page2 = 1, page3 = 1;
-    private int limit = 20;
-    private int checkIndex = 1;
+    @BindView(R.id.radioGroup)
+    RadioGroup radioGroup;
+    private int totalCount;
+    private FragmentManager fragmentManager;
+    private PageStatisticSChildFragment f1, f2, f3;
 
     @Override
     public int createView() {
@@ -77,307 +58,64 @@ public class PageStatisticsFragment extends BaseFragment implements View.OnClick
         if (bundle != null) {
             courseId = bundle.getString("entityId");
         }
-        LinearLayoutManager allManager = new LinearLayoutManager(context);
-        allManager.setOrientation(LinearLayoutManager.VERTICAL);
-        xRecyclerViews[0].setLayoutManager(allManager);
-        LinearLayoutManager qualifiedManager = new LinearLayoutManager(context);
-        qualifiedManager.setOrientation(LinearLayoutManager.VERTICAL);
-        xRecyclerViews[1].setLayoutManager(qualifiedManager);
-        LinearLayoutManager noQualifiedManager = new LinearLayoutManager(context);
-        noQualifiedManager.setOrientation(LinearLayoutManager.VERTICAL);
-        xRecyclerViews[2].setLayoutManager(noQualifiedManager);
-        xRecyclerViews[0].setPullRefreshEnabled(false);
-        xRecyclerViews[1].setPullRefreshEnabled(false);
-        xRecyclerViews[2].setPullRefreshEnabled(false);
-        xRecyclerViews[0].setLoadingListener(this);
-        xRecyclerViews[1].setLoadingListener(this);
-        xRecyclerViews[2].setLoadingListener(this);
+        fragmentManager = getChildFragmentManager();
     }
 
     @Override
     public void initData() {
-        String url1 = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_stat/" + courseId;
-        addSubscription(OkHttpClientManager.getAsyn(context, url1, new OkHttpClientManager.ResultCallback<CourseStatisticsResult>() {
+        String url = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_stat/" + courseId;
+        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<CourseStatisticsResult>() {
             @Override
             public void onBefore(Request request) {
-                loadingViews[0].setVisibility(View.VISIBLE);
+                loadingView.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onError(Request request, Exception e) {
-                loadingViews[0].setVisibility(View.GONE);
+                loadingView.setVisibility(View.GONE);
                 loadFailView.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onResponse(CourseStatisticsResult response) {
-                loadingViews[0].setVisibility(View.GONE);
-                contentView.setVisibility(View.VISIBLE);
+                loadingView.setVisibility(View.GONE);
                 if (response != null && response.getResponseData() != null) {
                     updateUI(response.getResponseData());
+                } else {
+                    tv_empty.setVisibility(View.VISIBLE);
                 }
-                loadAll();
             }
         }));
     }
 
     @Override
     public void setListener() {
-        for (RadioButton radioButton : radioButtons)
-            radioButton.setOnClickListener(this);
         loadFailView.setOnRetryListener(new LoadFailView.OnRetryListener() {
             @Override
             public void onRetry(View v) {
                 initData();
             }
         });
-        for (TextView errorView : errorViews) {
-            errorView.setOnClickListener(this);
-        }
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkId) {
+                switch (checkId) {
+                    case R.id.rb_all:
+                        setCheckIndex(1);
+                        break;
+                    case R.id.rb_qualified:
+                        setCheckIndex(2);
+                        break;
+                    case R.id.rb_noqualified:
+                        setCheckIndex(3);
+                        break;
+                }
+            }
+        });
     }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.rb_all:
-                checkIndex = 1;
-                setSelectIndex(checkIndex);
-                break;
-            case R.id.rb_qualified:
-                checkIndex = 2;
-                setSelectIndex(checkIndex);
-                break;
-            case R.id.rb_noqualified:
-                checkIndex = 3;
-                setSelectIndex(checkIndex);
-                break;
-            case R.id.errorView1:
-                loadAll();
-                break;
-            case R.id.errorView2:
-                loadQualified();
-                break;
-            case R.id.errorView3:
-                loadNoqualified();
-                break;
-
-        }
-    }
-
-    private void setSelectIndex(int checkIndex) {
-        for (RadioButton radioButton : radioButtons)
-            radioButton.setChecked(false);
-        for (View layoutView : layoutViews)
-            layoutView.setVisibility(View.GONE);
-        isRefresh = false;
-        isLoadMore = false;
-        needDialog = true;
-        switch (checkIndex) {
-            case 1:
-                radioButtons[0].setChecked(true);
-                layoutViews[0].setVisibility(View.VISIBLE);
-                if (!isLoadAll) {
-                    loadAll();
-                }
-                break;
-            case 2:
-                radioButtons[1].setChecked(true);
-                layoutViews[1].setVisibility(View.VISIBLE);
-                if (!isLoadQualified) {
-                    loadQualified();
-                }
-                break;
-            case 3:
-                radioButtons[2].setChecked(true);
-                layoutViews[2].setVisibility(View.VISIBLE);
-                if (!isLoadNoqualified) {
-                    loadNoqualified();
-                }
-                break;
-        }
-    }
-
-    /*加载全部列表*/
-    private void loadAll() {
-        String url = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_register_stat/" + courseId
-                + "?page=" + page1 + "&limit=" + limit;
-        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<StudentStatisticListResult>() {
-            @Override
-            public void onBefore(Request request) {
-                if (needDialog) {
-                    loadingViews[1].setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onError(Request request, Exception e) {
-                loadingViews[1].setVisibility(View.GONE);
-                if (isRefresh) {
-                    xRecyclerViews[0].refreshComplete(false);
-                } else if (isLoadMore) {
-                    xRecyclerViews[0].loadMoreComplete(false);
-                } else {
-                    errorViews[0].setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onResponse(StudentStatisticListResult response) {
-                isLoadAll = true;
-                loadingViews[1].setVisibility(View.GONE);
-                if (response != null && response.getResponseData() != null
-                        && response.getResponseData().getmCourseRegisterStats() != null
-                        && response.getResponseData().getmCourseRegisterStats().size() > 0) {
-                    updateAllUI(response.getResponseData().getmCourseRegisterStats(), response.getResponseData().getPaginator());
-                } else {
-                    if (isRefresh) {
-                        xRecyclerViews[0].refreshComplete(true);
-                    } else if (isLoadMore) {
-                        xRecyclerViews[0].loadMoreComplete(true);
-                    } else {
-                        emptyMsgs[0].setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-        }));
-    }
-
-    /*加载合格列表*/
-    private void loadQualified() {
-        String url = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_register_stat/" + courseId
-                + "?page=" + page2 + "&limit=" + limit + "&courseResultState=pass";
-        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<StudentStatisticListResult>() {
-            @Override
-            public void onBefore(Request request) {
-                if (needDialog) {
-                    loadingViews[2].setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onError(Request request, Exception e) {
-                loadingViews[2].setVisibility(View.GONE);
-                if (isRefresh) {
-                    xRecyclerViews[1].refreshComplete(false);
-                } else if (isLoadMore) {
-                    xRecyclerViews[1].loadMoreComplete(false);
-                } else {
-                    errorViews[1].setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onResponse(StudentStatisticListResult response) {
-                isLoadQualified = true;
-                loadingViews[2].setVisibility(View.GONE);
-                xRecyclerViews[1].setVisibility(View.VISIBLE);
-                if (response != null && response.getResponseData() != null
-                        && response.getResponseData().getmCourseRegisterStats() != null
-                        && response.getResponseData().getmCourseRegisterStats().size() > 0) {
-                    updateQualifiedUI(response.getResponseData().getmCourseRegisterStats(), response.getResponseData().getPaginator());
-                } else {
-                    if (isRefresh) {
-                        xRecyclerViews[1].refreshComplete(true);
-                    } else if (isLoadMore) {
-                        xRecyclerViews[1].loadMoreComplete(true);
-                    } else {
-                        emptyMsgs[1].setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-        }));
-    }
-
-    /*加载不合格列表*/
-    private void loadNoqualified() {
-        String url = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_register_stat/" + courseId
-                + "?page=" + page3 + "&limit=" + limit + "&courseResultState=nopass";
-        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<StudentStatisticListResult>() {
-            @Override
-            public void onBefore(Request request) {
-                if (needDialog) {
-                    loadingViews[3].setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onError(Request request, Exception e) {
-                loadingViews[3].setVisibility(View.GONE);
-                if (isRefresh) {
-                    xRecyclerViews[2].refreshComplete(false);
-                } else if (isLoadMore) {
-                    xRecyclerViews[2].loadMoreComplete(false);
-                } else {
-                    errorViews[3].setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onResponse(StudentStatisticListResult response) {
-                isLoadNoqualified = true;
-                loadingViews[3].setVisibility(View.GONE);
-                xRecyclerViews[2].setVisibility(View.VISIBLE);
-                if (response != null && response.getResponseData() != null
-                        && response.getResponseData().getmCourseRegisterStats() != null
-                        && response.getResponseData().getmCourseRegisterStats().size() > 0) {
-                    updateNoQualifiedUI(response.getResponseData().getmCourseRegisterStats(), response.getResponseData().getPaginator());
-                } else {
-                    if (isRefresh) {
-                        xRecyclerViews[2].refreshComplete(true);
-                    } else if (isLoadMore) {
-                        xRecyclerViews[2].loadMoreComplete(true);
-                    } else {
-                        emptyMsgs[2].setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-        }));
-    }
-
-    @Override
-    public void onRefresh() {
-        isRefresh = true;
-        isLoadMore = false;
-        needDialog = false;
-        switch (checkIndex) {
-            case 1:
-                page1 = 1;
-                loadAll();
-                break;
-            case 2:
-                page2 = 1;
-                loadQualified();
-                break;
-            case 3:
-                page3 = 1;
-                loadNoqualified();
-                break;
-        }
-    }
-
-    @Override
-    public void onLoadMore() {
-        isRefresh = false;
-        isLoadMore = true;
-        needDialog = false;
-        switch (checkIndex) {
-            case 1:
-                page1 += 1;
-                loadAll();
-                break;
-            case 2:
-                page2 += 1;
-                loadQualified();
-                break;
-            case 3:
-                page3 += 1;
-                loadNoqualified();
-                break;
-        }
-    }
-
 
     private void updateUI(CourseStatisticsResult.CourseStatisticsData responseData) {
+        contentView.setVisibility(View.VISIBLE);
         if (responseData.getmCourse() != null) {
             courseViews[0].setText(responseData.getmCourse().getTitle());
             if (responseData.getmCourse().getmTimePeriod() != null) {
@@ -395,59 +133,63 @@ public class PageStatisticsFragment extends BaseFragment implements View.OnClick
         numViews[2].setText(String.valueOf(responseData.getNoteNum()));
         numViews[3].setText(String.valueOf(responseData.getResourceNum()));
         numViews[4].setText(String.valueOf(responseData.getDiscussionNum()));
-        allAdapter = new CourseRegisterStatsAdapter(context, allDatas, responseData.getActivityAssignmentNum());
-        xRecyclerViews[0].setAdapter(allAdapter);
-        qualifiedAdapter = new CourseRegisterStatsAdapter(context, qualifiedDatas, responseData.getActivityAssignmentNum());
-        xRecyclerViews[1].setAdapter(qualifiedAdapter);
-        noqualifiedAdapter = new CourseRegisterStatsAdapter(context, noqualifiedDatas, responseData.getActivityAssignmentNum());
-        xRecyclerViews[2].setAdapter(noqualifiedAdapter);
+        totalCount = responseData.getActivityAssignmentNum();
+        setCheckIndex(1);
     }
 
-    private void updateAllUI(List<CourseRegisterStats> mDatas, Paginator paginator) {
-        if (isRefresh) {
-            allDatas.clear();
-            xRecyclerViews[0].refreshComplete(true);
-        } else if (isLoadMore) {
-            xRecyclerViews[0].loadMoreComplete(true);
+    private void setCheckIndex(int checkIndex) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        hideFragments(transaction);
+        switch (checkIndex) {
+            case 1:
+                if (f1 == null) {
+                    f1 = new PageStatisticSChildFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("courseId", courseId);
+                    bundle.putInt("type", 1);
+                    bundle.putInt("totalCount", totalCount);
+                    f1.setArguments(bundle);
+                    transaction.add(R.id.content, f1);
+                } else {
+                    transaction.show(f1);
+                }
+                break;
+            case 2:
+                if (f2 == null) {
+                    f2 = new PageStatisticSChildFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("courseId", courseId);
+                    bundle.putInt("type", 2);
+                    bundle.putInt("totalCount", totalCount);
+                    f2.setArguments(bundle);
+                    transaction.add(R.id.content, f2);
+                } else {
+                    transaction.show(f2);
+                }
+                break;
+            case 3:
+                if (f3 == null) {
+                    f3 = new PageStatisticSChildFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("courseId", courseId);
+                    bundle.putInt("type", 3);
+                    bundle.putInt("totalCount", totalCount);
+                    f3.setArguments(bundle);
+                    transaction.add(R.id.content, f3);
+                } else {
+                    transaction.show(f3);
+                }
+                break;
         }
-        allDatas.addAll(mDatas);
-        allAdapter.notifyDataSetChanged();
-        if (paginator != null && paginator.getHasNextPage()) {
-            xRecyclerViews[0].setLoadingMoreEnabled(true);
-        } else {
-            xRecyclerViews[0].setLoadingMoreEnabled(false);
-        }
+        transaction.commit();
     }
 
-    private void updateQualifiedUI(List<CourseRegisterStats> mDatas, Paginator paginator) {
-        if (isRefresh) {
-            qualifiedDatas.clear();
-            xRecyclerViews[1].refreshComplete(true);
-        } else if (isLoadMore) {
-            xRecyclerViews[1].loadMoreComplete(true);
-        }
-        qualifiedDatas.addAll(mDatas);
-        qualifiedAdapter.notifyDataSetChanged();
-        if (paginator != null && paginator.getHasNextPage()) {
-            xRecyclerViews[1].setLoadingMoreEnabled(true);
-        } else {
-            xRecyclerViews[1].setLoadingMoreEnabled(false);
-        }
-    }
-
-    private void updateNoQualifiedUI(List<CourseRegisterStats> mDatas, Paginator paginator) {
-        if (isRefresh) {
-            noqualifiedDatas.clear();
-            xRecyclerViews[2].refreshComplete(true);
-        } else if (isLoadMore) {
-            xRecyclerViews[2].loadMoreComplete(true);
-        }
-        noqualifiedDatas.addAll(mDatas);
-        noqualifiedAdapter.notifyDataSetChanged();
-        if (paginator != null && paginator.getHasNextPage()) {
-            xRecyclerViews[2].setLoadingMoreEnabled(true);
-        } else {
-            xRecyclerViews[2].setLoadingMoreEnabled(false);
-        }
+    private void hideFragments(FragmentTransaction transaction) {
+        if (f1 != null)
+            transaction.hide(f1);
+        if (f2 != null)
+            transaction.hide(f2);
+        if (f3 != null)
+            transaction.hide(f3);
     }
 }

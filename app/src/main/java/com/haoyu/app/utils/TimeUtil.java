@@ -557,7 +557,7 @@ public class TimeUtil {
         int minute2 = c1.get(Calendar.MINUTE);
         String m2 = minute1 > 9 ? String.valueOf(minute2) : "0" + minute2;
         if (year1 == year2) {
-            return String.format(Locale.getDefault(), format1, year1, month1 + 1, date1, h1, m1) + "-"
+            return String.format(Locale.getDefault(), format1, year1, month1 + 1, date1, h1, m1) + " ～ "
                     + String.format(Locale.getDefault(), format2, month2 + 1, date2, h2, m2);
         }
         return String.format(Locale.getDefault(), format1, year1, month1 + 1, date1, h1, m1) + "至"
