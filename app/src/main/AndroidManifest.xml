@@ -195,7 +195,9 @@
         <!--摇一摇领取作业-->
         <activity android:name="com.haoyu.app.activity.AssignmentShakeActivity" />
         <!--批改作业-->
-        <activity android:name="com.haoyu.app.activity.MarkAssignmentActivity" />
+        <activity
+            android:name="com.haoyu.app.activity.MarkAssignmentActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <!--上传资源-->
         <activity
             android:name="com.haoyu.app.activity.ResourcesUploadActivity"

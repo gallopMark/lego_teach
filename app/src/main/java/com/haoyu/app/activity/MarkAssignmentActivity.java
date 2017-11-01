@@ -2,13 +2,17 @@ package com.haoyu.app.activity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -24,9 +28,7 @@ import com.haoyu.app.entity.MAssignmentUser;
 import com.haoyu.app.entity.MFileInfo;
 import com.haoyu.app.entity.MarkAssignmentResult;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.rxBus.MessageEvent;
-import com.haoyu.app.rxBus.RxBus;
-import com.haoyu.app.utils.Action;
+import com.haoyu.app.utils.Common;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.AppToolBar;
@@ -67,6 +69,12 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
     RecyclerView rv_file;
     @BindView(R.id.contentRV)
     RecyclerView contentRV;  //评价内容列表
+    @BindView(R.id.et_remark)
+    EditText et_remark;
+    @BindView(R.id.ll_check)
+    LinearLayout ll_check;
+    @BindView(R.id.checkBox)
+    CheckBox checkBox;
     @BindView(R.id.tv_score)
     TextView tv_score;   //作业打分布局（默认不可见）
     @BindView(R.id.bt_return)
@@ -75,6 +83,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
     Button bt_submit;   //发回重做，提交按钮
     private String courseId, userName, relationId, state, mEvaluateSubmissionId, evaluateRelationId;
     private int fullScore = 100;
+    private ArrayMap<Integer, EvaluateItemSubmissions> evaluateMap;
 
     @Override
     public int setLayoutResID() {
@@ -88,6 +97,9 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         relationId = getIntent().getStringExtra("relationId");
         state = getIntent().getStringExtra("state");
         toolBar.setTitle_text(userName);
+        et_remark.setHint("请输入评语");
+        TextView tv_checkTips = findViewById(R.id.tv_checkTips);
+        tv_checkTips.setText("评选为优秀作业");
     }
 
     public void initData() {
@@ -181,8 +193,8 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         contentRV.setAdapter(evaluateAdapter);
         evaluateAdapter.setScoreChangeListener(new EvaluateItemAdapter.ScoreChangeListener() {
             @Override
-            public void scoreChange(ArrayMap<Integer, EvaluateItemSubmissions> evaluateMap) {
-                itemSubmissionsMap = evaluateMap;
+            public void scoreChange(ArrayMap<Integer, EvaluateItemSubmissions> arrayMap) {
+                evaluateMap = arrayMap;
                 bt_submit.setEnabled(true);
                 int score = 0;
                 for (Integer index : evaluateMap.keySet()) {
@@ -203,8 +215,6 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         tv_score.append(ss);
     }
 
-    private ArrayMap<Integer, EvaluateItemSubmissions> itemSubmissionsMap;
-
     @Override
     public void setListener() {
         toolBar.setOnLeftClickListener(new AppToolBar.OnLeftClickListener() {
@@ -219,6 +229,22 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
                 initData();
             }
         });
+        contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver
+                .OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect rect = new Rect();
+                //获取root在窗体的可视区域
+                contentView.getWindowVisibleDisplayFrame(rect);
+                //获取root在窗体的不可视区域高度(被其他View遮挡的区域高度)
+                int rootInvisibleHeight = contentView.getRootView().getHeight() - rect.bottom;
+                //若不可视区域高度大于100，则键盘显示
+                if (rootInvisibleHeight > 100) {
+                    contentView.fullScroll(ScrollView.FOCUS_DOWN); //滚动到底部
+                }
+            }
+        });
+        ll_check.setOnClickListener(context);
         bt_return.setOnClickListener(context);
         bt_submit.setOnClickListener(context);
     }
@@ -226,7 +252,14 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.ll_check:
+                if (checkBox.isChecked())
+                    checkBox.setChecked(false);
+                else
+                    checkBox.setChecked(true);
+                break;
             case R.id.bt_return:   //发回重做
+                Common.hideSoftInput(context, et_remark);
                 MaterialDialog dialog = new MaterialDialog(context);
                 dialog.setTitle("提示");
                 dialog.setMessage("作业退回后无法重新批阅，只能等待学员再次提交，确定要退回该作业吗？");
@@ -241,6 +274,13 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
                 dialog.show();
                 break;
             case R.id.bt_submit:  //提交批阅
+                Common.hideSoftInput(context, et_remark);
+                boolean isChecked = checkBox.isChecked();
+                if (isChecked) {
+                    toast(context, "已评优");
+                } else {
+                    toast(context, "未评优");
+                }
                 MaterialDialog mainDialog = new MaterialDialog(context);
                 mainDialog.setTitle("提示");
                 mainDialog.setMessage("确定要提交对作业的打分吗？");
@@ -264,7 +304,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         Map<String, String> map = new HashMap<>();
         map.put("_method", "put");
         map.put("state", "return");
-        OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
             public void onBefore(Request request) {
                 showTipDialog();
@@ -280,15 +320,15 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
             public void onResponse(BaseResponseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-                    MessageEvent event = new MessageEvent();
-                    event.action = Action.RETURN_ASSIGNMENT_REDO;
-                    RxBus.getDefault().post(event);
+                    Intent intent = new Intent();
+                    intent.putExtra("type", 1);
+                    setResult(RESULT_OK, intent);
                     finish();
                 } else {
                     toastFullScreen("退回失败", false);
                 }
             }
-        }, map);
+        }, map));
     }
 
     /*提交批阅*/
@@ -300,15 +340,15 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         map.put("_method", "put");
         map.put("evaluateRelation.id", evaluateRelationId);
         map.put("evaluateRelation.relation.id", relationId);
-        if (itemSubmissionsMap != null) {
-            for (Integer index : itemSubmissionsMap.keySet()) {
-                EvaluateItemSubmissions item = itemSubmissionsMap.get(index);
+        if (evaluateMap != null) {
+            for (Integer index : evaluateMap.keySet()) {
+                EvaluateItemSubmissions item = evaluateMap.get(index);
                 if (item != null) {
                     map.put("evaluateItemSubmissionMap[" + item.getId() + "].score", String.valueOf(item.getStarCount()));
                 }
             }
         }
-        OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
             public void onBefore(Request request) {
                 showTipDialog();
@@ -325,20 +365,20 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
                     int score = 0;
-                    if (itemSubmissionsMap != null) {
-                        for (Integer index : itemSubmissionsMap.keySet()) {
-                            score += itemSubmissionsMap.get(index).getScore();
+                    if (evaluateMap != null) {
+                        for (Integer index : evaluateMap.keySet()) {
+                            score += evaluateMap.get(index).getScore();
                         }
                     }
-                    MessageEvent event = new MessageEvent();
-                    event.action = Action.READ_OVER_ASSIGNMENT;
-                    event.arg1 = score;
-                    RxBus.getDefault().post(event);
+                    Intent intent = new Intent();
+                    intent.putExtra("type", 2);
+                    intent.putExtra("score", score);
+                    setResult(RESULT_OK, intent);
                     finish();
                 } else {
                     toast(context, "提交失败");
                 }
             }
-        }, map);
+        }, map));
     }
 }

@@ -32,10 +32,10 @@ public class EvaluateItemAdapter extends BaseArrayRecyclerAdapter<EvaluateItemSu
     }
 
     @Override
-    public void onBindHoder(RecyclerHolder holder, final EvaluateItemSubmissions evaluateItemSubmissions, final int position) {
+    public void onBindHoder(RecyclerHolder holder, final EvaluateItemSubmissions submissions, final int position) {
         TextView tv_content = holder.obtainView(R.id.tv_content);
         final StarBar ratingBar = holder.obtainView(R.id.ratingBar);
-        tv_content.setText(evaluateItemSubmissions.getContent());
+        tv_content.setText(submissions.getContent());
         ratingBar.setIntegerMark(true);
         ratingBar.setOnStarChangeListener(new StarBar.OnStarChangeListener() {
             @Override
@@ -46,9 +46,9 @@ public class EvaluateItemAdapter extends BaseArrayRecyclerAdapter<EvaluateItemSu
                 } else {
                     itemSubmissions = evaluateMap.get(position);
                 }
-                itemSubmissions.setId(evaluateItemSubmissions.getId());
+                itemSubmissions.setId(submissions.getId());
                 itemSubmissions.setStarCount((int) mark);
-                itemSubmissions.setScore(getScore(mark, evaluateItemSubmissions.getEvaluateMark()));
+                itemSubmissions.setScore(getScore(mark, submissions.getEvaluateMark()));
                 evaluateMap.put(position, itemSubmissions);
                 if (scoreChangeListener != null) {
                     scoreChangeListener.scoreChange(evaluateMap);
@@ -60,7 +60,7 @@ public class EvaluateItemAdapter extends BaseArrayRecyclerAdapter<EvaluateItemSu
             ratingBar.setStarMark(0);
         } else {
             ratingBar.setCanEdit(true);
-            ratingBar.setStarMark((float) evaluateItemSubmissions.getScore());
+            ratingBar.setStarMark((float) submissions.getScore());
         }
     }
 

@@ -6,56 +6,55 @@
     android:background="@color/transparent"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:paddingBottom="12dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="12dp">
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/margin_size_12"
+        android:paddingLeft="@dimen/margin_size_16"
+        android:paddingRight="@dimen/margin_size_16"
+        android:paddingTop="@dimen/margin_size_12">
 
         <TextView
             android:id="@+id/tv_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:lineSpacingExtra="1.5dp"
+            android:lineSpacingExtra="@dimen/margin_size_2"
             android:text="教学活动符合现代教育理念,体现新教材教学方法，教学课程深入浅出，形象生动，精彩有趣，启发引导性强。"
-            android:textColor="@color/gray"
-            android:textSize="16sp" />
+            android:textColor="@color/blow_gray"
+            android:textSize="@dimen/font_size_16" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/tv_content"
-            android:layout_marginTop="16dp"
+            android:layout_gravity="right"
+            android:layout_marginTop="@dimen/margin_size_16"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:lineSpacingExtra="1.5dip"
                 android:text="得分:"
-                android:textSize="16sp" />
+                android:textSize="@dimen/font_size_18" />
 
             <com.haoyu.app.view.StarBar
                 android:id="@+id/ratingBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginLeft="10dp"
-                star:starDistance="10dp"
+                android:layout_marginLeft="@dimen/margin_size_10"
+                star:starDistance="@dimen/margin_size_10"
                 star:starEmpty="@drawable/assignment_default_xing"
                 star:starFill="@drawable/assignment_press_xing"
                 star:starNumber="5"
-                star:starSize="16dp" />
+                star:starSize="@dimen/margin_size_20" />
         </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/margin_size_1"
         android:background="@color/spaceColor" />
 </LinearLayout>

@@ -25,29 +25,31 @@ public class AssignmentListAdapter extends BaseArrayRecyclerAdapter<MAssignmentU
     }
 
     @Override
-    public void onBindHoder(RecyclerHolder holder, MAssignmentUser mAssignmentUser, int position) {
+    public void onBindHoder(RecyclerHolder holder, MAssignmentUser entity, int position) {
         TextView tv_userName = holder.obtainView(R.id.tv_userName);
         TextView tv_responseScore = holder.obtainView(R.id.tv_responseScore);
         TextView tv_state = holder.obtainView(R.id.tv_state);
-        if (mAssignmentUser.getmUser() != null) {
-            tv_userName.setText(mAssignmentUser.getmUser().getRealName());
+        if (entity.getmUser() != null) {
+            tv_userName.setText(entity.getmUser().getRealName());
+        } else {
+            tv_userName.setText(null);
         }
-        if (mAssignmentUser.getState() != null && mAssignmentUser.getState().equals("commit")) {
+        if (entity.getState() != null && entity.getState().equals("commit")) {
             tv_responseScore.setText("--");
             tv_state.setText("待批阅");
             tv_state.setTextColor(ContextCompat.getColor(context, R.color.blue));
-        } else if (mAssignmentUser.getState() != null && mAssignmentUser.getState().equals("complete")) {
-            tv_responseScore.setText(String.valueOf(getScore(mAssignmentUser.getResponseScore())));
+        } else if (entity.getState() != null && entity.getState().equals("complete")) {
+            tv_responseScore.setText(String.valueOf(getScore(entity.getResponseScore())));
             tv_state.setText("已批阅");
             tv_state.setTextColor(ContextCompat.getColor(context, R.color.defaultColor));
-        } else if (mAssignmentUser.getState() != null && mAssignmentUser.getState().equals("return")) {
+        } else if (entity.getState() != null && entity.getState().equals("return")) {
             tv_responseScore.setText("--");
             tv_state.setText("发回重做");
             tv_state.setTextColor(ContextCompat.getColor(context, R.color.orange));
         } else {
             tv_responseScore.setText("--");
-            tv_state.setText("状态未知");
-            tv_state.setTextColor(ContextCompat.getColor(context, R.color.red));
+            tv_state.setText("--");
+            tv_state.setTextColor(ContextCompat.getColor(context, R.color.blow_gray));
         }
     }
 

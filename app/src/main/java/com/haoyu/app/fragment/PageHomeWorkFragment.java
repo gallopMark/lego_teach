@@ -1,5 +1,6 @@
 package com.haoyu.app.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
@@ -32,8 +33,6 @@ import com.haoyu.app.entity.MAssignmentUser;
 import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.entity.State;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.rxBus.MessageEvent;
-import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.LoadFailView;
@@ -82,6 +81,7 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
     private boolean isLoad = false;
     private int selectId, selectState;
     private String assignmentId, state;
+    private int selected = -1;
 
     @Override
     public int createView() {
@@ -224,8 +224,6 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
         }
     }
 
-    private int clickPosition;
-
     @Override
     public void setListener() {
         loadFailView.setOnRetryListener(new LoadFailView.OnRetryListener() {
@@ -240,16 +238,19 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
         adapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
-                Intent intent = new Intent(context, MarkAssignmentActivity.class);
-                intent.putExtra("courseId", courseId);
-                clickPosition = position - 1;
-                MAssignmentUser mAssignmentUser = mDatas.get(clickPosition);
-                if (mAssignmentUser.getmUser() != null) {
-                    intent.putExtra("userName", mAssignmentUser.getmUser().getRealName());
+                selected = position - 1;
+                if (selected >= 0 && selected < mDatas.size()) {
+                    Intent intent = new Intent(context, MarkAssignmentActivity.class);
+                    intent.putExtra("courseId", courseId);
+                    MAssignmentUser mAssignmentUser = mDatas.get(selected);
+                    if (mAssignmentUser.getmUser() != null) {
+                        intent.putExtra("userName", mAssignmentUser.getmUser().getRealName());
+                    }
+                    intent.putExtra("state", mAssignmentUser.getState());
+                    intent.putExtra("relationId", mAssignmentUser.getId());
+                    startActivityForResult(intent, 1);
                 }
-                intent.putExtra("state", mAssignmentUser.getState());
-                intent.putExtra("relationId", mAssignmentUser.getId());
-                startActivity(intent);
+
             }
         });
     }
@@ -463,20 +464,23 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
     }
 
     @Override
-    public void obBusEvent(MessageEvent event) {
-        if (event.action.equals(Action.GET_COURSE_ASSIGNMENT)) {
-            isRefresh = true;
-            page = 1;
-            getAssignmentList();
-        } else if (event.getAction().equals(Action.READ_OVER_ASSIGNMENT)) {
-            mDatas.get(clickPosition).setState("complete");
-            mDatas.get(clickPosition).setResponseScore(event.arg1);
-            adapter.notifyDataSetChanged();
-            toastFullScreen("批阅完成", true);
-        } else if (event.getAction().equals(Action.RETURN_ASSIGNMENT_REDO)) {
-            mDatas.get(clickPosition).setState("return");
-            adapter.notifyDataSetChanged();
-            toastFullScreen("发回重做完成", true);
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
+            int type = data.getIntExtra("type", 0);
+            if (type == 1) {  //退回重做
+                if (selected >= 0 && selected < mDatas.size()) {
+                    mDatas.get(selected).setState("return");
+                    adapter.notifyDataSetChanged();
+                }
+            } else if (type == 2) {
+                int score = data.getIntExtra("score", 0);
+                if (selected >= 0 && selected < mDatas.size()) {
+                    mDatas.get(selected).setState("complete");
+                    mDatas.get(selected).setResponseScore(score);
+                    adapter.notifyDataSetChanged();
+                }
+            }
         }
     }
 

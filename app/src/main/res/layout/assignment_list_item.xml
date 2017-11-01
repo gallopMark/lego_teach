@@ -9,8 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="16dp"
-        android:paddingTop="16dp">
+        android:paddingBottom="@dimen/margin_size_16"
+        android:paddingTop="@dimen/margin_size_16">
 
         <TextView
             android:id="@+id/tv_userName"
@@ -19,7 +19,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="周洋佳"
-            android:textSize="16sp" />
+            android:textSize="@dimen/font_size_16" />
 
         <TextView
             android:id="@+id/tv_responseScore"
@@ -27,37 +27,25 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textColor="@color/gray"
             android:text="80"
-            android:textSize="16sp" />
+            android:textColor="@color/gray"
+            android:textSize="@dimen/font_size_16" />
 
-        <RelativeLayout
+        <TextView
+            android:id="@+id/tv_state"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tv_state"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_centerInParent="true"
-                android:text="待批阅"
-                android:textSize="16sp" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/tv_state"
-                android:layout_marginLeft="16dp"
-                android:src="@drawable/go_into" />
-        </RelativeLayout>
+            android:drawablePadding="@dimen/margin_size_10"
+            android:drawableRight="@drawable/go_into"
+            android:gravity="center"
+            android:paddingRight="@dimen/margin_size_12"
+            android:text="待批阅"
+            android:textSize="@dimen/font_size_16" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/margin_size_1"
         android:background="@color/spaceColor" />
 </LinearLayout>
