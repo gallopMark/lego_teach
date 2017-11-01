@@ -173,6 +173,9 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
 
             @Override
             public void onBefore(Request request) {
+                if (tv_empty.getVisibility() != View.GONE) {
+                    tv_empty.setVisibility(View.GONE);
+                }
                 if (needDialog) {
                     showTipDialog();
                 }
@@ -186,6 +189,8 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
                 } else if (isLoadMore) {
                     page -= 1;
                     xRecyclerView.loadMoreComplete(false);
+                } else {
+                    onNetWorkError();
                 }
             }
 
@@ -198,7 +203,7 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
                 } else {
                     xRecyclerView.setVisibility(View.GONE);
                     tv_empty.setVisibility(View.VISIBLE);
-                    tv_empty.setText("没有作业噢~");
+                    tv_empty.setText("没有作业~");
                 }
             }
         }));
