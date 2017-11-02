@@ -25,6 +25,7 @@ import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.basehelper.AppBaseAdapter;
 import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.basehelper.ViewHolder;
+import com.haoyu.app.dialog.MaterialDialog;
 import com.haoyu.app.entity.AssignmentListResult;
 import com.haoyu.app.entity.AssignmentUserListResult;
 import com.haoyu.app.entity.AssignmentUserNumResult;
@@ -245,19 +246,30 @@ public class PageHomeWorkFragment extends BaseFragment implements View.OnClickLi
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
                 selected = position - 1;
                 if (selected >= 0 && selected < mDatas.size()) {
-                    Intent intent = new Intent(context, MarkAssignmentActivity.class);
-                    intent.putExtra("courseId", courseId);
-                    MAssignmentUser mAssignmentUser = mDatas.get(selected);
-                    if (mAssignmentUser.getmUser() != null) {
-                        intent.putExtra("userName", mAssignmentUser.getmUser().getRealName());
+                    MAssignmentUser entity = mDatas.get(selected);
+                    if (entity.getState() != null && entity.getState().equals("return")) {
+                        showTips();
+                    } else {
+                        Intent intent = new Intent(context, MarkAssignmentActivity.class);
+                        intent.putExtra("courseId", courseId);
+                        if (entity.getmUser() != null) {
+                            intent.putExtra("userName", entity.getmUser().getRealName());
+                        }
+                        intent.putExtra("state", entity.getState());
+                        intent.putExtra("relationId", entity.getId());
+                        startActivityForResult(intent, 1);
                     }
-                    intent.putExtra("state", mAssignmentUser.getState());
-                    intent.putExtra("relationId", mAssignmentUser.getId());
-                    startActivityForResult(intent, 1);
                 }
-
             }
         });
+    }
+
+    private void showTips() {
+        MaterialDialog dialog = new MaterialDialog(context);
+        dialog.setTitle("提示");
+        dialog.setMessage("作业已退回重做无法重新批阅，需要等待学员再次提交！");
+        dialog.setPositiveButton("我知道了", null);
+        dialog.show();
     }
 
     @Override

@@ -25,9 +25,6 @@ public class EvaluateItemSubmissions implements Serializable {
     @SerializedName("score")
     private double score;
 
-    private int starCount;  //星星个数
-    private double evaluateMark;   //评价分
-
     public String getId() {
         return id;
     }
@@ -50,21 +47,5 @@ public class EvaluateItemSubmissions implements Serializable {
 
     public void setScore(double score) {
         this.score = score;
-    }
-
-    public void setStarCount(int starCount) {
-        this.starCount = starCount;
-    }
-
-    public int getStarCount() {
-        return starCount;
-    }
-
-    public double getEvaluateMark() {
-        return evaluateMark;
-    }
-
-    public void setEvaluateMark(double evaluateMark) {
-        this.evaluateMark = evaluateMark;
     }
 }

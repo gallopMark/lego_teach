@@ -99,71 +99,78 @@
                     android:overScrollMode="never" />
 
                 <LinearLayout
+                    android:id="@+id/ll_remark"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_size_6"
-                    android:background="@color/white"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/margin_size_12">
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableLeft="@drawable/assignment_pinglun"
-                        android:drawablePadding="@dimen/margin_size_6"
-                        android:text="作业点评"
+                        android:layout_marginTop="@dimen/margin_size_6"
+                        android:background="@color/white"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/margin_size_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:drawableLeft="@drawable/assignment_pinglun"
+                            android:drawablePadding="@dimen/margin_size_6"
+                            android:text="作业点评"
+                            android:textSize="@dimen/font_size_16" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="@dimen/margin_size_4"
+                            android:text="( 选填 )"
+                            android:textColor="@color/gray"
+                            android:textSize="@dimen/font_size_16" />
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/et_remark"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_size_1"
+                        android:background="@color/white"
+                        android:gravity="top"
+                        android:maxLines="4"
+                        android:minLines="4"
+                        android:padding="@dimen/margin_size_10"
+                        android:textColorHint="@color/blow_gray"
                         android:textSize="@dimen/font_size_16" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/ll_check"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="@dimen/margin_size_4"
-                        android:text="( 选填 )"
-                        android:textColor="@color/gray"
-                        android:textSize="@dimen/font_size_16" />
-                </LinearLayout>
+                        android:layout_marginTop="@dimen/margin_size_6"
+                        android:background="@color/white"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/margin_size_12">
 
-                <EditText
-                    android:id="@+id/et_remark"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_size_1"
-                    android:background="@color/white"
-                    android:gravity="top"
-                    android:maxLines="4"
-                    android:minLines="4"
-                    android:padding="@dimen/margin_size_10"
-                    android:textColorHint="@color/blow_gray"
-                    android:textSize="@dimen/font_size_16" />
+                        <CheckBox
+                            android:id="@+id/checkBox"
+                            android:layout_width="@dimen/margin_size_18"
+                            android:layout_height="@dimen/margin_size_18"
+                            android:layout_gravity="center"
+                            android:background="@drawable/download_checkbox_selector"
+                            android:button="@null"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:paddingLeft="@dimen/margin_size_20" />
 
-                <LinearLayout
-                    android:id="@+id/ll_check"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_size_6"
-                    android:background="@color/white"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/margin_size_12">
-
-                    <CheckBox
-                        android:id="@+id/checkBox"
-                        android:layout_width="@dimen/margin_size_18"
-                        android:layout_height="@dimen/margin_size_18"
-                        android:layout_gravity="center"
-                        android:background="@drawable/download_checkbox_selector"
-                        android:button="@null"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:paddingLeft="@dimen/margin_size_20" />
-
-                    <TextView
-                        android:id="@+id/tv_checkTips"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="@dimen/margin_size_6"
-                        android:textSize="@dimen/font_size_16" />
+                        <TextView
+                            android:id="@+id/tv_checkTips"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="@dimen/margin_size_6"
+                            android:textSize="@dimen/font_size_16" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </com.haoyu.app.view.VerticalScrollView>

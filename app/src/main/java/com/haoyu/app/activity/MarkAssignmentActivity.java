@@ -38,6 +38,7 @@ import com.haoyu.app.view.LoadFailView;
 import com.haoyu.app.view.LoadingView;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,8 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
     RecyclerView rv_file;
     @BindView(R.id.contentRV)
     RecyclerView contentRV;  //评价内容列表
+    @BindView(R.id.ll_remark)
+    LinearLayout ll_remark;
     @BindView(R.id.et_remark)
     EditText et_remark;
     @BindView(R.id.ll_check)
@@ -82,9 +85,10 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
     Button bt_return;
     @BindView(R.id.bt_submit)
     Button bt_submit;   //发回重做，提交按钮
-    private String courseId, userName, relationId, state, mEvaluateSubmissionId, evaluateRelationId;
+    private String courseId, userName, relationId, mEvaluateSubmissionId, evaluateRelationId;
     private int fullScore = 100;
-    private ArrayMap<Integer, EvaluateItemSubmissions> evaluateMap;
+    private List<EvaluateItemSubmissions> mDatas = new ArrayList<>();
+    private ArrayMap<Integer, Integer> evaluateMap = new ArrayMap<>();
 
     @Override
     public int setLayoutResID() {
@@ -96,7 +100,6 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         courseId = getIntent().getStringExtra("courseId");
         userName = getIntent().getStringExtra("userName");
         relationId = getIntent().getStringExtra("relationId");
-        state = getIntent().getStringExtra("state");
         toolBar.setTitle_text(userName);
         et_remark.setHint("请输入评语");
         TextView tv_checkTips = findViewById(R.id.tv_checkTips);
@@ -166,6 +169,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
     }
 
     private void updateUI(MarkAssignmentResult.MarkAssignment markAssignment) {
+        String state;
         if (markAssignment.getmAssignmentUser() != null) {
             contentView.setVisibility(View.VISIBLE);
             bottomView.setVisibility(View.VISIBLE);
@@ -186,11 +190,14 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
                     }
                 });
             }
-            if (mAssignmentUser.getState() != null && mAssignmentUser.getState().equals("return")) {
+            state = mAssignmentUser.getState();
+            if (state != null && state.equals("return")) {
+                ll_remark.setVisibility(View.GONE);
                 bt_return.setText("已退回重做");
                 bt_return.setEnabled(false);
                 bt_submit.setVisibility(View.GONE);
-            } else if (mAssignmentUser.getState() != null && mAssignmentUser.getState().equals("complete")) {
+            } else if (state != null && state.equals("complete")) {
+                ll_remark.setVisibility(View.VISIBLE);
                 bt_submit.setText("重新批阅");
                 bt_submit.setEnabled(false);
                 tv_score.setText(String.valueOf(getScore(mAssignmentUser.getResponseScore())));
@@ -209,7 +216,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
             mEvaluateSubmissionId = markAssignment.getmEvaluateSubmission().getId();
             evaluateRelationId = markAssignment.getmEvaluateSubmission().getEvaluateRelationId();
             if (markAssignment.getmEvaluateSubmission().getmEvaluateItemSubmissions() != null)
-                updateUI(markAssignment.getmEvaluateSubmission().getmEvaluateItemSubmissions());
+                updateUI(markAssignment.getmEvaluateSubmission().getmEvaluateItemSubmissions(), state);
         }
     }
 
@@ -219,23 +226,26 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         return count;
     }
 
-    private void updateUI(List<EvaluateItemSubmissions> mDatas) {
-        for (EvaluateItemSubmissions item : mDatas) {
-            item.setEvaluateMark(fullScore / mDatas.size());
+    private void updateUI(List<EvaluateItemSubmissions> list, String state) {
+        mDatas = list;
+        boolean enable = true;
+        if (state != null && state.equals("return")) {
+            enable = false;
         }
-        EvaluateItemAdapter evaluateAdapter = new EvaluateItemAdapter(mDatas, state);
+        final double evaluate = fullScore / mDatas.size();
+        EvaluateItemAdapter evaluateAdapter = new EvaluateItemAdapter(mDatas, enable, evaluate);
         FullyLinearLayoutManager layoutManager = new FullyLinearLayoutManager(context);
         layoutManager.setOrientation(FullyLinearLayoutManager.VERTICAL);
         contentRV.setLayoutManager(layoutManager);
         contentRV.setAdapter(evaluateAdapter);
         evaluateAdapter.setScoreChangeListener(new EvaluateItemAdapter.ScoreChangeListener() {
             @Override
-            public void scoreChange(ArrayMap<Integer, EvaluateItemSubmissions> arrayMap) {
+            public void scoreChange(ArrayMap<Integer, Integer> arrayMap) {
                 evaluateMap = arrayMap;
                 bt_submit.setEnabled(true);
                 int score = 0;
-                for (Integer index : evaluateMap.keySet()) {
-                    score += evaluateMap.get(index).getScore();
+                for (Integer value : evaluateMap.values()) {
+                    score += getScore(value, evaluate);
                 }
                 tv_score.setVisibility(View.VISIBLE);
                 setScoreText(score);
@@ -250,6 +260,12 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.orange)), text.lastIndexOf("满分") + 2, text.lastIndexOf("分"), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
         tv_score.setText(null);
         tv_score.append(ss);
+    }
+
+    private int getScore(int count, double evaluate) {
+        BigDecimal b = new BigDecimal(count * evaluate / 5);
+        int value = (int) b.setScale(0, BigDecimal.ROUND_HALF_UP).floatValue();
+        return value;
     }
 
     @Override
@@ -377,12 +393,11 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         map.put("_method", "put");
         map.put("evaluateRelation.id", evaluateRelationId);
         map.put("evaluateRelation.relation.id", relationId);
-        if (evaluateMap != null) {
-            for (Integer index : evaluateMap.keySet()) {
-                EvaluateItemSubmissions item = evaluateMap.get(index);
-                if (item != null) {
-                    map.put("evaluateItemSubmissionMap[" + item.getId() + "].score", String.valueOf(item.getStarCount()));
-                }
+        if (evaluateMap.size() > 0) {
+            for (Integer key : evaluateMap.keySet()) {
+                String itemId = mDatas.get(key).getId();
+                int startCount = evaluateMap.get(key);
+                map.put("evaluateItemSubmissionMap[" + itemId + "].score", String.valueOf(startCount));
             }
         }
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
@@ -401,11 +416,11 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
             public void onResponse(BaseResponseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
+                    double evaluate = fullScore / mDatas.size();
+                    bt_submit.setEnabled(true);
                     int score = 0;
-                    if (evaluateMap != null) {
-                        for (Integer index : evaluateMap.keySet()) {
-                            score += evaluateMap.get(index).getScore();
-                        }
+                    for (Integer value : evaluateMap.values()) {
+                        score += getScore(value, evaluate);
                     }
                     Intent intent = new Intent();
                     intent.putExtra("type", 2);
