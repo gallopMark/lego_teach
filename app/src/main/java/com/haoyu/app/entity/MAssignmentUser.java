@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by acer1 on 2017/1/7.
  */
-public class MAssignmentUser implements Serializable{
+public class MAssignmentUser implements Serializable {
     @Expose
     @SerializedName("id")
     private String id;
@@ -43,6 +43,12 @@ public class MAssignmentUser implements Serializable{
     @Expose
     @SerializedName("mUser")
     private MobileUser mUser;
+    @Expose
+    @SerializedName("comment")
+    private String comment;  //评语
+    @Expose
+    @SerializedName("isExcellent")
+    private boolean isExcellent;
 
     public String getId() {
         return id;
@@ -130,6 +136,22 @@ public class MAssignmentUser implements Serializable{
 
     public void setmUser(MobileUser mUser) {
         this.mUser = mUser;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public boolean isExcellent() {
+        return isExcellent;
+    }
+
+    public void setExcellent(boolean excellent) {
+        isExcellent = excellent;
     }
 
     @Override

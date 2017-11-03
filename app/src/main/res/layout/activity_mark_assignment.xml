@@ -44,7 +44,7 @@
             android:visibility="gone" />
 
         <com.haoyu.app.view.VerticalScrollView
-            android:id="@+id/contentView"
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/bottomView"
@@ -135,10 +135,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_size_1"
-                        android:background="@color/white"
                         android:gravity="top"
                         android:maxLines="4"
                         android:minLines="4"
+                        android:background="@color/white"
                         android:padding="@dimen/margin_size_10"
                         android:textColorHint="@color/blow_gray"
                         android:textSize="@dimen/font_size_16" />

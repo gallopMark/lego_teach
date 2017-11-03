@@ -3,6 +3,7 @@ package com.haoyu.app.activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.RecyclerView;
@@ -61,8 +62,8 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
     LoadFailView loadFailView;
     @BindView(R.id.tv_empty)
     TextView tv_empty;
-    @BindView(R.id.contentView)
-    ScrollView contentView;
+    @BindView(R.id.scrollView)
+    ScrollView scrollView;
     @BindView(R.id.bottomView)
     LinearLayout bottomView;
     @BindView(R.id.tv_name)
@@ -106,42 +107,6 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         tv_checkTips.setText("评选为优秀作业");
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if (isShouldHideInput(v, ev)) {
-                Common.hideSoftInput(context);
-            }
-            return super.dispatchTouchEvent(ev);
-        }
-        // 必不可少，否则所有的组件都不会有TouchEvent了
-        if (getWindow().superDispatchTouchEvent(ev)) {
-            return true;
-        }
-        return onTouchEvent(ev);
-    }
-
-    public boolean isShouldHideInput(View v, MotionEvent event) {
-        if (v != null && (v instanceof EditText)) {
-            int[] leftTop = {0, 0};
-            //获取输入框当前的location位置
-            v.getLocationInWindow(leftTop);
-            int left = leftTop[0];
-            int top = leftTop[1];
-            int bottom = top + v.getHeight();
-            int right = left + v.getWidth();
-            if (event.getX() > left && event.getX() < right
-                    && event.getY() > top && event.getY() < bottom) {
-                // 点击的是输入框区域，保留点击EditText的事件
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void initData() {
         String url = Constants.OUTRT_NET + "/" + courseId + "/teach/m/assignment/mark/" + relationId + "/markByTeacher";
         addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<MarkAssignmentResult>() {
@@ -171,7 +136,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
     private void updateUI(MarkAssignmentResult.MarkAssignment markAssignment) {
         String state;
         if (markAssignment.getmAssignmentUser() != null) {
-            contentView.setVisibility(View.VISIBLE);
+            scrollView.setVisibility(View.VISIBLE);
             bottomView.setVisibility(View.VISIBLE);
             MAssignmentUser mAssignmentUser = markAssignment.getmAssignmentUser();
             if (mAssignmentUser.getmFileInfos() != null && mAssignmentUser.getmFileInfos().size() > 0) {
@@ -190,6 +155,8 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
                     }
                 });
             }
+            et_remark.setText(mAssignmentUser.getComment());
+            checkBox.setChecked(mAssignmentUser.isExcellent());
             state = mAssignmentUser.getState();
             if (state != null && state.equals("return")) {
                 ll_remark.setVisibility(View.GONE);
@@ -199,7 +166,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
             } else if (state != null && state.equals("complete")) {
                 ll_remark.setVisibility(View.VISIBLE);
                 bt_submit.setText("重新批阅");
-                bt_submit.setEnabled(false);
+                bt_submit.setEnabled(true);
                 tv_score.setText(String.valueOf(getScore(mAssignmentUser.getResponseScore())));
             }
             if (mAssignmentUser.getmAssignment() != null) {
@@ -282,24 +249,63 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
                 initData();
             }
         });
-        contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver
+        scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver
                 .OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 Rect rect = new Rect();
                 //获取root在窗体的可视区域
-                contentView.getWindowVisibleDisplayFrame(rect);
+                scrollView.getWindowVisibleDisplayFrame(rect);
                 //获取root在窗体的不可视区域高度(被其他View遮挡的区域高度)
-                int rootInvisibleHeight = contentView.getRootView().getHeight() - rect.bottom;
+                int rootInvisibleHeight = scrollView.getRootView().getHeight() - rect.bottom;
                 //若不可视区域高度大于100，则键盘显示
                 if (rootInvisibleHeight > 100) {
-                    contentView.fullScroll(ScrollView.FOCUS_DOWN); //滚动到底部
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            scrollView.fullScroll(ScrollView.FOCUS_DOWN); //滚动到底部
+                        }
+                    }, 10);
                 }
+            }
+        });
+        et_remark.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                //触摸的是EditText而且当前EditText能够滚动则将事件交给EditText处理。否则将事件交由其父类处理
+                if (canVerticalScroll(et_remark)) {
+                    view.getParent().requestDisallowInterceptTouchEvent(true);
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        view.getParent().requestDisallowInterceptTouchEvent(false);
+                    }
+                }
+                return false;
             }
         });
         ll_check.setOnClickListener(context);
         bt_return.setOnClickListener(context);
         bt_submit.setOnClickListener(context);
+    }
+
+    /**
+     * EditText竖直方向能否够滚动
+     *
+     * @param editText 须要推断的EditText
+     * @return true：能够滚动   false：不能够滚动
+     */
+    private boolean canVerticalScroll(EditText editText) {
+        //滚动的距离
+        int scrollY = editText.getScrollY();
+        //控件内容的总高度
+        int scrollRange = editText.getLayout().getHeight();
+        //控件实际显示的高度
+        int scrollExtent = editText.getHeight() - editText.getCompoundPaddingTop() - editText.getCompoundPaddingBottom();
+        //控件内容总高度与实际显示高度的差值
+        int scrollDifference = scrollRange - scrollExtent;
+        if (scrollDifference == 0) {
+            return false;
+        }
+        return (scrollY > 0) || (scrollY < scrollDifference - 1);
     }
 
     @Override
@@ -328,12 +334,6 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
                 break;
             case R.id.bt_submit:  //提交批阅
                 Common.hideSoftInput(context, et_remark);
-                boolean isChecked = checkBox.isChecked();
-                if (isChecked) {
-                    toast(context, "已评优");
-                } else {
-                    toast(context, "未评优");
-                }
                 MaterialDialog mainDialog = new MaterialDialog(context);
                 mainDialog.setTitle("提示");
                 mainDialog.setMessage("确定要提交对作业的打分吗？");
@@ -388,7 +388,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
     private void commit() {
         String userId = getUserId();
         String url = Constants.OUTRT_NET + "/" + courseId + "/teach/unique_uid_"
-                + userId + "/m/evaluate/submission/" + mEvaluateSubmissionId;
+                + userId + "/m/evaluate/submission/ncts/" + mEvaluateSubmissionId;
         Map<String, String> map = new HashMap<>();
         map.put("_method", "put");
         map.put("evaluateRelation.id", evaluateRelationId);
@@ -400,6 +400,14 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
                 map.put("evaluateItemSubmissionMap[" + itemId + "].score", String.valueOf(startCount));
             }
         }
+        boolean isChecked = checkBox.isChecked();
+        if (isChecked) {
+            map.put("isExcellent", "true");
+        } else {
+            map.put("isExcellent", "false");
+        }
+        String comment = et_remark.getText().toString();
+        map.put("comment", comment);
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
             public void onBefore(Request request) {

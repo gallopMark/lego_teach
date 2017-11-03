@@ -242,6 +242,10 @@
         <!--成员管理搜索-->
         <!--听课评课详情-->
         <activity android:name="com.haoyu.app.activity.TeachingStudyActivity" />
+        <!--评课议课-->
+        <activity
+            android:name="com.haoyu.app.activity.TeachingClassDiscussActivity"
+            android:configChanges="screenSize|orientation|keyboardHidden" />
         <!--听课评课的结果-->
         <activity android:name="com.haoyu.app.activity.TeachingStudyResultDetailActiivty" />
         <!--听课评课的得分明细-->
