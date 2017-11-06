@@ -42,8 +42,10 @@ public class Constants {
     public static String Prefs_user = "Prefs_user";
 
     public static String COMMUNITY_NET;
+    //    public static String ACTION_POST_DISCUSS_REPLY = "ACTION_UPDATE_DISCUSS_REPLY";//主题研讨后主回复更新
 
-//    public static String ACTION_POST_DISCUSS_REPLY = "ACTION_UPDATE_DISCUSS_REPLY";//主题研讨后主回复更新
+    public static String downloadApkPath;
+    public static String updateUrl = "http://legoncts.gdei.edu.cn/getAppVersion.html";
 
     static {
         if (existsSdcard()) {
@@ -63,6 +65,9 @@ public class Constants {
         /* 全局异常捕获信息存放的路径 */
         exceptionCrash = rootDir + "/crash/";
         dbPath = rootDir + "/db";
+
+        //更新apk地址
+        downloadApkPath = fileDownDir + "/lego_teach.apk";
 //        /*工作坊域名*/
 //        WORK_SHOP_NET = "http://app.wsts.haoyuinfo.com";
 //        /*社区域名*/

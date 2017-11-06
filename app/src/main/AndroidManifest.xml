@@ -287,7 +287,8 @@
         <activity
             android:name="com.haoyu.app.activity.MFileInfoPreViewActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />
-        <!---->
+
+        <service android:name="com.haoyu.app.service.DownloadService" />
     </application>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
