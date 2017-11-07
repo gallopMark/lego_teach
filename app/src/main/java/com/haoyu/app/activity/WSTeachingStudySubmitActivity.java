@@ -156,6 +156,7 @@ public class WSTeachingStudySubmitActivity extends BaseActivity implements View.
                                     String fileId = fileResult.getResponseData().getId();
                                     String fileName = fileResult.getResponseData().getFileName();
                                     String fileUrl = fileResult.getResponseData().getUrl();
+
                                     submitLcec(fileId, fileName, fileUrl);
                                 } else {
                                     lastSubmit(activity.getId());
@@ -163,9 +164,9 @@ public class WSTeachingStudySubmitActivity extends BaseActivity implements View.
                             }
                         }
                     } else {
-                        if (activity == null)
+                        if (activity == null) {
                             submitLcec();
-                        else
+                        } else
                             lastSubmit(activity.getId());
                     }
                 }
@@ -222,9 +223,11 @@ public class WSTeachingStudySubmitActivity extends BaseActivity implements View.
             @Override
             public void afterTextChanged(Editable editable) {
                 scoreContent = editable.toString();
-                contentList.add(scoreContent);
             }
         });
+        if (scoreContent != null) {
+            contentList.add(scoreContent);
+        }
         ll_parent.addView(view);
         iv_delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -398,7 +401,7 @@ public class WSTeachingStudySubmitActivity extends BaseActivity implements View.
         map.put("lcec.stage", stageId);
         map.put("lcec.subject", subjectId);
         map.put("lcec.textbook", bookVersion);
-        map.put("lcec.teach.id", lecturerId);
+        map.put("lcec.teacher.id", lecturerId);
         map.put("lcec.type", "onLine");
         map.put("lcec.video.id", fileId);
         map.put("lcec.video.fileName", fileName);
@@ -514,7 +517,7 @@ public class WSTeachingStudySubmitActivity extends BaseActivity implements View.
         map.put("lcec.stage", stageId);
         map.put("lcec.subject", subjectId);
         map.put("lcec.textbook", bookVersion);
-        map.put("lcec.teach.id", lecturerId);
+        map.put("lcec.teacher.id", lecturerId);
         map.put("lcec.type", "offLine");
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<WorkshopActivityResult>() {
             @Override
