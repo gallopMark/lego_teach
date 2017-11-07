@@ -58,7 +58,6 @@ public final class MyUtils {
         WindowManager manager = activity.getWindowManager();
         DisplayMetrics outMetrics = new DisplayMetrics();
         manager.getDefaultDisplay().getMetrics(outMetrics);
-
         return outMetrics.heightPixels;
     }
 
@@ -88,7 +87,6 @@ public final class MyUtils {
             decorView.setSystemUiVisibility(uiOptions);
         }
     }
-
 
     public static String getVersionCode(Context context) {
         PackageManager packageManager = context.getPackageManager();
