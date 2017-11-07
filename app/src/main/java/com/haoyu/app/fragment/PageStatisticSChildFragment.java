@@ -56,11 +56,11 @@ public class PageStatisticSChildFragment extends BaseFragment implements XRecycl
         type = getArguments().getInt("type", 1);
         totalCount = getArguments().getInt("totalCount", 0);
         if (type == 1) {  //全部
-            baseUrl = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_register_stat/" + courseId;
+            baseUrl = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_register_stat/" + courseId + "?limit=20";
         } else if (type == 2) { //合格
-            baseUrl = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_register_stat/" + courseId + "&courseResultState=pass";
+            baseUrl = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_register_stat/" + courseId + "?courseResultState=pass&limit=20";
         } else { //不合格
-            baseUrl = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_register_stat/" + courseId + "&courseResultState=nopass";
+            baseUrl = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course_register_stat/" + courseId + "?courseResultState=nopass&limit=20";
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
