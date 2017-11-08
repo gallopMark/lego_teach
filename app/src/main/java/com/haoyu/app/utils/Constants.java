@@ -45,7 +45,7 @@ public class Constants {
     //    public static String ACTION_POST_DISCUSS_REPLY = "ACTION_UPDATE_DISCUSS_REPLY";//主题研讨后主回复更新
 
     public static String downloadApkPath;
-    public static String updateUrl = "http://legoncts.gdei.edu.cn/getAppVersion.html";
+    public static String updateUrl = "http://legoncts.gdei.edu.cn/getTeachAppVersion.html";
 
     static {
         if (existsSdcard()) {

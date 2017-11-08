@@ -3,12 +3,14 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval"
     android:useLevel="false">
-    <solid android:color="@color/colorPlayerWhite" />
+    <solid android:color="@color/white"
+
+        />
     <stroke
-        android:width="0dp"
-        android:color="@color/colorPlayerWhite" />
+        android:width="@dimen/margin_size_1"
+        android:color="@color/defaultColor" />
     <size
-        android:width="@dimen/margin_size_10"
-        android:height="@dimen/margin_size_10" />
+        android:width="@dimen/margin_size_14"
+        android:height="@dimen/margin_size_14" />
 
 </shape>

@@ -172,6 +172,7 @@ public class WSTeachingStudyEditActivity extends BaseActivity implements View.On
             } else {
                 intent.putExtra("lectureId", getUserId());
             }
+
             intent.putExtra("workshopId", workshopId);
             intent.putExtra("workSectionId", workSectionId);
             intent.putExtra("needFile", false);
