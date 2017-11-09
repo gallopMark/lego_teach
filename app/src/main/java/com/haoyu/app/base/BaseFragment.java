@@ -37,7 +37,8 @@ public abstract class BaseFragment extends Fragment {
 
     public abstract int createView();
 
-    public abstract void initData();
+    public void initData() {
+    }
 
     public void initView(View view) {
     }

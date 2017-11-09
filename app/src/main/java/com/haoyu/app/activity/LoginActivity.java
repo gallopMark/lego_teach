@@ -216,7 +216,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         if (result != null && result.getResponseData() != null && result.getResponseData().getRole() != null
                                 && result.getResponseData().getRole().contains(teacher)) {
                             saveUserInfo(result.getResponseData());
-                            Intent intent = new Intent(context, TeacherHomePageActivity.class);
+                            Intent intent = new Intent(context, MainActivity.class);
                             startActivity(intent);
                             finish();
                         } else {

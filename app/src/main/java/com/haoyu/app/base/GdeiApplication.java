@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.haoyu.app.activity.AppSplashActivity;
-import com.haoyu.app.activity.TeacherHomePageActivity;
+import com.haoyu.app.activity.MainActivity;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.SharePreferenceHelper;
 import com.uuzuche.lib_zxing.activity.ZXingLibrary;
@@ -67,7 +67,7 @@ public class GdeiApplication extends Application {
     public void restartApp() {
         Intent intent = new Intent();
         if (!SharePreferenceHelper.getPassWord(this).equals(""))
-            intent.setClass(this, TeacherHomePageActivity.class);
+            intent.setClass(this, MainActivity.class);
         else
             intent.setClass(this, AppSplashActivity.class);
         PendingIntent restartIntent = PendingIntent.getActivity(

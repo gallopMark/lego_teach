@@ -49,8 +49,8 @@ import okhttp3.Request;
  * 描述:
  * 作者:马飞奔 Administrator
  */
-public class TeacherHomePageActivity extends BaseActivity implements View.OnClickListener {
-    private TeacherHomePageActivity context = this;
+public class MainActivity extends BaseActivity implements View.OnClickListener {
+    private MainActivity context = this;
     @BindView(R.id.toggle)
     ImageView toggle;
     @BindView(R.id.iv_msg)
@@ -84,7 +84,7 @@ public class TeacherHomePageActivity extends BaseActivity implements View.OnClic
 
     @Override
     public int setLayoutResID() {
-        return R.layout.activity_teacher_home_page;
+        return R.layout.activity_main;
     }
 
     @Override
