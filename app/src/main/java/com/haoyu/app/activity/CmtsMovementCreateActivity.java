@@ -73,8 +73,8 @@ import okhttp3.Request;
  * “free”：在线报名，免费入场
  * “chair”:讲座视频录像+在线问答交流
  */
-public class TeachingResearchCreateAtActivity extends BaseActivity implements View.OnClickListener {
-    private TeachingResearchCreateAtActivity context = this;
+public class CmtsMovementCreateActivity extends BaseActivity implements View.OnClickListener {
+    private CmtsMovementCreateActivity context = this;
     @BindView(R.id.toolBar)
     AppToolBar toolBar;
     @BindView(R.id.add_picture)

@@ -305,7 +305,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 menu.toggle(true);
                 break;
             case R.id.tv_teaching:  //侧滑菜单教研
-                startActivity(new Intent(context, TeachingResearchActivity.class));
+                startActivity(new Intent(context, CmtsMainActivity.class));
                 break;
             case R.id.tv_message:  //侧滑菜单消息
                 intent.setClass(context, MessageActivity.class);
