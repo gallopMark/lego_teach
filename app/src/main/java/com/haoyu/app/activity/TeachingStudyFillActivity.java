@@ -2,6 +2,7 @@ package com.haoyu.app.activity;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -14,9 +15,6 @@ import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.entity.EvaluateResult;
 import com.haoyu.app.entity.MEvaluateItemSubmissions;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.rxBus.MessageEvent;
-import com.haoyu.app.rxBus.RxBus;
-import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.AppToolBar;
@@ -77,6 +75,7 @@ public class TeachingStudyFillActivity extends BaseActivity implements View.OnCl
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(evaluateAdapter);
+
     }
 
     @Override
@@ -118,6 +117,17 @@ public class TeachingStudyFillActivity extends BaseActivity implements View.OnCl
                 }
 
 
+            }
+        });
+        et_advise.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                //这句话说的意思告诉父View我自己的事件我自己处理
+                v.getParent().requestDisallowInterceptTouchEvent(true);
+
+                return false;
             }
         });
     }
@@ -191,12 +201,8 @@ public class TeachingStudyFillActivity extends BaseActivity implements View.OnCl
             public void onResponse(BaseResponseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-
                     toastFullScreen("提交成功", true);
-                    MessageEvent event = new MessageEvent();
-                    event.setAction(Action.SUBMIT_WORKSHOP_LECE);
-                    event.setObj(String.valueOf((int) d));
-                    RxBus.getDefault().post(event);
+                    setResult(RESULT_OK);
                     finish();
                 } else {
 

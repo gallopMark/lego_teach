@@ -1081,7 +1081,6 @@ public class CustomViewAbove extends ViewGroup {
 					if (Build.VERSION.SDK_INT >= 11) {
 						// The focus finder had a bug handling FOCUS_FORWARD and FOCUS_BACKWARD
 						// before Android 3.0. Ignore the tab key on those devices.
-
 						if (event.hasNoModifiers()) {
 							handled = arrowScroll(FOCUS_FORWARD);
 						} else if (event.hasModifiers(KeyEvent.META_SHIFT_ON)) {
