@@ -241,7 +241,9 @@
         <activity android:name="com.haoyu.app.activity.BriefingDetailActivity" />
         <!--成员管理搜索-->
         <!--听课评课详情-->
-        <activity android:name="com.haoyu.app.activity.TeachingStudyActivity" />
+        <activity
+            android:name="com.haoyu.app.activity.TeachingStudyActivity"
+            android:configChanges="screenSize|orientation|keyboardHidden" />
         <!--评课议课-->
         <activity
             android:name="com.haoyu.app.activity.TeachingClassDiscussActivity"

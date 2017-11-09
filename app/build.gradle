@@ -7,8 +7,8 @@ android {
         applicationId "com.haoyu.app.lego.teach"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 3
-        versionName "1.1.1"
+        versionCode 1
+        versionName "2.1.1"
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
@@ -63,4 +63,5 @@ dependencies {
     compile 'com.github.barteksc:android-pdf-viewer:2.7.0'
     compile 'com.android.support:design:27.0.0'
     compile 'com.android.support:recyclerview-v7:27.0.0'
+    compile 'com.android.support:appcompat-v7:27.0.0'
 }
