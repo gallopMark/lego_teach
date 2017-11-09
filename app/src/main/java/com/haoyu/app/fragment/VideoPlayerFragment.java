@@ -28,7 +28,6 @@ import android.widget.TextView;
 import com.haoyu.app.base.BaseFragment;
 import com.haoyu.app.dialog.MaterialDialog;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.utils.Common;
 import com.haoyu.app.utils.NetStatusUtil;
 import com.haoyu.app.utils.ScreenUtils;
 import com.haoyu.app.view.CircularProgressView;
@@ -129,9 +128,6 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
         if (bundle != null) {
             videoUrl = bundle.getString("videoUrl");
             videoTitle = bundle.getString("videoTitle");
-            if (videoTitle == null || videoTitle.trim().length() == 0) {
-                videoTitle = Common.getFileName(videoUrl);
-            }
         }
         if (videoTitle != null && videoTitle.trim().length() > 0) {
             Spanned spanned = Html.fromHtml(videoTitle);
