@@ -1,6 +1,5 @@
 package com.haoyu.app.activity;
 
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
@@ -56,7 +55,6 @@ public class MyMarkActivity extends BaseActivity implements View.OnClickListener
     private Intent intent;
     private CorrectmarkAdapter mCorrectAdapter;
 
-
     private LoadingDialog dialog;
     @BindView(R.id.data_warn)
     TextView mDataWarn;//没有数据的时候的提醒
@@ -88,7 +86,6 @@ public class MyMarkActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void setListener() {
-
         mR1Sharke.setOnClickListener(context);
         toolBar.setOnLeftClickListener(new AppToolBar.OnLeftClickListener() {
             @Override

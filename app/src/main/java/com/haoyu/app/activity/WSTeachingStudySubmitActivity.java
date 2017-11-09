@@ -206,7 +206,6 @@ public class WSTeachingStudySubmitActivity extends BaseActivity implements View.
     }
 
     private Map<Integer, String> maps = new HashMap<>();
-
     private void addView() {
         final View view = getLayoutInflater().inflate(R.layout.ws_teaching_study_score_item, null);
         final EditText et_score = getView(view, R.id.et_score);

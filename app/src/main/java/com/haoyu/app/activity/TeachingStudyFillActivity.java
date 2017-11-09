@@ -2,7 +2,6 @@ package com.haoyu.app.activity;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -80,7 +79,6 @@ public class TeachingStudyFillActivity extends BaseActivity implements View.OnCl
 
     @Override
     public void setListener() {
-
         ll_commit.setOnClickListener(context);
         toolBar.setOnLeftClickListener(new AppToolBar.OnLeftClickListener() {
             @Override
@@ -115,21 +113,19 @@ public class TeachingStudyFillActivity extends BaseActivity implements View.OnCl
                     d = d / scoreList.size();
                     tv_score.setText(String.valueOf((int) d) + "分");
                 }
-
-
             }
         });
-        et_advise.setOnTouchListener(new View.OnTouchListener() {
+      /*  et_advise.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // TODO Auto-generated method stub
                 //这句话说的意思告诉父View我自己的事件我自己处理
-                v.getParent().requestDisallowInterceptTouchEvent(true);
-
+               // v.getParent().requestDisallowInterceptTouchEvent(true);
+                scrollview.fullScroll(ScrollView.FOCUS_DOWN+50);
                 return false;
             }
-        });
+        });*/
     }
 
     public void initData() {

@@ -84,7 +84,7 @@
             android:minHeight="@dimen/margin_size_5"
             android:progressDrawable="@drawable/mn_player_progress_diy"
             android:thumb="@drawable/mn_player_thumb"
-            android:thumbOffset="0dp" />
+            android:thumbOffset="@dimen/margin_size_1" />
 
 
         <TextView
