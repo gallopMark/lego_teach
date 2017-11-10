@@ -19,7 +19,7 @@ import butterknife.BindView;
  * 描述:教研创课
  * 作者:马飞奔 Administrator
  */
-public class TSLessonMainFragment extends BaseFragment {
+public class CmtsLsonMainFragment extends BaseFragment {
     @BindView(R.id.radioGroup)
     RadioGroup radioGroup;
     @BindView(R.id.rb_all)
@@ -30,7 +30,7 @@ public class TSLessonMainFragment extends BaseFragment {
     String text_all;
     @BindString(R.string.gen_class_my)
     String text_my;
-    private TSLessonChildFragment f1, f2;
+    private CmtsLsonChildFragment f1, f2;
     private FragmentManager fragmentManager;
     private int checkIndex = 1;
 
@@ -53,11 +53,11 @@ public class TSLessonMainFragment extends BaseFragment {
         switch (checkIndex) {
             case 1:
                 if (f1 == null) {
-                    f1 = new TSLessonChildFragment();
+                    f1 = new CmtsLsonChildFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt("type", 1);
                     f1.setArguments(bundle);
-                    f1.setOnResponseListener(new TSLessonChildFragment.OnResponseListener() {
+                    f1.setOnResponseListener(new CmtsLsonChildFragment.OnResponseListener() {
                         @Override
                         public void getTotalCount(int totalCount) {
                             rb_all.setText(text_all + "（" + getCount(totalCount) + "）");
@@ -70,11 +70,11 @@ public class TSLessonMainFragment extends BaseFragment {
                 break;
             case 2:
                 if (f2 == null) {
-                    f2 = new TSLessonChildFragment();
+                    f2 = new CmtsLsonChildFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt("type", 2);
                     f2.setArguments(bundle);
-                    f2.setOnResponseListener(new TSLessonChildFragment.OnResponseListener() {
+                    f2.setOnResponseListener(new CmtsLsonChildFragment.OnResponseListener() {
                         @Override
                         public void getTotalCount(int totalCount) {
                             rb_my.setText(text_my + "（" + getCount(totalCount) + "）");

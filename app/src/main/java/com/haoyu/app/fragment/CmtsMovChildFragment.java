@@ -8,10 +8,12 @@ import android.widget.TextView;
 import com.haoyu.app.activity.CmtsMovementActivity;
 import com.haoyu.app.adapter.CtmsMovementAdapter;
 import com.haoyu.app.base.BaseFragment;
+import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.entity.TeachingMovementEntity;
 import com.haoyu.app.entity.TeachingMovementListResult;
+import com.haoyu.app.entity.TeachingRegistAtResult;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.utils.Action;
@@ -22,7 +24,9 @@ import com.haoyu.app.view.LoadingView;
 import com.haoyu.app.xrecyclerview.XRecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import okhttp3.Request;
@@ -32,7 +36,7 @@ import okhttp3.Request;
  * 描述:
  * 作者:马飞奔 Administrator
  */
-public class TSMovementChildFragment extends BaseFragment implements XRecyclerView.LoadingListener {
+public class CmtsMovChildFragment extends BaseFragment implements XRecyclerView.LoadingListener {
     @BindView(R.id.loadingView)
     LoadingView loadingView;
     @BindView(R.id.loadFailView)
@@ -154,6 +158,24 @@ public class TSMovementChildFragment extends BaseFragment implements XRecyclerVi
                 initData();
             }
         });
+        adapter.setOnButtonClick(new CtmsMovementAdapter.OnButtonClick() {
+            @Override
+            public void onClick(int position, TeachingMovementEntity entity) {
+                Intent intent = new Intent(context, CmtsMovementActivity.class);
+                intent.putExtra("entity", entity);
+                startActivity(intent);
+            }
+
+            @Override
+            public void register(int position, String activityId) {
+                registerMovement(position, activityId);
+            }
+
+            @Override
+            public void unregister(int position, String registerId) {
+                unRegisterMovement(position, registerId);
+            }
+        });
         adapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
@@ -162,10 +184,68 @@ public class TSMovementChildFragment extends BaseFragment implements XRecyclerVi
                     TeachingMovementEntity entity = mDatas.get(selected);
                     Intent intent = new Intent(context, CmtsMovementActivity.class);
                     intent.putExtra("entity", entity);
-                    startActivity(intent);
+                    startActivityForResult(intent, 1);
                 }
             }
         });
+    }
+
+    private void registerMovement(final int position, String activityId) {
+        String url = Constants.OUTRT_NET + "/m/movement/register";
+        Map<String, String> map = new HashMap<>();
+        map.put("movement.id", activityId);
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<TeachingRegistAtResult>() {
+            @Override
+            public void onBefore(Request request) {
+                showTipDialog();
+            }
+
+            @Override
+            public void onError(Request request, Exception e) {
+                hideTipDialog();
+                onNetWorkError();
+            }
+
+            @Override
+            public void onResponse(TeachingRegistAtResult response) {
+                hideTipDialog();
+                if (response != null && response.getResponseData() != null) {
+                    mDatas.get(position).getmMovementRegisters().add(response.getResponseData());
+                    adapter.notifyDataSetChanged();
+                } else {
+                    toast("报名失败");
+                }
+            }
+        }, map));
+    }
+
+    private void unRegisterMovement(final int position, String registerId) {
+        String url = Constants.OUTRT_NET + "/m/movement/register/" + registerId;
+        Map<String, String> map = new HashMap<>();
+        map.put("_method", "delete");
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+            @Override
+            public void onBefore(Request request) {
+                showTipDialog();
+            }
+
+            @Override
+            public void onError(Request request, Exception e) {
+                hideTipDialog();
+                onNetWorkError();
+            }
+
+            @Override
+            public void onResponse(BaseResponseResult response) {
+                hideTipDialog();
+                if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
+                    mDatas.get(position).getmMovementRegisters().clear();
+                    adapter.notifyDataSetChanged();
+                } else {
+                    toast("取消报名失败");
+                }
+            }
+        }, map));
     }
 
     @Override
@@ -200,7 +280,7 @@ public class TSMovementChildFragment extends BaseFragment implements XRecyclerVi
             if (event.obj != null && event.obj instanceof TeachingMovementEntity) {
                 TeachingMovementEntity entity = (TeachingMovementEntity) event.obj;
                 int selected = mDatas.indexOf(entity);
-                if (selected != -1) {
+                if (selected >= 0) {
                     mDatas.set(selected, entity);
                     adapter.notifyDataSetChanged();
                 }
@@ -209,7 +289,7 @@ public class TSMovementChildFragment extends BaseFragment implements XRecyclerVi
             if (event.obj != null && event.obj instanceof TeachingMovementEntity) {
                 TeachingMovementEntity entity = (TeachingMovementEntity) event.obj;
                 int selected = mDatas.indexOf(entity);
-                if (selected != -1) {
+                if (selected >= 0) {
                     mDatas.set(selected, entity);
                     adapter.notifyDataSetChanged();
                 }

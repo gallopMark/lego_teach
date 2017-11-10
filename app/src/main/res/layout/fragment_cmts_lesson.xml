@@ -195,6 +195,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/white"
                     android:orientation="vertical"
+                    android:visibility="gone"
                     android:paddingLeft="@dimen/margin_size_12"
                     android:paddingRight="@dimen/margin_size_12"
                     android:paddingTop="@dimen/margin_size_12" />

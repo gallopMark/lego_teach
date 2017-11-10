@@ -15,23 +15,23 @@ import butterknife.BindString;
 import butterknife.BindView;
 
 /**
- * 创建日期：2017/8/15 on 10:12
- * 描述:教研研说
+ * 创建日期：2017/8/15 on 10:47
+ * 描述:教研活动
  * 作者:马飞奔 Administrator
  */
-public class TSSaysMainFragment extends BaseFragment {
+public class CmtsMovMainFragment extends BaseFragment {
     @BindView(R.id.radioGroup)
     RadioGroup radioGroup;
     @BindView(R.id.rb_all)
     RadioButton rb_all;
     @BindView(R.id.rb_my)
     RadioButton rb_my;
-    @BindString(R.string.study_says_all)
+    @BindString(R.string.teach_active_all)
     String text_all;
-    @BindString(R.string.study_says_my)
+    @BindString(R.string.teach_active_my)
     String text_my;
+    private CmtsMovChildFragment f1, f2;
     private FragmentManager fragmentManager;
-    private TSSaysChildFragment f1, f2;
     private int checkIndex = 1;
 
     @Override
@@ -53,11 +53,11 @@ public class TSSaysMainFragment extends BaseFragment {
         switch (checkIndex) {
             case 1:
                 if (f1 == null) {
-                    f1 = new TSSaysChildFragment();
+                    f1 = new CmtsMovChildFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt("type", 1);
                     f1.setArguments(bundle);
-                    f1.setOnResponseListener(new TSSaysChildFragment.OnResponseListener() {
+                    f1.setOnResponseListener(new CmtsMovChildFragment.OnResponseListener() {
                         @Override
                         public void getTotalCount(int totalCount) {
                             rb_all.setText(text_all + "（" + getCount(totalCount) + "）");
@@ -70,11 +70,11 @@ public class TSSaysMainFragment extends BaseFragment {
                 break;
             case 2:
                 if (f2 == null) {
-                    f2 = new TSSaysChildFragment();
+                    f2 = new CmtsMovChildFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt("type", 2);
                     f2.setArguments(bundle);
-                    f2.setOnResponseListener(new TSSaysChildFragment.OnResponseListener() {
+                    f2.setOnResponseListener(new CmtsMovChildFragment.OnResponseListener() {
                         @Override
                         public void getTotalCount(int totalCount) {
                             rb_my.setText(text_my + "（" + getCount(totalCount) + "）");

@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -175,7 +175,7 @@ public class CmtsMovementCreateActivity extends BaseActivity implements View.OnC
 
     @Override
     public int setLayoutResID() {
-        return R.layout.activity_teaching_research_create_at;
+        return R.layout.activity_cmts_createmov;
     }
 
     @Override
@@ -847,7 +847,7 @@ public class CmtsMovementCreateActivity extends BaseActivity implements View.OnC
                                 final String mPartType, final String ticketNum, final String endpart) {
         if (uploadFile != null && uploadFile.exists()) {
             String url = Constants.OUTRT_NET + "/m/file/uploadFileInfoRemote";
-            final FileUploadDialog dialog = new FileUploadDialog(context, "正在提交");
+            final FileUploadDialog dialog = new FileUploadDialog(context, uploadFile.getName(), "正在提交");
             dialog.setCanceledOnTouchOutside(false);
             dialog.setCancelable(false);
             final Disposable disposable = OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<FileUploadResult>() {
@@ -864,6 +864,7 @@ public class CmtsMovementCreateActivity extends BaseActivity implements View.OnC
 
                 @Override
                 public void onResponse(FileUploadResult response) {
+                    dialog.dismiss();
                     if (response != null && response.getResponseData() != null) {
                         String RImgURL = response.getResponseData().getUrl();
                         upContent(RImgURL, title, activityType, content, sponsor, location, startTime, endTime, mPartType, ticketNum, endpart);
@@ -872,7 +873,7 @@ public class CmtsMovementCreateActivity extends BaseActivity implements View.OnC
             }, uploadFile, uploadFile.getName(), new OkHttpClientManager.ProgressListener() {
                 @Override
                 public void onProgress(long totalBytes, long remainingBytes, boolean done, File file) {
-                    Observable.just(new long[]{totalBytes, remainingBytes}).observeOn(AndroidSchedulers.mainThread())
+                    Flowable.just(new long[]{totalBytes, remainingBytes}).observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Consumer<long[]>() {
                                 @Override
                                 public void accept(long[] params) throws Exception {
