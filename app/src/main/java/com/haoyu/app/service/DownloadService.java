@@ -37,7 +37,6 @@ public class DownloadService extends Service {
     private final int NOTIFY = 1;
     private String versionCode;
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         url = intent.getStringExtra("url");
@@ -97,7 +96,7 @@ public class DownloadService extends Service {
     NotificationCompat.Builder builder;
 
     private void notification() {
-        builder = new NotificationCompat.Builder(this,null);
+        builder = new NotificationCompat.Builder(this, null);
         builder.setSmallIcon(R.drawable.lego_ico);
         remoteViews = new RemoteViews(getPackageName(), R.layout.notification_layout);
         remoteViews.setImageViewResource(R.id.iv_icon, R.drawable.lego_ico);
