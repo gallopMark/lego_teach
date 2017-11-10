@@ -261,16 +261,16 @@ public class SettingActivity extends BaseActivity implements OnClickListener {
     private void specifyApkVersion(VersionEntity versionEntity) {
         String apkUrl = Constants.fileDownDir + "/lego_teach_" + versionEntity.getVersionCode() + ".apk";
         File file = new File(apkUrl);
-        if (versionEntity != null && versionEntity.getVersionCode() != null) {
-            if (!versionEntity.getVersionCode().equals(MyUtils.getVersionCode(context))) {
-                if (file.exists() && file.length() > 0) {
-                    MyUtils.installAPK(context, file);
-                } else {
-                    alertVersionUpdate(versionEntity);
-                }
+        if (versionEntity.getVersionCode() > MyUtils.getVersionCode(context)) {
+            if (file.exists()) {
+                MyUtils.installAPK(context, file);
             } else {
-                toast(context, "已经是最新版本啦！");
+                alertVersionUpdate(versionEntity);
             }
+        }else {
+            toast(context, "已经是最新版本啦！");
         }
+
     }
+
 }
