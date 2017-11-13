@@ -403,8 +403,8 @@ public class CmtsLessonFragment extends BaseFragment implements View.OnClickList
         getAdvise();
     }
 
-    private void getFiles() {
-        String url = Constants.OUTRT_NET + "/m/file?fileRelations[0].relation.id=" + relationId + "&fileRelations[0].relation.type=discussion&limit=2&orders=CREATE_TIME.DESC";
+    public void getFiles() {
+        String url = Constants.OUTRT_NET + "/m/file?fileRelations[0].relation.id=" + lessonId + "&fileRelations[0].relation.type=discussion&limit=2&orders=CREATE_TIME.DESC";
         addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<MFileInfoData>>() {
             @Override
             public void onBefore(Request request) {
@@ -452,7 +452,7 @@ public class CmtsLessonFragment extends BaseFragment implements View.OnClickList
                 public void onClick(View view) {
                     Intent intent = new Intent(context, MFileInfosActivity.class);
                     intent.putExtra("title", "课程资源");
-                    intent.putExtra("relationId", relationId);
+                    intent.putExtra("relationId", lessonId);
                     intent.putExtra("relationType", "discussion");
                     startActivity(intent);
                 }

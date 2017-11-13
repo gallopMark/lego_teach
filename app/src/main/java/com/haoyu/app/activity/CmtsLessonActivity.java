@@ -26,7 +26,6 @@ import com.haoyu.app.filePicker.LFilePicker;
 import com.haoyu.app.fragment.CmtsLessonFragment;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.rxBus.MessageEvent;
-import com.haoyu.app.rxBus.RxBus;
 import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
@@ -49,7 +48,6 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Request;
 
-import static android.R.attr.id;
 
 /**
  * 创建日期：2017/10/25 on 17:54
@@ -78,7 +76,7 @@ public class CmtsLessonActivity extends BaseActivity {
     @Override
     public void initView() {
         String title = getResources().getString(R.string.gen_class_detail);
-        String empty_text = getResources().getString(R.string.gen_class_emptyDetail);
+        String empty_text = getResources().getString(R.string.gen_class_emptylist);
         toolBar.setTitle_text(title);
         empty_detail.setText(empty_text);
     }
@@ -210,9 +208,9 @@ public class CmtsLessonActivity extends BaseActivity {
                             uploadDialog.dismiss();
                             if (response != null && response.getResponseCode() != null &&
                                     response.getResponseCode().equals("00")) {
-                                MessageEvent event = new MessageEvent();
-                                event.action = "fileUpload";
-                                RxBus.getDefault().post(event);
+                                if (fragment != null) {
+                                    fragment.getFiles();
+                                }
                             } else {
                                 showErrorDialog(file);
                             }
@@ -257,7 +255,7 @@ public class CmtsLessonActivity extends BaseActivity {
     /*拿到上传临时文件返回的结果再次提交到创课表*/
     private FileUploadDataResult commitContent(FileUploadResult mResult) throws Exception {
         if (mResult != null && mResult.getResponseData() != null) {
-            String url = Constants.OUTRT_NET + "/m/lesson/cmts/" + id + "/upload";
+            String url = Constants.OUTRT_NET + "/m/lesson/cmts/" + lessonId + "/upload";
             Gson gson = new GsonBuilder().create();
             Map<String, String> map = new HashMap<>();
             map.put("fileInfos[0].id", mResult.getResponseData().getId());
