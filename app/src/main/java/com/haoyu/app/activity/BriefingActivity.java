@@ -13,8 +13,6 @@ import com.haoyu.app.entity.BriefingEntity;
 import com.haoyu.app.entity.BriefingsResult;
 import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.rxBus.MessageEvent;
-import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.AppToolBar;
@@ -55,21 +53,6 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
     private int index = -1;
 
     @Override
-    public void obBusEvent(MessageEvent event) {
-        if (event.action.equals(Action.ALTER_BRIEF) && event.obj != null && event.obj instanceof BriefingEntity) {
-            BriefingEntity entity = (BriefingEntity) event.obj;
-            brirfList.set(index, entity);
-            adapter.notifyDataSetChanged();
-        } else if (event.action.equals(Action.CREATE_BRIEF) && event.obj != null && event.obj instanceof BriefingEntity) {
-            BriefingEntity entity = (BriefingEntity) event.obj;
-            brirfList.add(0, entity);
-            adapter.notifyDataSetChanged();
-            xRecyclerView.setVisibility(View.VISIBLE);
-            emptyBrief.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
     public int setLayoutResID() {
         return R.layout.activity_briefing;
     }
@@ -86,7 +69,6 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
         xRecyclerView.setAdapter(adapter);
         xRecyclerView.setLoadingListener(context);
         bt_addBrief.setVisibility(View.VISIBLE);
-        registRxBus();
     }
 
     public void initData() {
@@ -172,7 +154,7 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
                 Intent intent = new Intent(context, BriefingEditActivity.class);
                 intent.putExtra("relationId", relationId);
                 intent.putExtra("relationType", relationType);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
         adapter.setDisposeCallBack(new BriefingAdapter.onDisposeCallBack() {
@@ -182,7 +164,7 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
                 Intent intent = new Intent(context, BriefingEditActivity.class);
                 intent.putExtra("briefId", entity.getId());
                 intent.putExtra("isAlter", true);
-                startActivity(intent);
+                startActivityForResult(intent, 2);
             }
 
             @Override
@@ -246,5 +228,28 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
                 }
             }
         }, new OkHttpClientManager.Param("_method", "delete")));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 1:
+                if (resultCode == RESULT_OK && data != null) {
+                    BriefingEntity entity = (BriefingEntity) data.getSerializableExtra("entity");
+                    brirfList.add(0, entity);
+                    adapter.notifyDataSetChanged();
+                    xRecyclerView.setVisibility(View.VISIBLE);
+                    emptyBrief.setVisibility(View.GONE);
+                }
+                break;
+            case 2:
+                if (resultCode == RESULT_OK && data != null) {
+                    BriefingEntity entity = (BriefingEntity) data.getSerializableExtra("entity");
+                    brirfList.set(index, entity);
+                    adapter.notifyDataSetChanged();
+                }
+                break;
+        }
     }
 }

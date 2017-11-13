@@ -1,24 +1,38 @@
-package com.haoyu.app.activity;
+package com.haoyu.app.fragment;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.haoyu.app.activity.AppSurveyHomeActivity;
+import com.haoyu.app.activity.AppTestHomeActivity;
+import com.haoyu.app.activity.AppTestResultActivity;
+import com.haoyu.app.activity.FreeChatActiviy;
+import com.haoyu.app.activity.TeachingDiscussionActivity;
+import com.haoyu.app.activity.TeachingStudyActivity;
+import com.haoyu.app.activity.VideoPlayerActivity;
+import com.haoyu.app.activity.WSTeachingDiscussActivity;
+import com.haoyu.app.activity.WSTeachingEmulateActivity;
+import com.haoyu.app.activity.WSTeachingStudyEditActivity;
+import com.haoyu.app.activity.WorkShopEditTaskActivity;
+import com.haoyu.app.activity.WorkshopQuestionActivity;
 import com.haoyu.app.adapter.WorkShopSectionAdapter;
-import com.haoyu.app.base.BaseActivity;
+import com.haoyu.app.base.BaseFragment;
 import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.dialog.CommentDialog;
 import com.haoyu.app.dialog.DatePickerDialog;
@@ -27,22 +41,19 @@ import com.haoyu.app.entity.AppActivityViewEntity;
 import com.haoyu.app.entity.AppActivityViewResult;
 import com.haoyu.app.entity.CourseSectionActivity;
 import com.haoyu.app.entity.DiscussEntity;
-import com.haoyu.app.entity.MWorkShopActivityListResult;
 import com.haoyu.app.entity.MWorkshopActivity;
 import com.haoyu.app.entity.MWorkshopSection;
 import com.haoyu.app.entity.TimePeriod;
 import com.haoyu.app.entity.VideoMobileEntity;
-import com.haoyu.app.entity.WorkShopSingleResult;
+import com.haoyu.app.entity.WorkShopMobileEntity;
+import com.haoyu.app.entity.WorkShopMobileUser;
 import com.haoyu.app.entity.WorkshopPhaseResult;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.NetStatusUtil;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.utils.ScreenUtils;
-import com.haoyu.app.view.AppToolBar;
 import com.haoyu.app.view.ColorArcProgressBar;
-import com.haoyu.app.view.LoadFailView;
-import com.haoyu.app.view.LoadingView;
 import com.haoyu.app.view.StickyScrollView;
 
 import java.util.ArrayList;
@@ -51,170 +62,134 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
-import io.reactivex.Flowable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.Request;
 
-
 /**
- * 创建日期：2016/12/26 on 16:29
+ * 创建日期：2017/11/13.
  * 描述:工作坊首页
- * 作者:马飞奔 Administrator
+ * 作者:xiaoma
  */
-public class WorkshopHomePageActivity extends BaseActivity implements View.OnClickListener {
-    private WorkshopHomePageActivity context = this;
-    @BindView(R.id.toolBar)
-    AppToolBar toolBar;
-    @BindView(R.id.loadingView)
-    LoadingView loadingView;
-    @BindView(R.id.loadFailView)
-    LoadFailView loadFailView;
+
+public class WSHomeFragment extends BaseFragment implements View.OnClickListener {
     @BindView(R.id.contentView)
     StickyScrollView contentView;
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
-    private WorkShopSectionAdapter mAdapter;
-    private List<MWorkshopSection> sectionList = new ArrayList<>();
-    @BindView(R.id.progressBar1)
-    ColorArcProgressBar progressBar1;
-    @BindView(R.id.progressBar2)
-    ColorArcProgressBar progressBar2;
+    @BindView(R.id.capBar1)
+    ColorArcProgressBar capBar1;
+    @BindView(R.id.capBar2)
+    ColorArcProgressBar capBar2;
     @BindView(R.id.tv_day)
     TextView tv_day;
-    @BindView(R.id.tv_carryOut)
-    TextView tv_carryOut;
-    @BindView(R.id.tv_allDay)
-    TextView tv_allDay;
     @BindView(R.id.tv_score)
     TextView tv_score;
-    @BindView(R.id.qualifiedPoint)
-    TextView qualifiedPoint;
     @BindView(R.id.ll_question)
     LinearLayout ll_question;
     @BindView(R.id.ll_exchange)
     LinearLayout ll_exchange;
+    @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
+    private WorkShopSectionAdapter mAdapter;
+    private List<MWorkshopSection> sectionList = new ArrayList<>();
+    @BindView(R.id.tv_empty)
+    TextView tv_empty;//没有数据时显示
+    @BindView(R.id.tv_bottom)
+    TextView tv_bottom;
     private String workshopId, role;
-    @BindView(R.id.task_add_phase_btn)
-    View task_add_phase_btn;
-    @BindView(R.id.ll_empty)
-    LinearLayout ll_empty;//没有数据时显示
     private int alterPosition, activityIndex;
-    private final int REQUEST_ACTIVITY = 11;
+    private final int REQUEST_ACTIVITY = 1;
 
     @Override
-    public int setLayoutResID() {
-        return R.layout.activity_workshop_homepage;
+    public int createView() {
+        return R.layout.fragment_workshophome;
     }
 
     @Override
-    public void initView() {
-        workshopId = getIntent().getStringExtra("workshopId");
-        String workshopTitle = getIntent().getStringExtra("workshopTitle");
-        toolBar.setTitle_text(workshopTitle);
+    public void initView(View view) {
         ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         mAdapter = new WorkShopSectionAdapter(context, sectionList);
         recyclerView.setAdapter(mAdapter);
-    }
-
-    public void initData() {
-        loadingView.setVisibility(View.VISIBLE);
-        String url = Constants.OUTRT_NET + "/m/workshop/" + workshopId;
-        addSubscription(Flowable.just(url).map(new Function<String, WorkShopSingleResult>() {
-            @Override
-            public WorkShopSingleResult apply(String url) throws Exception {
-                return getResponse(url);
-            }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<WorkShopSingleResult>() {
-            @Override
-            public void accept(WorkShopSingleResult response) throws Exception {
-                loadingView.setVisibility(View.GONE);
-                if (response != null && response.getResponseData() != null) {
-                    updateUI(response.getResponseData());
-                    task_add_phase_btn.setVisibility(View.VISIBLE);
-                }
-                if (response != null && response.getResponseData() != null
-                        && response.getResponseData().getmWorkshopUser() != null
-                        && response.getResponseData().getmWorkshopUser().getRole() != null)
-                    role = response.getResponseData().getmWorkshopUser().getRole();
-                if (response != null && response.getResponseData() != null && response.getResponseData().getmWorkshopSections() != null
-                        && response.getResponseData().getmWorkshopSections().size() > 0) {
-                    updateUI(response.getResponseData().getmWorkshopSections());
-                } else {
-                    recyclerView.setVisibility(View.GONE);
-                    ll_empty.setVisibility(View.VISIBLE);
-                }
-                contentView.setVisibility(View.VISIBLE);
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                loadingView.setVisibility(View.GONE);
-                loadFailView.setVisibility(View.VISIBLE);
-            }
-        }));
-    }
-
-    private WorkShopSingleResult getResponse(String url) throws Exception {
-        String responseStr = OkHttpClientManager.getAsString(context, url);
-        Gson gson = new GsonBuilder().create();
-        WorkShopSingleResult response = new GsonBuilder().create().fromJson(responseStr, WorkShopSingleResult.class);
-        if (response != null && response.getResponseData() != null && response.getResponseData().getmWorkshopSections() != null) {
-            for (int i = 0; i < response.getResponseData().getmWorkshopSections().size(); i++) {
-                String atUrl = Constants.OUTRT_NET + "/m/activity/wsts/" + response.getResponseData().getmWorkshopSections().get(i).getId();
-                String atStr = OkHttpClientManager.getAsString(context, atUrl);
-                MWorkShopActivityListResult mActivityList = gson.fromJson(atStr, MWorkShopActivityListResult.class);
-                if (mActivityList != null && mActivityList.getResponseData() != null) {
-                    response.getResponseData().getmWorkshopSections().get(i).setActivities(mActivityList.getResponseData());
-                }
-            }
+        Bundle bundle = getArguments();
+        WorkShopMobileEntity mWorkshop = (WorkShopMobileEntity) bundle.getSerializable("mWorkshop");
+        if (mWorkshop != null) {
+            workshopId = mWorkshop.getId();
         }
-        return response;
+        WorkShopMobileUser mWorkshopUser = (WorkShopMobileUser) bundle.getSerializable("mWorkshopUser");
+        if (mWorkshopUser != null) {
+            role = mWorkshopUser.getRole();
+        }
+        List<MWorkshopSection> mWorkshopSections = (List<MWorkshopSection>) bundle.getSerializable("mWorkshopSections");
+        updateUI(mWorkshop, mWorkshopUser);
+        updateUI(mWorkshopSections);
     }
 
-    private void updateUI(WorkShopSingleResult.WorkShopSingleResponseData responseData) {
-        if (responseData.getmWorkshop() != null) {
-            if (responseData.getmWorkshop().getmTimePeriod() != null && responseData.getmWorkshop().getmTimePeriod().getMinutes() > 0) {
-                TimePeriod timePeriod = responseData.getmWorkshop().getmTimePeriod();
-                tv_day.setVisibility(View.VISIBLE);
-                tv_allDay.setVisibility(View.VISIBLE);
-                int remainDay = (int) (timePeriod.getMinutes() / 60 / 24);
-                long startTime = timePeriod.getStartTime();
-                long endTime = timePeriod.getEndTime();
-                int allDay = getAllDay(startTime, endTime);
-                int expandDay = allDay - remainDay;
-                tv_day.setText(String.valueOf(expandDay));
-                tv_carryOut.setText("已开展");
-                tv_allDay.setText("共" + allDay + "天");
-                progressBar1.setMaxValues(allDay);
-                progressBar1.setCurrentValues(expandDay);
-            } else {
-                if (responseData.getmWorkshop().getmTimePeriod() != null && responseData.getmWorkshop().getmTimePeriod().getState() != null)
-                    tv_carryOut.setText("工作坊研修\n" + responseData.getmWorkshop().getmTimePeriod().getState());
-                else
-                    tv_carryOut.setText("工作坊研修\n进行中");
-            }
+    private void updateUI(WorkShopMobileEntity mWorkshop, WorkShopMobileUser mWorkshopUser) {
+        if (mWorkshop != null && mWorkshop.getmTimePeriod() != null && mWorkshop.getmTimePeriod().getMinutes() > 0) {
+            TimePeriod timePeriod = mWorkshop.getmTimePeriod();
+            tv_day.setVisibility(View.VISIBLE);
+            int remainDay = (int) (timePeriod.getMinutes() / 60 / 24);
+            long startTime = timePeriod.getStartTime();
+            long endTime = timePeriod.getEndTime();
+            int allDay = getAllDay(startTime, endTime);
+            int expandDay = allDay - remainDay;
+            tv_day.setText(String.valueOf(expandDay));
+            setTimePeriod(expandDay, allDay);
         } else {
-            tv_day.setVisibility(View.GONE);
-            tv_allDay.setVisibility(View.GONE);
-            tv_carryOut.setText("工作坊研修\n进行中");
+            tv_day.setTextSize(14);
+            if (mWorkshop.getmTimePeriod() != null && mWorkshop.getmTimePeriod().getState() != null) {
+                tv_day.setText("工作坊研修\n" + mWorkshop.getmTimePeriod().getState());
+            } else {
+                tv_day.setTextSize(14);
+                tv_day.setText("工作坊研修\n已结束");
+            }
         }
         int qualityPoint = 0, point = 0;
-        if (responseData.getmWorkshop() != null) {
-            qualityPoint = responseData.getmWorkshop().getQualifiedPoint();
+        if (mWorkshop != null) {
+            qualityPoint = mWorkshop.getQualifiedPoint();
         }
-        if (responseData.getmWorkshopUser() != null) {
-            point = (int) responseData.getmWorkshopUser().getPoint();
+        if (mWorkshopUser != null) {
+            point = (int) mWorkshopUser.getPoint();
         }
-        progressBar2.setMaxValues(qualityPoint);
-        progressBar2.setCurrentValues(point);
-        tv_score.setText(String.valueOf(point));
-        qualifiedPoint.setText("（达标分数" + qualityPoint + "）");
+        setPoint(point, qualityPoint);
+    }
+
+    private void setTimePeriod(int expandDay, int allDay) {
+        capBar1.setMaxValues(allDay);
+        capBar1.setCurrentValues(expandDay);
+        String text = expandDay + "\n已开展\n共" + allDay + "天";
+        SpannableString ssb = new SpannableString(text);
+        int start = 0;
+        int end = text.indexOf("已") - 1;
+        ssb.setSpan(new AbsoluteSizeSpan(20, true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.course_progress)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        start = text.indexOf("已");
+        end = text.indexOf("共") - 1;
+        ssb.setSpan(new AbsoluteSizeSpan(14, true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        start = text.indexOf("共");
+        end = text.length();
+        ssb.setSpan(new AbsoluteSizeSpan(10, true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.course_progress)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tv_day.setText(ssb);
+    }
+
+    private void setPoint(int point, int qualityPoint) {
+        capBar2.setMaxValues(qualityPoint);
+        capBar2.setCurrentValues(point);
+        String text = point + "\n研修积分\n（达标积分" + qualityPoint + "）";
+        SpannableString ssb = new SpannableString(text);
+        int start = 0;
+        int end = text.indexOf("研") - 1;
+        ssb.setSpan(new AbsoluteSizeSpan(20, true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.course_progress)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        start = text.indexOf("研");
+        end = text.indexOf("分") + 1;
+        ssb.setSpan(new AbsoluteSizeSpan(14, true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        start = text.indexOf("分") + 1;
+        end = text.length();
+        ssb.setSpan(new AbsoluteSizeSpan(10, true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.course_progress)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tv_score.setText(ssb);
     }
 
     private int getAllDay(long startTime, long endTime) {
@@ -227,33 +202,21 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
     }
 
     private void updateUI(List<MWorkshopSection> sections) {
-        recyclerView.setVisibility(View.VISIBLE);
-        mAdapter.addAll(sections);
-        mAdapter.notifyDataSetChanged();
+        if (sections != null && sections.size() > 0) {
+            recyclerView.setVisibility(View.VISIBLE);
+            mAdapter.addAll(sections);
+            mAdapter.notifyDataSetChanged();
+        } else {
+            recyclerView.setVisibility(View.GONE);
+            tv_empty.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
     public void setListener() {
-        toolBar.setOnTitleClickListener(new AppToolBar.TitleOnClickListener() {
-            @Override
-            public void onLeftClick(View view) {
-                finish();
-            }
-
-            @Override
-            public void onRightClick(View view) {
-                showPopupWindow();
-            }
-        });
-        loadFailView.setOnRetryListener(new LoadFailView.OnRetryListener() {
-            @Override
-            public void onRetry(View v) {
-                initData();
-            }
-        });
-        ll_question.setOnClickListener(context);
-        ll_exchange.setOnClickListener(context);
-        task_add_phase_btn.setOnClickListener(context);
+        ll_question.setOnClickListener(this);
+        ll_exchange.setOnClickListener(this);
+        tv_bottom.setOnClickListener(this);
 
         mAdapter.setOnSectionLongClickListener(new WorkShopSectionAdapter.OnSectionLongClickListener() {
             @Override
@@ -275,7 +238,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                     @Override
                     public void onError(Request request, Exception e) {
                         hideTipDialog();
-                        onNetWorkError(context);
+                        onNetWorkError();
                     }
 
                     @Override
@@ -328,21 +291,21 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                 String title = task_title.getText().toString().trim();
                 String time = tv_researchTime.getText().toString().trim();
                 if (title.length() == 0) {
-                    toast(context, "请输入阶段标题");
+                    toast("请输入阶段标题");
                 } else if (time.length() == 0) {
-                    toast(context, "请选择研修时间");
+                    toast("请选择研修时间");
                 } else {
                     addStage(title, startTime, endTime, sortNum);
                     task_title.setText(null);
                     tv_researchTime.setText(null);
                     mAdapter.setAddTask(false);
-                    task_add_phase_btn.setVisibility(View.VISIBLE);
+                    tv_bottom.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void cancel() {
-                task_add_phase_btn.setVisibility(View.VISIBLE);
+                tv_bottom.setVisibility(View.VISIBLE);
             }
         });
 
@@ -414,15 +377,15 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == 200) {
+        if (resultCode == Activity.RESULT_OK && requestCode == 200) {
             String title = data.getStringExtra("title");
             TimePeriod timePeriod = (TimePeriod) data.getSerializableExtra("timePeriod");
             sectionList.get(alterPosition).setTitle(title);
             sectionList.get(alterPosition).setTimePeriod(timePeriod);
             mAdapter.notifyItemChanged(alterPosition);
-        } else if (resultCode == RESULT_OK && requestCode == REQUEST_ACTIVITY) {
+        } else if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_ACTIVITY) {
             if (data != null && data.getSerializableExtra("activity") != null && data.getSerializableExtra("activity") instanceof MWorkshopActivity) {
                 MWorkshopActivity mWorkshopActivity = (MWorkshopActivity) data.getSerializableExtra("activity");
                 sectionList.get(activityIndex).getActivities().add(mWorkshopActivity);
@@ -437,13 +400,13 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                 && response.getResponseData().getmActivityResult().getmActivity() != null) {
             CourseSectionActivity activity = response.getResponseData().getmActivityResult().getmActivity();
             if (activity.getType() != null && activity.getType().equals("lesson_plan")) {   //集体备课
-                toast(context, "系统暂不支持浏览，请到网站完成。");
+                toast("系统暂不支持浏览，请到网站完成。");
             } else if (activity.getType() != null && activity.getType().equals("discussion")) {  //教学研讨
                 openDiscussion(response, activity);
             } else if (activity.getType() != null && activity.getType().equals("survey")) {  //问卷调查
                 openSurvey(response, activity);
             } else if (activity.getType() != null && activity.getType().equals("debate")) {  //在线辩论
-                toast(context, "系统暂不支持浏览，请到网站完成。");
+                toast("系统暂不支持浏览，请到网站完成。");
             } else if (activity.getType() != null && activity.getType().equals("test")) {  //教学测验
                 openTest(response, activity);
             } else if (activity.getType() != null && activity.getType().equals("video")) {  //视频
@@ -454,12 +417,12 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                         showNetDialog(response, activity);
                     }
                 } else {
-                    toast(context, "当前网络不稳定，请检查网络设置！");
+                    toast("当前网络不稳定，请检查网络设置！");
                 }
             } else if (activity.getType() != null && activity.getType().equals("lcec")) {
                 openLcec(response, activity);
             } else {
-                toast(context, "系统暂不支持浏览，请到网站完成。");
+                toast("系统暂不支持浏览，请到网站完成。");
             }
         }
     }
@@ -509,7 +472,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                 intent.putExtra("attach", video);
                 startActivity(intent);
             } else {
-                toast(context, "系统暂不支持浏览，请到网站完成。");
+                toast("系统暂不支持浏览，请到网站完成。");
             }
         }
     }
@@ -531,7 +494,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
             intent.putExtra("mlcec", response.getResponseData().getmLcec());
             startActivity(intent);
         } else {
-            toast(context, "系统暂不支持浏览，请到网站完成。");
+            toast("系统暂不支持浏览，请到网站完成。");
         }
     }
 
@@ -560,7 +523,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
             }
             startActivity(intent);
         } else
-            toast(context, "系统暂不支持浏览，请到网站完成。");
+            toast("系统暂不支持浏览，请到网站完成。");
     }
 
     /*打开问卷调查*/
@@ -628,7 +591,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
             @Override
             public void onError(Request request, Exception e) {
                 hideTipDialog();
-                onNetWorkError(context);
+                onNetWorkError();
             }
 
             @Override
@@ -639,7 +602,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                     mAdapter.setPressIndex(mainIndex, position);
                     mAdapter.notifyItemChanged(mainIndex);
                 } else {
-                    toast(context, "删除失败，请稍后再试");
+                    toast("删除失败，请稍后再试");
                 }
             }
         }, map));
@@ -660,7 +623,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                 intent2.putExtra("role", role);
                 startActivity(intent2);
                 break;
-            case R.id.task_add_phase_btn:
+            case R.id.tv_bottom:
                 smoothToBottom();
                 break;
         }
@@ -668,19 +631,19 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
 
     private void smoothToBottom() {
         mAdapter.setAddTask(true);
-        addSubscription(Flowable.just(context).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<WorkshopHomePageActivity>() {
+        contentView.postDelayed(new Runnable() {
             @Override
-            public void accept(WorkshopHomePageActivity activity) throws Exception {
+            public void run() {
                 contentView.fullScroll(ScrollView.FOCUS_DOWN);
+                tv_bottom.setVisibility(View.GONE);
             }
-        }));
-        task_add_phase_btn.setVisibility(View.GONE);
+        }, 10);
     }
 
     //添加新阶段
     private void addStage(String title, String startTime, String endTime, int sortNum) {
         showTipDialog();
-        String url = Constants.OUTRT_NET + "/master_" + workshopId + "/unique_uid_" + context.getUserId() + "/m/workshop_section";
+        String url = Constants.OUTRT_NET + "/master_" + workshopId + "/unique_uid_" + getUserId() + "/m/workshop_section";
         Map<String, String> map = new HashMap<>();
         map.put("workshopId", workshopId);
         map.put("title", title);
@@ -691,14 +654,14 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
             @Override
             public void onError(Request request, Exception e) {
                 hideTipDialog();
-                onNetWorkError(context);
+                onNetWorkError();
             }
 
             @Override
             public void onResponse(WorkshopPhaseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseData() != null) {
-                    ll_empty.setVisibility(View.GONE);
+                    tv_empty.setVisibility(View.GONE);
                     if (recyclerView.getVisibility() == View.GONE) {
                         recyclerView.setVisibility(View.VISIBLE);
                     }
@@ -712,92 +675,8 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
         }, map));
     }
 
-    private void showPopupWindow() {
-        final View popupView = getLayoutInflater().inflate(R.layout.popwindow_workshop_menu, null);
-        final PopupWindow mPopupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT, true);
-        View ll_notice = popupView.findViewById(R.id.ll_notice);
-        View ll_introduct = popupView.findViewById(R.id.ll_introduct);
-        //研修简报
-        View ll_brief = popupView.findViewById(R.id.ll_brief);
-        //学员测试
-        View ll_studen_test = popupView.findViewById(R.id.ll_studen_test);
-        //成员考核
-        View ll_member_management = popupView.findViewById(R.id.ll_member_management);
-        ll_notice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPopupWindow.dismiss();
-                Intent intent = new Intent(context, AnnouncementActivity.class);
-                intent.putExtra("relationId", workshopId);
-                intent.putExtra("relationType", "workshop");
-                intent.putExtra("type", "workshop_announcement");
-                startActivity(intent);
-            }
-        });
-        ll_introduct.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPopupWindow.dismiss();
-                Intent intent = new Intent(context, WorkShopDetailActivity.class);
-                intent.putExtra("workshopId", workshopId);
-                startActivity(intent);
-            }
-        });
-        ll_brief.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPopupWindow.dismiss();
-                Intent intent = new Intent(context, BriefingActivity.class);
-                intent.putExtra("relationId", workshopId);
-                intent.putExtra("relationType", "workshop");
-                intent.putExtra("type", "workshop_briefing");
-                startActivity(intent);
-
-            }
-        });
-        ll_studen_test.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPopupWindow.dismiss();
-                Intent intent = new Intent(context, StudentAssignmentActivity.class);
-                intent.putExtra("workshopId", workshopId);
-                startActivity(intent);
-            }
-        });
-        ll_member_management.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPopupWindow.dismiss();
-                Intent intent = new Intent(context, ManagentMemberActivity.class);
-                intent.putExtra("workshopId", workshopId);
-                startActivity(intent);
-            }
-        });
-        popupView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mPopupWindow.dismiss();
-            }
-        });
-        mPopupWindow.setTouchable(true);
-        mPopupWindow.setBackgroundDrawable(new BitmapDrawable());
-        mPopupWindow.setOutsideTouchable(true);
-        View view = toolBar.getIv_rightImage();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            mPopupWindow.showAsDropDown(view, 0, -10);
-        } else {
-            // 适配 android 7.0
-            int[] location = new int[2];
-            view.getLocationOnScreen(location);
-            int x = location[0];
-            int y = location[1];
-            mPopupWindow.showAtLocation(view, Gravity.NO_GRAVITY, x, y + view.getHeight() - 10);
-        }
-    }
-
     private void deleteTask(String id, final int position) {
-        String url = Constants.OUTRT_NET + "/master_" + workshopId + "/unique_uid_" + context.getUserId() + "/m/workshop_section/" + id;
+        String url = Constants.OUTRT_NET + "/master_" + workshopId + "/unique_uid_" + getUserId() + "/m/workshop_section/" + id;
         Map<String, String> map = new HashMap<>();
         map.put("_method", "delete");
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
@@ -810,7 +689,7 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
             @Override
             public void onError(Request request, Exception e) {
                 hideTipDialog();
-                toast(context, "删除失败，请稍后再试");
+                toast("删除失败，请稍后再试");
             }
 
             @Override
@@ -821,11 +700,11 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
                     mAdapter.notifyItemRangeRemoved(position, 1);
                     mAdapter.notifyItemRangeChanged(position, sectionList.size());
                     if (sectionList.size() == 0) {
-                        ll_empty.setVisibility(View.VISIBLE);
+                        tv_empty.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
                     }
                 } else {
-                    toast(context, "删除失败，请稍后再试");
+                    toast("删除失败，请稍后再试");
                 }
             }
         }, map));

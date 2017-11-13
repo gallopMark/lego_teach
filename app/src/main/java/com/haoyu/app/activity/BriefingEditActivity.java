@@ -1,5 +1,6 @@
 package com.haoyu.app.activity;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.Html;
@@ -13,9 +14,6 @@ import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.entity.BriefingEntity;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.rxBus.MessageEvent;
-import com.haoyu.app.rxBus.RxBus;
-import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.AppToolBar;
@@ -39,6 +37,7 @@ public class BriefingEditActivity extends BaseActivity {
     EditText et_content;
     private String relationId, relationType, briefId;
     private boolean isAlter;
+    private long createTime;
 
     @Override
     public int setLayoutResID() {
@@ -89,6 +88,7 @@ public class BriefingEditActivity extends BaseActivity {
         et_content.setText(spanned);
         Editable editable = et_title.getText();
         Selection.setSelection(editable, editable.length());
+        createTime = entity.getCreateTime();
     }
 
     @Override
@@ -139,7 +139,7 @@ public class BriefingEditActivity extends BaseActivity {
     }
 
     /*创建研修简报*/
-    private void create(String title, String content) {
+    private void create(String title, final String content) {
         /**
          * title	标题	String	Y
          content	内容	String	Y	长度最大为1000
@@ -170,10 +170,10 @@ public class BriefingEditActivity extends BaseActivity {
             public void onResponse(BaseResponseResult<BriefingEntity> response) {
                 hideTipDialog();
                 if (response != null && response.getResponseData() != null) {
-                    MessageEvent event = new MessageEvent();
-                    event.action = Action.CREATE_BRIEF;
-                    event.obj = response.getResponseData();
-                    RxBus.getDefault().post(event);
+                    BriefingEntity entity = response.getResponseData();
+                    Intent intent = new Intent();
+                    intent.putExtra("entity", entity);
+                    setResult(RESULT_OK, intent);
                     finish();
                 } else {
                     toast(context, "创建失败");
@@ -205,10 +205,11 @@ public class BriefingEditActivity extends BaseActivity {
             public void onResponse(BaseResponseResult<BriefingEntity> response) {
                 hideTipDialog();
                 if (response != null && response.getResponseData() != null) {
-                    MessageEvent event = new MessageEvent();
-                    event.action = Action.ALTER_BRIEF;
-                    event.obj = response.getResponseData();
-                    RxBus.getDefault().post(event);
+                    BriefingEntity entity = response.getResponseData();
+                    entity.setCreateTime(createTime);
+                    Intent intent = new Intent();
+                    intent.putExtra("entity", entity);
+                    setResult(RESULT_OK, intent);
                     finish();
                 } else {
                     toast(context, "修改失败");
