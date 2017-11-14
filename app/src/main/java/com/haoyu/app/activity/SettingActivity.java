@@ -249,7 +249,7 @@ public class SettingActivity extends BaseActivity implements OnClickListener {
             public void onClick(View v, AlertDialog dialog) {
                 Intent intent = new Intent(context, DownloadService.class);
                 intent.putExtra("url", versionEntity.getDownurl());
-                intent.putExtra("versionCode", versionEntity.getVersionCode());
+                intent.putExtra("versionName", versionEntity.getVersionName());
 
                 startService(intent);
             }
@@ -259,7 +259,7 @@ public class SettingActivity extends BaseActivity implements OnClickListener {
 
 
     private void specifyApkVersion(VersionEntity versionEntity) {
-        String apkUrl = Constants.fileDownDir + "/lego_teach_" + versionEntity.getVersionCode() + ".apk";
+        String apkUrl = Constants.fileDownDir + "/lego_teach_" + versionEntity.getVersionName() + ".apk";
         File file = new File(apkUrl);
         if (versionEntity.getVersionCode() > MyUtils.getVersionCode(context)) {
             if (file.exists()) {
