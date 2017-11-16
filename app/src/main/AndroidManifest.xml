@@ -290,9 +290,6 @@
         <activity
             android:name="com.haoyu.app.activity.MFileInfoActivity"
             android:configChanges="screenSize|orientation|keyboardHidden" />
-        <activity
-            android:name="com.haoyu.app.activity.MFileInfoPreViewActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <service android:name="com.haoyu.app.service.DownloadService" />
 
