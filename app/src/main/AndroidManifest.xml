@@ -112,7 +112,9 @@
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity android:name="com.haoyu.app.activity.AppSurveyResultActivity" />
         <!--课程学习研讨-->
-        <activity android:name="com.haoyu.app.activity.TeachingDiscussionActivity" />
+        <activity
+            android:name="com.haoyu.app.activity.TeachingDiscussionActivity"
+            android:configChanges="screenSize|orientation|keyboardHidden" />
         <!--课程学习作业-->
         <activity android:name="com.haoyu.app.activity.TestAssignmentActivity" />
         <activity android:name="com.haoyu.app.activity.TestMyAssignmentActivity" />
@@ -219,8 +221,8 @@
         <activity android:name="com.haoyu.app.activity.AppSubmitAssignmentActivity" />
         <!--教学观摩-->
         <activity
-            android:name="com.haoyu.app.activity.WSTeachingEmulateActivity"
-            android:windowSoftInputMode="adjustPan|stateHidden" />
+            android:name="com.haoyu.app.activity.WSClassDiscussEditActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <!--听课评课-->
         <activity android:name="com.haoyu.app.activity.WSTeachingStudyEditActivity" />
         <!--听课评课上传录像-->
@@ -246,7 +248,7 @@
             android:configChanges="screenSize|orientation|keyboardHidden" />
         <!--评课议课-->
         <activity
-            android:name="com.haoyu.app.activity.TeachingClassDiscussActivity"
+            android:name="com.haoyu.app.activity.WSClassDiscussInfoActivity"
             android:configChanges="screenSize|orientation|keyboardHidden" />
         <!--听课评课的结果-->
         <activity android:name="com.haoyu.app.activity.TeachingStudyResultDetailActiivty" />
@@ -285,7 +287,9 @@
 
         <!--文件预览-->
         <activity android:name="com.haoyu.app.activity.MFileInfosActivity" />
-        <activity android:name="com.haoyu.app.activity.MFileInfoActivity" />
+        <activity
+            android:name="com.haoyu.app.activity.MFileInfoActivity"
+            android:configChanges="screenSize|orientation|keyboardHidden" />
         <activity
             android:name="com.haoyu.app.activity.MFileInfoPreViewActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />
