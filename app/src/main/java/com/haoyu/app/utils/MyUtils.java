@@ -12,6 +12,8 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.haoyu.app.lego.teach.BuildConfig;
+
 import java.io.File;
 
 /**
@@ -109,7 +111,7 @@ public final class MyUtils {
             context.startActivity(install);
         } else {
             //在AndroidManifest中的android:authorities值
-            Uri apkUri = FileProvider.getUriForFile(context, "com.haoyu.app.lego.teach.provider", apkFile);
+            Uri apkUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+".provider", apkFile);
             Intent install = new Intent(Intent.ACTION_VIEW);
             install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             //添加这一句表示对目标应用临时授权该Uri所代表的文件
