@@ -75,6 +75,7 @@ public class DownloadService extends Service {
             @Override
             public void onSuccess(AndroidDownladTask downloadTask, String savePath) {
                 MyUtils.installAPK(getApplicationContext(), new File(Constants.fileDownDir + "/" + fileName));
+                stopSelf();
 
             }
 
