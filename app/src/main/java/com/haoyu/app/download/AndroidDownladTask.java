@@ -66,12 +66,14 @@ public class AndroidDownladTask extends Thread {
                     }
                     break;
                 case CODE_COMPLETED:
+                    isDownloading = false;
                     String savePath = (String) msg.obj;
                     if (mListner != null) {
                         mListner.onSuccess(AndroidDownladTask.this, savePath);
                     }
                     break;
                 case CODE_ERROR:
+                    isDownloading = false;
                     if (mListner != null) {
                         mListner.onFailed(AndroidDownladTask.this);
                     }
@@ -190,6 +192,10 @@ public class AndroidDownladTask extends Thread {
     public AndroidDownladTask addListener(OnDownloadStatusListener listener) {
         this.mListner = listener;
         return this;
+    }
+
+    public boolean isDownloading() {
+        return isDownloading;
     }
 
     @Override
@@ -323,7 +329,7 @@ public class AndroidDownladTask extends Thread {
     }
 
     public void pause() {
-        isDownloading = false;
+        if (isDownloading) isDownloading = false;
         handler.removeCallbacksAndMessages(null);
     }
 
@@ -331,7 +337,7 @@ public class AndroidDownladTask extends Thread {
      * 取消
      */
     public void cancel() {
-        isDownloading = false;
+        if (isDownloading) isDownloading = false;
         handler.removeCallbacksAndMessages(null);
         cleanFile(mTmpFile);
         if (mListner != null) {
