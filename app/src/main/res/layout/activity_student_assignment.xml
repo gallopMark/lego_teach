@@ -218,13 +218,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-
                 android:background="@color/defaultColor"
                 android:gravity="center"
                 android:padding="@dimen/margin_size_10"
                 android:text="批量评价"
                 android:textColor="@color/white"
-                android:textSize="@dimen/font_size_12" />
+                android:textSize="@dimen/font_size_15" />
         </LinearLayout>
 
         <TextView
@@ -240,7 +239,5 @@
 
     </RelativeLayout>
 
-    <include
-        layout="@layout/include_loading"
- />
+    <include layout="@layout/include_loading" />
 </RelativeLayout>

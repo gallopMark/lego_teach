@@ -132,7 +132,7 @@ public class StudentAssignmentActivity extends BaseActivity implements View.OnCl
     }
 
     public void initData() {
-        String url = Constants.OUTRT_NET + "/master_" + workShopId + "/m/workshop_user/" + workShopId + "/students?page=" + page;
+        String url = Constants.OUTRT_NET + "/master_" + workShopId + "/m/workshop_user/" + workShopId + "/students?page=" + page + "&limit=20";
         OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<ManagementMemberResult>() {
 
             @Override
@@ -169,7 +169,7 @@ public class StudentAssignmentActivity extends BaseActivity implements View.OnCl
                         int startIndex1 = message.indexOf("共") + 1;
                         int endIndex1 = message.indexOf("名");
                         style.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.orange)), startIndex1, endIndex1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    tv_wran.setText(style);//将其添加到tv中
+                        tv_wran.setText(style);//将其添加到tv中
                     }
                     ll_show.setVisibility(View.VISIBLE);
                     loadFailView.setVisibility(View.GONE);

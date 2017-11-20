@@ -87,9 +87,6 @@ public class ManagentMemberActivity extends BaseActivity {
     }
 
 
-
-
-
     private void changeManagerFragment(int index) {
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
         hideFragment(transaction);
