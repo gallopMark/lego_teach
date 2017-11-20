@@ -26,9 +26,7 @@ import com.haoyu.app.entity.VersionEntity;
 import com.haoyu.app.entity.WorkShopMobileEntity;
 import com.haoyu.app.imageloader.GlideImgManager;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.service.DownloadService;
-import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.MyUtils;
 import com.haoyu.app.utils.OkHttpClientManager;
@@ -87,6 +85,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     RecyclerView courseRV;
     @BindView(R.id.workshopRV)
     RecyclerView workshopRV;
+    private final static int SCANNIN_GREQUEST_CODE = 1, REQUSET_USERINFO_CODE = 2;
 
     @Override
     public int setLayoutResID() {
@@ -270,8 +269,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         });
     }
 
-    private final static int SCANNIN_GREQUEST_CODE = 1;
-
     @Override
     public void onClick(View v) {
         Intent intent = new Intent();
@@ -287,7 +284,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 menu.toggle(true);
                 break;
             case R.id.ll_userInfo:  //侧滑菜单个人信息
-                startActivity(new Intent(context, AppUserInfoActivity.class));
+                intent.setClass(context, AppUserInfoActivity.class);
+                startActivityForResult(intent, REQUSET_USERINFO_CODE);
                 break;
             case R.id.iv_userIco:
                 if (getAvatar() != null && getAvatar().length() > 0) {
@@ -323,23 +321,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        /**
-         * 处理二维码扫描结果
-         */
-        if (requestCode == SCANNIN_GREQUEST_CODE) {
-            //处理扫描结果（在界面上显示）
-            if (null != data) {
-                Bundle bundle = data.getExtras();
-                if (bundle == null) {
-                    return;
+        switch (requestCode) {
+            case SCANNIN_GREQUEST_CODE:
+             /* 处理二维码扫描结果*/
+                if (data != null && data.getExtras() != null) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
+                        String result = bundle.getString(CodeUtils.RESULT_STRING);
+                        parseCaptureResult(result);
+                    } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
+                        toast(context, "解析二维码失败");
+                    }
                 }
-                if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
-                    String result = bundle.getString(CodeUtils.RESULT_STRING);
-                    parseCaptureResult(result);
-                } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
-                    toast(context, "解析二维码失败");
+                break;
+            case REQUSET_USERINFO_CODE:
+                if (data != null) {
+                    String avatar = data.getStringExtra("avatar");
+                    GlideImgManager.loadCircleImage(context.getApplicationContext(), avatar, R.drawable.user_default, R.drawable.user_default, iv_userIco);
                 }
-            }
+                break;
         }
     }
 
@@ -402,20 +402,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         return super.onKeyDown(keyCode, event);
     }
 
-    @Override
-    public void obBusEvent(MessageEvent event) {
-        if (event.action.equals(Action.CHANGE_USER_ICO) && event.obj != null && event.obj instanceof String) {
-            String avatar = (String) event.obj;
-            GlideImgManager.loadCircleImage(context, avatar, R.drawable.user_default, R.drawable.user_default, iv_userIco);
-        } else if (event.action.equals(Action.CHANGE_USER_NAME) && event.obj != null && event.obj instanceof String) {
-            String realName = (String) event.obj;
-            tv_userName.setText(realName);
-        } else if (event.action.equals(Action.CHANGE_DEPT_NAME) && event.obj != null && event.obj instanceof String) {
-            String deptName = (String) event.obj;
-            tv_deptName.setText(deptName);
-        }
-    }
-
     private void getVersion() {
 
         addSubscription(OkHttpClientManager.getAsyn(context, Constants.updateUrl, new OkHttpClientManager.ResultCallback<VersionEntity>() {
@@ -466,11 +452,4 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
 
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unsubscribe();
-    }
-
 }
