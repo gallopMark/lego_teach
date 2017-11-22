@@ -81,13 +81,13 @@ public class WorkShopDetailActivity extends BaseActivity {
         }));
     }
 
-    private void updateUI(WorkShopMobileEntity entity, MFileInfo mFileInfo) {
+    private void updateUI(final WorkShopMobileEntity entity, final MFileInfo mFileInfo) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         WSDetailFragment fragment = new WSDetailFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable("entity", entity);
         bundle.putSerializable("fileInfo", mFileInfo);
         fragment.setArguments(bundle);
-        fragmentManager.beginTransaction().replace(R.id.container, fragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.container, fragment).commitAllowingStateLoss();
     }
 }

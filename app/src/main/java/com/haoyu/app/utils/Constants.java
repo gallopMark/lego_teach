@@ -50,10 +50,10 @@ public class Constants {
     static {
         if (existsSdcard()) {
             rootDir = GdeiApplication.getInstance().getExternalFilesDir(null).getAbsolutePath();
-            mediaCache = SDCardUtil.getSDCardPath() + "/gdei_study/media_cache";
+            mediaCache = SDCardUtil.getSDCardPath() + "/lego_teach/media_cache";
         } else {
             rootDir = GdeiApplication.getInstance().getFilesDir().getAbsolutePath();
-            mediaCache = SDCardUtil.getRootDirectoryPath() + "/gdei_study/media_cache";
+            mediaCache = SDCardUtil.getRootDirectoryPath() + "/lego_teach/media_cache";
         }
         compressor = rootDir + "/compressor";
         /* imageloader加载图片存放sdCard的路径 */

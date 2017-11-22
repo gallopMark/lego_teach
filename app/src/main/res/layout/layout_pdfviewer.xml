@@ -18,5 +18,3 @@
         android:textColor="#cc000000"
         android:textSize="@dimen/font_size_18" />
 </FrameLayout>
-
-
