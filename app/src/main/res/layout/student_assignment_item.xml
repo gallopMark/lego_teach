@@ -9,6 +9,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_size_3"
+        android:layout_marginTop="@dimen/margin_size_3"
         android:orientation="horizontal">
 
         <LinearLayout
@@ -25,9 +27,7 @@
                 android:layout_gravity="center_vertical|right"
                 android:layout_weight="0.4"
                 android:gravity="center"
-                android:visibility="gone"
-
-                >
+                android:visibility="gone">
 
                 <CheckBox
                     android:id="@+id/p_check"
