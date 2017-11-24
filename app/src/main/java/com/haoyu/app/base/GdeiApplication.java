@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import com.baidu.mobstat.StatService;
 import com.haoyu.app.activity.AppSplashActivity;
 import com.haoyu.app.activity.MainActivity;
 import com.haoyu.app.utils.Constants;
@@ -31,6 +32,7 @@ public class GdeiApplication extends Application {
         ZXingLibrary.initDisplayOpinion(this);
         initFileDownloader();
         CrashReport.initCrashReport(this);
+        StatService.start(this);
 //        // 以下用来捕获程序崩溃异常
 //        if (!Config.DEBUG) {
 //            Thread.setDefaultUncaughtExceptionHandler(restartHandler); // 程序崩溃时触发线程
