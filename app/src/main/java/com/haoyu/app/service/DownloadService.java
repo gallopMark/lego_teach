@@ -81,7 +81,6 @@ public class DownloadService extends Service {
             public void onSuccess(FileDownladTask downloadTask, String savePath) {
                 MyUtils.installAPK(getApplicationContext(), new File(Constants.fileDownDir + "/" + fileName));
                 stopSelf();
-
             }
 
             @Override
@@ -101,7 +100,6 @@ public class DownloadService extends Service {
 
             }
         }).build().start();
-
     }
 
     NotificationCompat.Builder builder;
