@@ -20,7 +20,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/zxing.jar')
-    compile 'com.android.support:support-v4:27.0.0'
+    compile 'com.android.support:support-v4:27.0.1'
 }
 
 ext {

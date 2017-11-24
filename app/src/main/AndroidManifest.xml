@@ -34,7 +34,7 @@
         android:smallScreens="true" />
 
     <application
-        android:name="com.haoyu.app.base.GdeiApplication"
+        android:name="com.haoyu.app.base.LegoApplication"
         android:allowBackup="true"
         android:icon="@drawable/lego_ico"
         android:label="@string/app_name"
@@ -307,7 +307,7 @@
             android:name="com.haoyu.app.activity.MFileInfoActivity"
             android:configChanges="screenSize|orientation|keyboardHidden" />
 
-        <service android:name="com.haoyu.app.service.DownloadService" />
+        <service android:name="com.haoyu.app.service.VersionUpdateService" />
 
     </application>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />

@@ -2,6 +2,8 @@ package com.haoyu.app.activity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -15,6 +17,7 @@ import com.google.gson.Gson;
 import com.haoyu.app.adapter.TeacherCourseListAdapter;
 import com.haoyu.app.adapter.TeacherWorkShopListAdater;
 import com.haoyu.app.base.BaseActivity;
+import com.haoyu.app.base.LegoApplication;
 import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.dialog.MaterialDialog;
 import com.haoyu.app.entity.CaptureResult;
@@ -26,9 +29,8 @@ import com.haoyu.app.entity.VersionEntity;
 import com.haoyu.app.entity.WorkShopMobileEntity;
 import com.haoyu.app.imageloader.GlideImgManager;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.service.DownloadService;
+import com.haoyu.app.service.VersionUpdateService;
 import com.haoyu.app.utils.Constants;
-import com.haoyu.app.utils.MyUtils;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.FullyLinearLayoutManager;
 import com.haoyu.app.view.LoadFailView;
@@ -36,7 +38,6 @@ import com.haoyu.app.view.LoadingView;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.uuzuche.lib_zxing.activity.CodeUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -395,7 +396,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 toast(this, "再按一次退出" + getResources().getString(R.string.app_name));
                 mExitTime = System.currentTimeMillis();
             } else {
-                finish();
+                LegoApplication.getInstance().exit();
             }
             return true;
         }
@@ -403,7 +404,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void getVersion() {
-
         addSubscription(OkHttpClientManager.getAsyn(context, Constants.updateUrl, new OkHttpClientManager.ResultCallback<VersionEntity>() {
             @Override
             public void onError(Request request, Exception e) {
@@ -411,45 +411,45 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             }
 
             @Override
-            public void onResponse(VersionEntity versionEntity) {
-                specifyApkVersion(versionEntity);
+            public void onResponse(VersionEntity entity) {
+                if (entity.getVersionCode() > getVersionCode()) {
+                    updateTips(entity);
+                }
             }
         }));
     }
 
-    private void alertVersionUpdate(final VersionEntity versionEntity) {
-        final MaterialDialog materialDialog = new MaterialDialog(context);
-        materialDialog.setMessage(versionEntity.getUpdateLog());
-        materialDialog.setTitle("发现新版本");
-        materialDialog.setNegativeButton("稍后下载", new MaterialDialog.ButtonClickListener() {
-            @Override
-            public void onClick(View v, AlertDialog dialog) {
-                materialDialog.dismiss();
-            }
-        });
-        materialDialog.setPositiveButton("立即下载", new MaterialDialog.ButtonClickListener() {
-            @Override
-            public void onClick(View v, AlertDialog dialog) {
-                Intent intent = new Intent(context, DownloadService.class);
-                intent.putExtra("url", versionEntity.getDownurl());
-                intent.putExtra("versionName", versionEntity.getVersionName());
-
-                startService(intent);
-            }
-        });
-        materialDialog.show();
+    private int getVersionCode() {
+        PackageManager packageManager = getPackageManager();
+        PackageInfo packageInfo;
+        int versionCode = 0;
+        try {
+            packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
+            versionCode = packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return versionCode;
     }
 
-    private void specifyApkVersion(VersionEntity versionEntity) {
-        String apkUrl = Constants.fileDownDir + "/lego_teach_" + versionEntity.getVersionName() + ".apk";
-        File file = new File(apkUrl);
-        if (versionEntity.getVersionCode() > MyUtils.getVersionCode(context)) {
-            if (file.exists()) {
-                MyUtils.installAPK(context, file);
-            } else {
-                alertVersionUpdate(versionEntity);
+    private void updateTips(final VersionEntity entity) {
+        final MaterialDialog dialog = new MaterialDialog(context);
+        dialog.setMessage(entity.getUpdateLog());
+        dialog.setTitle("发现新版本");
+        dialog.setNegativeButton("稍后下载", null);
+        dialog.setPositiveButton("立即下载", new MaterialDialog.ButtonClickListener() {
+            @Override
+            public void onClick(View v, AlertDialog dialog) {
+                startService(entity);
             }
-        }
+        });
+        dialog.show();
+    }
 
+    private void startService(VersionEntity entity) {
+        Intent intent = new Intent(context, VersionUpdateService.class);
+        intent.putExtra("url", entity.getDownurl());
+        intent.putExtra("versionName", entity.getVersionName());
+        startService(intent);
     }
 }
