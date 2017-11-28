@@ -334,6 +334,15 @@ public class VideoPlayerLibActivity extends BaseActivity implements View.OnClick
     }
 
     @Override
+    public void initData() {
+        if (NetStatusUtil.isWifi(context)) {   //如果是wifi网络环境直接播放视频
+            openPlayer = true;
+            iv_play.setVisibility(View.GONE);
+            playVideo();
+        }
+    }
+
+    @Override
     public void setListener() {
         iv_play.setOnClickListener(context);
         iv_back.setOnClickListener(context);
