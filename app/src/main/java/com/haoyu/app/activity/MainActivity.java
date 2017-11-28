@@ -445,7 +445,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private void openTips() {
         MaterialDialog dialog = new MaterialDialog(context);
         dialog.setTitle("提示");
-        dialog.setMessage("通知已关闭，是否允许应用推送消息？");
+        dialog.setMessage("通知已关闭，是否允许应用推送通知？");
         dialog.setPositiveButton("开启", new MaterialDialog.ButtonClickListener() {
             @Override
             public void onClick(View v, AlertDialog dialog) {
