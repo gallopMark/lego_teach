@@ -2,7 +2,6 @@ package com.haoyu.app.activity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -34,8 +33,8 @@ import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.FullyLinearLayoutManager;
 import com.haoyu.app.view.LoadFailView;
 import com.haoyu.app.view.LoadingView;
+import com.haoyu.app.zxing.CodeUtils;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-import com.uuzuche.lib_zxing.activity.CodeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -324,14 +323,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         switch (requestCode) {
             case SCANNIN_GREQUEST_CODE:
              /* 处理二维码扫描结果*/
-                if (data != null && data.getExtras() != null) {
-                    Bundle bundle = data.getExtras();
-                    if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
-                        String result = bundle.getString(CodeUtils.RESULT_STRING);
-                        parseCaptureResult(result);
-                    } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
-                        toast(context, "解析二维码失败");
-                    }
+                if (resultCode == RESULT_OK && data != null) {
+                    String result = data.getStringExtra(CodeUtils.RESULT_STRING);
+                    parseCaptureResult(result);
                 }
                 break;
             case REQUSET_USERINFO_CODE:
