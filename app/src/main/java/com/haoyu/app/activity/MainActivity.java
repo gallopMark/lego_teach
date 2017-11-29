@@ -395,7 +395,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 toast(this, "再按一次退出" + getResources().getString(R.string.app_name));
                 mExitTime = System.currentTimeMillis();
             } else {
-                LegoApplication.getInstance().exit();
+                LegoApplication.exit();
             }
             return true;
         }
