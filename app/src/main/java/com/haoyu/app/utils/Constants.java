@@ -29,7 +29,7 @@ public class Constants {
 
     static {
         rootDir = LegoApplication.getDefaultFilesDir();
-        mediaCache = LegoApplication.getExternalStorageDir() + "/lego_study/media_cache";
+        mediaCache = LegoApplication.getExternalStorageDir() + "/lego_teach/media_cache";
         compressor = rootDir + "/compressor";
         /* 文件下载存放的路径 */
         fileDownDir = rootDir + "/file_downloader";
