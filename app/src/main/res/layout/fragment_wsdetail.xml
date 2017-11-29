@@ -248,6 +248,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_size_1"
             android:layout_marginTop="@dimen/margin_size_8"
             android:background="@color/white"
             android:drawableLeft="@drawable/course_title_left"
@@ -261,7 +262,6 @@
             android:id="@+id/pull_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_size_1"
             android:background="@color/white"
             android:descendantFocusability="blocksDescendants"
             android:nestedScrollingEnabled="false"
