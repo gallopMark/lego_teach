@@ -2,13 +2,10 @@ package com.haoyu.app.activity;
 
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -26,6 +23,7 @@ import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.AppToolBar;
 import com.haoyu.app.view.LoadFailView;
 import com.haoyu.app.view.LoadingView;
+import com.haoyu.app.view.SupportPopupWindow;
 
 import java.io.Serializable;
 import java.util.List;
@@ -152,7 +150,7 @@ public class WorkshopHomeActivity extends BaseActivity {
 
     private void showPopupWindow() {
         final View popupView = getLayoutInflater().inflate(R.layout.popwindow_workshop_menu, null);
-        final PopupWindow mPopupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT,
+        final SupportPopupWindow pw = new SupportPopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT, true);
         View ll_notice = popupView.findViewById(R.id.ll_notice);
         View ll_introduct = popupView.findViewById(R.id.ll_introduct);
@@ -165,7 +163,7 @@ public class WorkshopHomeActivity extends BaseActivity {
         ll_notice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPopupWindow.dismiss();
+                pw.dismiss();
                 Intent intent = new Intent(context, AnnouncementActivity.class);
                 intent.putExtra("relationId", workshopId);
                 intent.putExtra("relationType", "workshop");
@@ -176,7 +174,7 @@ public class WorkshopHomeActivity extends BaseActivity {
         ll_introduct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPopupWindow.dismiss();
+                pw.dismiss();
                 Intent intent = new Intent(context, WorkShopDetailActivity.class);
                 intent.putExtra("workshopId", workshopId);
                 startActivity(intent);
@@ -185,7 +183,7 @@ public class WorkshopHomeActivity extends BaseActivity {
         ll_brief.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPopupWindow.dismiss();
+                pw.dismiss();
                 Intent intent = new Intent(context, BriefingActivity.class);
                 intent.putExtra("relationId", workshopId);
                 intent.putExtra("relationType", "workshop");
@@ -197,7 +195,7 @@ public class WorkshopHomeActivity extends BaseActivity {
         ll_studen_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPopupWindow.dismiss();
+                pw.dismiss();
                 Intent intent = new Intent(context, StudentAssignmentActivity.class);
                 intent.putExtra("workshopId", workshopId);
                 startActivity(intent);
@@ -206,7 +204,7 @@ public class WorkshopHomeActivity extends BaseActivity {
         ll_member_management.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPopupWindow.dismiss();
+                pw.dismiss();
                 Intent intent = new Intent(context, ManagentMemberActivity.class);
                 intent.putExtra("workshopId", workshopId);
                 startActivity(intent);
@@ -215,22 +213,13 @@ public class WorkshopHomeActivity extends BaseActivity {
         popupView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mPopupWindow.dismiss();
+                pw.dismiss();
             }
         });
-        mPopupWindow.setTouchable(true);
-        mPopupWindow.setBackgroundDrawable(new BitmapDrawable());
-        mPopupWindow.setOutsideTouchable(true);
+        pw.setTouchable(true);
+        pw.setBackgroundDrawable(new BitmapDrawable());
+        pw.setOutsideTouchable(true);
         View view = toolBar.getIv_rightImage();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            mPopupWindow.showAsDropDown(view, 0, -10);
-        } else {
-            // 适配 android 7.0
-            int[] location = new int[2];
-            view.getLocationOnScreen(location);
-            int x = location[0];
-            int y = location[1];
-            mPopupWindow.showAtLocation(view, Gravity.NO_GRAVITY, x, y + view.getHeight() - 10);
-        }
+        pw.showAsDropDown(view, 0, -10);
     }
 }

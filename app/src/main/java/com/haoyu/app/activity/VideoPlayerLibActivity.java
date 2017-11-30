@@ -1,6 +1,5 @@
-package com.haoyu.app.fragment;
+package com.haoyu.app.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,11 +9,8 @@ import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Html;
-import android.text.Spanned;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,9 +22,10 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.haoyu.app.base.BaseFragment;
+import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.dialog.MaterialDialog;
 import com.haoyu.app.lego.teach.R;
+import com.haoyu.app.utils.Common;
 import com.haoyu.app.utils.NetStatusUtil;
 import com.haoyu.app.utils.PixelFormat;
 import com.haoyu.app.view.CircularProgressView;
@@ -46,12 +43,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 
 /**
- * 创建日期：2017/11/8.
- * 描述:
- * 作者:gallop mark
+ * 创建日期：2017/11/27.
+ * 描述:视频播放器
+ * 作者:xiaoma
  */
-public class VideoPlayerFragment extends BaseFragment implements View.OnClickListener {
-    private Activity activity;
+
+public class VideoPlayerLibActivity extends BaseActivity implements View.OnClickListener {
+    private VideoPlayerLibActivity context = this;
     @BindView(R.id.fl_video)
     FrameLayout fl_video;
     @BindView(R.id.iv_play)
@@ -66,8 +64,10 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
 
     @BindView(R.id.fl_controller)
     FrameLayout fl_controller;
-    @BindView(R.id.tv_videoTitle)
-    TextView tv_videoTitle;
+    @BindView(R.id.iv_back)
+    ImageView iv_back;
+    @BindView(R.id.tv_videoName)
+    TextView tv_videoName;
     @BindView(R.id.ll_attribute)
     LinearLayout ll_attribute;
     @BindView(R.id.iv_attribute)
@@ -80,8 +80,6 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
     ImageView iv_direction;
     @BindView(R.id.tv_duration)
     TextView tv_duration;
-    @BindView(R.id.ll_playState)
-    LinearLayout ll_playState;
     @BindView(R.id.iv_playState)
     ImageView iv_playState;
     @BindView(R.id.seekbar)
@@ -90,14 +88,10 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
     TextView tv_current;
     @BindView(R.id.tv_videoSize)
     TextView tv_videoSize;
-    @BindView(R.id.iv_expand)
-    ImageView iv_expand;
-
-    private String videoUrl, videoTitle;
-    private boolean isFullScreen;
+    private String videoUrl;
     private AudioManager mAudioManager;
     private boolean progress_turn, attrbute_turn;
-    private long currentDuration = -1, lastDuration;  //当前播放位置
+    private long currentDuration = -1, lastDuration = -1;  //当前播放位置
     /*** 视频窗口的宽和高*/
     private int playerWidth, playerHeight;
     private int maxVolume, currentVolume;
@@ -112,51 +106,48 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
     private final int CODE_ENDGESTURE = 2;
 
     private String errorMsg;
-
+    private boolean isHttp;  //是否是本地文件
     private NetWorkReceiver receiver;
-    private MaterialDialog materialDialog;
+    private MaterialDialog dialog;
     private boolean openPlayer, isPrepared;
     private boolean openWithMobile = false;
 
-    private OnRequestedOrientation onRequestedOrientation;
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        activity = (Activity) context;
+    public int setLayoutResID() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        return R.layout.activity_videoplayerlib;
     }
 
     @Override
-    public int createView() {
-        return R.layout.fragment_videoplayer;
-    }
-
-    @Override
-    public void initView(View view) {
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            videoUrl = bundle.getString("videoUrl");
-            videoTitle = bundle.getString("videoTitle");
+    public void initView() {
+        videoUrl = getIntent().getStringExtra("videoUrl");
+        String videoTitle = getIntent().getStringExtra("videoTitle");
+        if (videoUrl.startsWith("http") || videoUrl.startsWith("https")) {
+            isHttp = true;
+        } else {
+            isHttp = false;
         }
-        if (videoTitle != null && videoTitle.trim().length() > 0) {
-            Spanned spanned = Html.fromHtml(videoTitle);
-            tv_videoTitle.setText(spanned);
-            tv_videoTitle.setVisibility(View.VISIBLE);
+        if (videoTitle == null) {
+            videoTitle = Common.getFileName(videoUrl);
         }
+        tv_videoName.setText(videoTitle);
         setVideoLayout();
-        mAudioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC); // 获取系统最大音量
         currentVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC); // 获取当前值
-        activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
         AVOptions options = new AVOptions();
         options.setInteger(AVOptions.KEY_GET_AV_FRAME_TIMEOUT, 20 * 1000);
         options.setInteger(AVOptions.KEY_PREPARE_TIMEOUT, 20 * 1000);
         videoView.setAVOptions(options);
         videoView.setScreenOnWhilePlaying(true);
-        receiver = new NetWorkReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        activity.registerReceiver(receiver, filter);
+        if (isHttp) {
+            receiver = new NetWorkReceiver();
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            registerReceiver(receiver, filter);
+        }
     }
 
     private void setVideoLayout() {
@@ -271,21 +262,21 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
             attrbute_turn = true;
         }
         if (mBrightness < 0) {
-            mBrightness = activity.getWindow().getAttributes().screenBrightness;
+            mBrightness = getWindow().getAttributes().screenBrightness;
             if (mBrightness <= 0.00f) {
                 mBrightness = 0.50f;
             } else if (mBrightness < 0.01f) {
                 mBrightness = 0.01f;
             }
         }
-        WindowManager.LayoutParams lpa = activity.getWindow().getAttributes();
+        WindowManager.LayoutParams lpa = getWindow().getAttributes();
         lpa.screenBrightness = mBrightness + percent;
         if (lpa.screenBrightness > 1.0f) {
             lpa.screenBrightness = 1.0f;
         } else if (lpa.screenBrightness < 0.01f) {
             lpa.screenBrightness = 0.01f;
         }
-        activity.getWindow().setAttributes(lpa);
+        getWindow().setAttributes(lpa);
         if (ll_attribute.getVisibility() != View.VISIBLE) {
             ll_attribute.setVisibility(View.VISIBLE);
         }
@@ -343,10 +334,19 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
     }
 
     @Override
+    public void initData() {
+        if (NetStatusUtil.isWifi(context)) {   //如果是wifi网络环境直接播放视频
+            openPlayer = true;
+            iv_play.setVisibility(View.GONE);
+            playVideo();
+        }
+    }
+
+    @Override
     public void setListener() {
-        iv_play.setOnClickListener(this);
-        iv_playState.setOnClickListener(this);
-        iv_expand.setOnClickListener(this);
+        iv_play.setOnClickListener(context);
+        iv_back.setOnClickListener(context);
+        iv_playState.setOnClickListener(context);
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -367,8 +367,11 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.iv_back:
+                finish();
+                break;
             case R.id.iv_play:
-                if (NetStatusUtil.isConnected(context) && !NetStatusUtil.isWifi(context)) {
+                if (isHttp && NetStatusUtil.isConnected(context) && !NetStatusUtil.isWifi(context)) {
                     netStateTips();
                 } else {
                     if (!openPlayer) {
@@ -385,21 +388,10 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
                 if (videoView.isPlaying()) {
                     pause();
                 } else {
-                    if (NetStatusUtil.isConnected(context) && !NetStatusUtil.isWifi(context)) {
+                    if (isHttp && NetStatusUtil.isConnected(context) && !NetStatusUtil.isWifi(context)) {
                         netStateTips();
                     } else {
                         start();
-                    }
-                }
-                break;
-            case R.id.iv_expand:
-                if (!isFullScreen) {
-                    if (onRequestedOrientation != null) {
-                        onRequestedOrientation.onRequested(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    }
-                } else {
-                    if (onRequestedOrientation != null) {
-                        onRequestedOrientation.onRequested(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                     }
                 }
                 break;
@@ -423,7 +415,7 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
             dialog.show();
         } else {
             start();
-            toast("当前网络为非Wi-FI环境，请注意您的流量使用情况");
+            toast(context, "当前网络为非Wi-FI环境，请注意您的流量使用情况");
         }
     }
 
@@ -434,8 +426,10 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
             @Override
             public void onPrepared(PLMediaPlayer plMediaPlayer) {
                 prepared();
+                if (lastDuration > 0) {
+                    videoView.seekTo(lastDuration);
+                }
                 start();
-                videoView.seekTo(lastDuration);
                 long maxDuration = plMediaPlayer.getDuration();
                 seekbar.setMax((int) maxDuration);
                 tv_videoSize.setText(formatDate(maxDuration));
@@ -598,16 +592,16 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
     }
 
     private void typeChange() {
-        if (materialDialog != null) {
-            materialDialog.dismiss();
+        if (dialog != null) {
+            dialog.dismiss();
         }
         if (!openWithMobile) {
             if (videoView.isPlaying()) {
                 pause();
-                materialDialog = new MaterialDialog(context);
-                materialDialog.setTitle("网络提醒");
-                materialDialog.setMessage("使用2G/3G/4G网络观看视频会消耗较多流量。确定要开启吗？");
-                materialDialog.setNegativeButton("开启", new MaterialDialog.ButtonClickListener() {
+                dialog = new MaterialDialog(context);
+                dialog.setTitle("网络提醒");
+                dialog.setMessage("使用2G/3G/4G网络观看视频会消耗较多流量。确定要开启吗？");
+                dialog.setNegativeButton("开启", new MaterialDialog.ButtonClickListener() {
                     @Override
                     public void onClick(View v, AlertDialog dialog) {
                         openWithMobile = true;
@@ -615,57 +609,42 @@ public class VideoPlayerFragment extends BaseFragment implements View.OnClickLis
                         dialog.dismiss();
                     }
                 });
-                materialDialog.setPositiveButton("取消", null);
-                materialDialog.show();
+                dialog.setPositiveButton("取消", null);
+                dialog.show();
             }
         } else {
             if (NetStatusUtil.isConnected(context)) {
                 if (!NetStatusUtil.isWifi(context)) {
                     start();
-                    toast("当前网络为非Wi-FI环境，请注意您的流量使用情况");
+                    toast(context, "当前网络为非Wi-FI环境，请注意您的流量使用情况");
                 }
             } else {
-                toast("当前网络不稳定，请检查您的网络设置");
+                toast(context, "当前网络不稳定，请检查您的网络设置");
             }
         }
     }
 
-    public void setFullScreen(boolean isFullScreen) {
-        this.isFullScreen = isFullScreen;
-        if (!isFullScreen) {
-            iv_expand.setImageResource(R.drawable.quanping);
-        } else {
-            iv_expand.setImageResource(R.drawable.xiaoping);
-        }
-    }
-
     @Override
-    public void onResume() {
-        super.onResume();
+    protected void onRestart() {
+        super.onRestart();
         start();
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
         pause();
     }
 
     @Override
-    public void onDestroyView() {
+    protected void onDestroy() {
         handler.removeMessages(CODE_ATTRBUTE);
         handler.removeMessages(CODE_ENDGESTURE);
         handler.removeCallbacksAndMessages(null);
         videoView.stopPlayback();
-        activity.unregisterReceiver(receiver);
-        super.onDestroyView();
-    }
-
-    public interface OnRequestedOrientation {
-        void onRequested(int orientation);
-    }
-
-    public void setOnRequestedOrientation(OnRequestedOrientation onRequestedOrientation) {
-        this.onRequestedOrientation = onRequestedOrientation;
+        if (receiver != null) {
+            unregisterReceiver(receiver);
+        }
+        super.onDestroy();
     }
 }

@@ -1,12 +1,8 @@
 package com.haoyu.app.utils;
 
 import android.content.Context;
-import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
-import com.franmontiel.persistentcookiejar.PersistentCookieJar;
-import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
-import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 import com.google.gson.Gson;
 import com.google.gson.internal.$Gson$Types;
 import com.haoyu.app.base.LegoApplication;
@@ -18,9 +14,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.FileNameMap;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -32,12 +26,8 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
 import okhttp3.FormBody;
 import okhttp3.Headers;
-import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -55,47 +45,19 @@ import okio.Sink;
  * Created by xiaoma on 2016/7/10.
  */
 public class OkHttpClientManager {
-    public final static int CONNECT_TIMEOUT = 60;
-    public final static int READ_TIMEOUT = 120;
-    public final static int WRITE_TIMEOUT = 120;
+    public final static int CONNECT_TIMEOUT = 20;
+    public final static int READ_TIMEOUT = 60;
+    public final static int WRITE_TIMEOUT = 60;
     private static volatile OkHttpClientManager mInstance;
     private OkHttpClient mOkHttpClient;
     private Gson mGson;
 
-    public class CookieJarManager implements CookieJar {
-        private final ArrayMap<String, List<Cookie>> cookieStore = new ArrayMap<>();
-
-        @Override
-        public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-            cookieStore.put(url.host(), cookies);
-        }
-
-        @Override
-        public List<Cookie> loadForRequest(HttpUrl url) {
-            List<Cookie> cookies = cookieStore.get(url.host());
-            return cookies != null ? cookies : new ArrayList<Cookie>();
-        }
-    }
-
     private OkHttpClientManager() {
-        CookieJar cookieJar =
-                new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(LegoApplication.getInstance()));
         mOkHttpClient = new OkHttpClient.Builder()
                 .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)//设置读取超时时间
                 .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)//设置写的超时时间
                 .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)//设置连接超时时间
-                .cookieJar(cookieJar)
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request()
-                                .newBuilder()
-                                .addHeader("Accept-Encoding", "gzip")
-                                .addHeader("Referer", Constants.REFERER)
-                                .build();
-                        return chain.proceed(request);
-                    }
-                })
+                .cookieJar(LegoApplication.getCookieJar())
                 .build();
         mGson = new Gson();
     }
@@ -130,8 +92,9 @@ public class OkHttpClientManager {
     private String _getAsString(Context context, String url) throws Exception {
         Response response = _getAsyn(context, url);
         String json = response.body().string();
-        if ((json.contains("\"responseCode\":\"02\"") || json.contains("\"responseMsg\":\"no session\"")) && login(context))
+        if (json.contains("\"responseMsg\":\"no session\"") && login(context)) {
             return _getAsString(context, url);
+        }
         return json;
     }
 
@@ -142,7 +105,7 @@ public class OkHttpClientManager {
      * @param callback
      */
     private Disposable _getAsyn(Context context, String url, final ResultCallback callback) {
-        Request request = new Request.Builder().url(url).tag(context).build();
+        Request request = new Request.Builder().url(url).tag(context).addHeader("Accept-Encoding", "gzip").build();
         return deliveryResult(context, callback, request);
     }
 
@@ -172,8 +135,9 @@ public class OkHttpClientManager {
     private String _postAsString(Context context, String url, Param... params) throws Exception {
         Response response = _post(context, url, params);
         String json = response.body().string();
-        if ((json.contains("\"responseCode\":\"02\"") || json.contains("\"responseMsg\":\"no session\"")) && login(context))
+        if (json.contains("\"responseMsg\":\"no session\"") && login(context)) {
             return _postAsString(context, url, params);
+        }
         return json;
     }
 
@@ -189,8 +153,9 @@ public class OkHttpClientManager {
     private String _postAsString(Context context, String url, Map<String, String> params) throws Exception {
         Response response = _post(context, url, params);
         String json = response.body().string();
-        if ((json.contains("\"responseCode\":\"02\"") || json.contains("\"responseMsg\":\"no session\"")) && login(context))
+        if (json.contains("\"responseMsg\":\"no session\"") && login(context)) {
             return _postAsString(context, url, params);
+        }
         return json;
     }
 
@@ -230,8 +195,9 @@ public class OkHttpClientManager {
     private String _postFileAsString(Context context, String url, File file, String fileKey, ProgressListener progressListener) throws Exception {
         Response response = _postFileResponse(context, url, new File[]{file}, new String[]{fileKey}, progressListener);
         String json = response.body().string();
-        if ((json.contains("\"responseCode\":\"02\"") || json.contains("\"responseMsg\":\"no session\"")) && login(context))
+        if (json.contains("\"responseMsg\":\"no session\"") && login(context)) {
             return _postFileAsString(context, url, file, fileKey, progressListener);
+        }
         return json;
     }
 
@@ -244,16 +210,18 @@ public class OkHttpClientManager {
     private String _postFileAsString(Context context, String url, File file, String fileKey, ProgressListener progressListener, Param... params) throws Exception {
         Response response = _postFileResponse(context, url, new File[]{file}, new String[]{fileKey}, progressListener, params);
         String json = response.body().string();
-        if ((json.contains("\"responseCode\":\"02\"") || json.contains("\"responseMsg\":\"no session\"")) && login(context))
+        if (json.contains("\"responseMsg\":\"no session\"") && login(context)) {
             return _postFileAsString(context, url, file, fileKey, progressListener, params);
+        }
         return json;
     }
 
     private String _postFileAsString(Context context, String url, File[] files, String[] fileKeys, ProgressListener progressListener, Param... params) throws Exception {
         Response response = _postFileResponse(context, url, files, fileKeys, progressListener, params);
         String json = response.body().string();
-        if ((json.contains("\"responseCode\":\"02\"") || json.contains("\"responseMsg\":\"no session\"")) && login(context))
+        if (json.contains("\"responseMsg\":\"no session\"") && login(context)) {
             return _postFileAsString(context, url, files, fileKeys, progressListener, params);
+        }
         return json;
     }
 
@@ -318,7 +286,7 @@ public class OkHttpClientManager {
     }
 
     private void _deleteAsyn(Context context, String url, final ResultCallback callback) {
-        final Request request = new Request.Builder().url(url).delete().build();
+        final Request request = new Request.Builder().url(url).addHeader("Accept-Encoding", "gzip").delete().build();
         deliveryResult(context, callback, request);
     }
 
@@ -427,7 +395,7 @@ public class OkHttpClientManager {
             }
         }
         RequestBody requestBody = builder.build();
-        return new Request.Builder().url(url).tag(context).post(requestBody).build();
+        return new Request.Builder().url(url).tag(context).addHeader("Accept-Encoding", "gzip").post(requestBody).build();
     }
 
     /**
@@ -573,7 +541,7 @@ public class OkHttpClientManager {
             public String apply(Request request) throws Exception {
                 Response response = mOkHttpClient.newCall(request).execute();
                 String json = response.body().string();
-                if ((json.contains("\"responseCode\":\"02\"") || json.contains("\"responseMsg\":\"no session\"")) && login(context)) {
+                if (json.contains("\"responseMsg\":\"no session\"") && login(context)) {
                     return apply(request);
                 }
                 return json;
@@ -609,7 +577,7 @@ public class OkHttpClientManager {
             }
         }
         RequestBody requestBody = formEncodingBuilder.build();
-        return new Request.Builder().url(url).tag(context).post(requestBody).build();
+        return new Request.Builder().url(url).tag(context).addHeader("Accept-Encoding", "gzip").post(requestBody).build();
     }
 
     private Request buildPutRequest(Context context, String url, Param[] params) {
@@ -623,7 +591,7 @@ public class OkHttpClientManager {
             }
         }
         RequestBody requestBody = formEncodingBuilder.build();
-        return new Request.Builder().url(url).tag(context).put(requestBody).build();
+        return new Request.Builder().url(url).tag(context).addHeader("Accept-Encoding", "gzip").put(requestBody).build();
     }
 
     private Request buildDeleteRequest(String url, Param[] params) {
@@ -637,7 +605,7 @@ public class OkHttpClientManager {
             }
         }
         RequestBody requestBody = formEncodingBuilder.build();
-        return new Request.Builder().url(url).delete(requestBody).build();
+        return new Request.Builder().url(url).addHeader("Accept-Encoding", "gzip").delete(requestBody).build();
     }
 
     public static abstract class ResultCallback<T> {
@@ -713,9 +681,9 @@ public class OkHttpClientManager {
         map.clear();
         map.put("service", Constants.OUTRT_NET + "/shiro-cas");
         response = _postResonse(context, tgtUrl, map);
-        String stStr = response.body().string();
+        String st = response.body().string();
         response.close();
-        String logUrl = Constants.OUTRT_NET + "/shiro-cas" + "?ticket=" + stStr;
+        String logUrl = Constants.OUTRT_NET + "/shiro-cas" + "?ticket=" + st;
         response = _getResponse(context, logUrl);
         return response.isSuccessful();
     }
@@ -805,6 +773,7 @@ public class OkHttpClientManager {
         Request request = new Request.Builder()
                 .url(url)
                 .tag(context)
+                .addHeader("Accept-Encoding", "gzip")
                 .build();
         Response response = mOkHttpClient.newCall(request).execute();
         return response;

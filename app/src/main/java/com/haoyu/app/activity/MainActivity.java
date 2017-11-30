@@ -2,9 +2,6 @@ package com.haoyu.app.activity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -30,13 +27,14 @@ import com.haoyu.app.entity.WorkShopMobileEntity;
 import com.haoyu.app.imageloader.GlideImgManager;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.service.VersionUpdateService;
+import com.haoyu.app.utils.Common;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.FullyLinearLayoutManager;
 import com.haoyu.app.view.LoadFailView;
 import com.haoyu.app.view.LoadingView;
+import com.haoyu.app.zxing.CodeUtils;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-import com.uuzuche.lib_zxing.activity.CodeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -325,14 +323,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         switch (requestCode) {
             case SCANNIN_GREQUEST_CODE:
              /* 处理二维码扫描结果*/
-                if (data != null && data.getExtras() != null) {
-                    Bundle bundle = data.getExtras();
-                    if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
-                        String result = bundle.getString(CodeUtils.RESULT_STRING);
-                        parseCaptureResult(result);
-                    } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
-                        toast(context, "解析二维码失败");
-                    }
+                if (resultCode == RESULT_OK && data != null) {
+                    String result = data.getStringExtra(CodeUtils.RESULT_STRING);
+                    parseCaptureResult(result);
                 }
                 break;
             case REQUSET_USERINFO_CODE:
@@ -396,7 +389,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 toast(this, "再按一次退出" + getResources().getString(R.string.app_name));
                 mExitTime = System.currentTimeMillis();
             } else {
-                LegoApplication.getInstance().exit();
+                LegoApplication.exit();
             }
             return true;
         }
@@ -412,24 +405,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onResponse(VersionEntity entity) {
-                if (entity.getVersionCode() > getVersionCode()) {
+                if (entity.getVersionCode() > Common.getVersionCode(context)) {
                     updateTips(entity);
                 }
             }
         }));
-    }
-
-    private int getVersionCode() {
-        PackageManager packageManager = getPackageManager();
-        PackageInfo packageInfo;
-        int versionCode = 0;
-        try {
-            packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
-            versionCode = packageInfo.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return versionCode;
     }
 
     private void updateTips(final VersionEntity entity) {
@@ -451,5 +431,33 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         intent.putExtra("url", entity.getDownurl());
         intent.putExtra("versionName", entity.getVersionName());
         startService(intent);
+        if (!Common.isNotificationEnabled(context)) {
+            openTips();
+        }
+    }
+
+    private void openTips() {
+        MaterialDialog dialog = new MaterialDialog(context);
+        dialog.setTitle("提示");
+        dialog.setMessage("通知已关闭，是否允许应用推送通知？");
+        dialog.setPositiveButton("开启", new MaterialDialog.ButtonClickListener() {
+            @Override
+            public void onClick(View v, AlertDialog dialog) {
+                Common.openSettings(context);
+            }
+        });
+        dialog.setNegativeButton("取消", new MaterialDialog.ButtonClickListener() {
+            @Override
+            public void onClick(View v, AlertDialog dialog) {
+                toast(context, "已进入后台更新");
+            }
+        });
+        dialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(new Intent(context, VersionUpdateService.class));
     }
 }
