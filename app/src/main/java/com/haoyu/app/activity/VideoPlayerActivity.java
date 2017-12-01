@@ -421,7 +421,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
 
     private PLMediaPlayer.OnPreparedListener mOnPreparedListener = new PLMediaPlayer.OnPreparedListener() {
         @Override
-        public void onPrepared(PLMediaPlayer plMediaPlayer,int i) {
+        public void onPrepared(PLMediaPlayer plMediaPlayer, int i) {
             hideLoading();
             isReCheck = false;
             videoSeekBar.setMax((int) mVideoView.getDuration());
@@ -665,7 +665,6 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
         } else if (index < 0) {
             index = 0;
         }
-
         // 变更进度条
         int i = (int) (index * 1.0 / mMaxVolume * 100);
         String s = i + "%";
