@@ -44,7 +44,7 @@ import java.util.Map;
 import butterknife.BindView;
 import okhttp3.Request;
 
-public class TestAssignmentActivity extends BaseActivity implements OnClickListener/*, OnFileDownloadStatusListener */ {
+public class TestAssignmentActivity extends BaseActivity implements OnClickListener{
     private TestAssignmentActivity context = this;
     @BindView(R.id.toolBar)
     AppToolBar toolBar;
@@ -70,13 +70,10 @@ public class TestAssignmentActivity extends BaseActivity implements OnClickListe
     TextView markType;// 评审类型
     @BindView(R.id.assign_desc)
     RelativeLayout AssignDesc;
-
     @BindView(R.id.scrollview)
     ScrollView mScrollView;
-
     @BindView(R.id.own_score)
     RelativeLayout mOwnScore;//我的得分
-    private int allMarkNum;
     @BindView(R.id.reBack)
     TextView mReBack;//申请退回作业
     String content;//作业描述
@@ -84,13 +81,10 @@ public class TestAssignmentActivity extends BaseActivity implements OnClickListe
     RoundRectProgressBar progressBar1;//作业所占百分比
     @BindView(R.id.own_progress2)
     RoundRectProgressBar progressBar2;//互评所占百分比
-
-    private DetailMap detailMap;
     @BindView(R.id.rl_top)
     RelativeLayout rl_top;
     @BindView(R.id.xRecyclerView)
     RecyclerView xRecyclerView;
-
     @BindView(R.id.ll_content)
     LinearLayout ll_content;
     @BindView(R.id.htv)
@@ -99,7 +93,8 @@ public class TestAssignmentActivity extends BaseActivity implements OnClickListe
     LoadingView loadingView;
     @BindView(R.id.loadFailView)
     LoadFailView loadFailView;
-
+    private int allMarkNum;
+    private DetailMap detailMap;
     private String mAcid;//活动id
     private String userId;//用户id
     private String state;//作业的状态
@@ -108,7 +103,6 @@ public class TestAssignmentActivity extends BaseActivity implements OnClickListe
     private String aresponseScore;//
     private String aallScore;
     private String amarkScore;
-
     private boolean running;
     private TimePeriod timePeriod;
 
@@ -199,6 +193,7 @@ public class TestAssignmentActivity extends BaseActivity implements OnClickListe
     }
 
     private AppActivityViewResult mResult;
+
     // 获取内容
     private void showContent(AppActivityViewResult response) {
         mResult = response;
@@ -242,7 +237,6 @@ public class TestAssignmentActivity extends BaseActivity implements OnClickListe
                         alerady_provider.setText("已提交0/1个");
                         progressBar1.setProgress(0);
                     }
-
                 }
 
                 if (type.equals("teacher")) {
