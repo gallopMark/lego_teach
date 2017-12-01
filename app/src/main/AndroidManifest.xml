@@ -344,6 +344,7 @@
         <activity
             android:name="com.haoyu.app.activity.VideoPlayerLibActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="sensorLandscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
 
         <service android:name="com.haoyu.app.service.VersionUpdateService" />
