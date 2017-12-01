@@ -329,8 +329,6 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
         AVOptions options = new AVOptions();
         // 设置链接超时时间
         options.setInteger(AVOptions.KEY_PREPARE_TIMEOUT, 20 * 1000);
-        options.setInteger(AVOptions.KEY_GET_AV_FRAME_TIMEOUT, 20 * 1000);
-        options.setInteger(AVOptions.KEY_START_ON_PREPARED, 0);
         mVideoView.setAVOptions(options);
         mVideoView.setOnInfoListener(mOnInfoListener);
         mVideoView.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
@@ -339,6 +337,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
         mVideoView.setOnErrorListener(mOnErrorListener);
         mVideoView.setOnPreparedListener(mOnPreparedListener);
         mVideoView.setScreenOnWhilePlaying(true);
+        mVideoView.setBufferingIndicator(loadingView);
         mVideoView.setVideoPath(mVideoPath);
         mVideoView.start();
         // 手势监听
@@ -373,56 +372,13 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
             mVideoView.pause();
             String message;
             switch (errorCode) {
-                case PLMediaPlayer.ERROR_CODE_INVALID_URI:
-                    message = "该视频暂时无法播放";
-                    showToastTips(message);
-                    mVideoView.pause();
-                    videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
-                    break;
-                case PLMediaPlayer.ERROR_CODE_404_NOT_FOUND:
-                    // showToastTips("404 resource not found !");
-                    message = "该视频暂时无法播放";
-                    showToastTips(message);
-                    videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
-                    break;
 
-                case PLMediaPlayer.ERROR_CODE_CONNECTION_REFUSED:
-                    //   showToastTips("Connection refused !");
-                    message = "该视频暂时无法播放";
-                    showToastTips(message);
-                    videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
-                    break;
-                case PLMediaPlayer.ERROR_CODE_CONNECTION_TIMEOUT:
-                    showLoading();
-                    videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
-                    break;
-                case PLMediaPlayer.ERROR_CODE_EMPTY_PLAYLIST:
-                    showToastTips("Empty playlist !");
-                    showWarn();
-                    break;
-                case PLMediaPlayer.ERROR_CODE_STREAM_DISCONNECTED:
-                    showToastTips("Stream disconnected !");
-                    videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
-                    break;
-                case PLMediaPlayer.ERROR_CODE_IO_ERROR:
-                    showToastTips("该视频暂时无法播放！");
-                    hideLoading();
-                    videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
-                    break;
-                case PLMediaPlayer.ERROR_CODE_UNAUTHORIZED:
-                    showToastTips("Unauthorized Error !");
-                    break;
-                case PLMediaPlayer.ERROR_CODE_PREPARE_TIMEOUT:
-                    showToastTips("Prepare timeout !");
-                    videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
-                    break;
-                case PLMediaPlayer.ERROR_CODE_READ_FRAME_TIMEOUT:
-                    // showToastTips("Read frame timeout !");
-                    message = "该视频暂时无法播放";
-                    showToastTips(message);
-                    videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
-                    break;
                 case PLMediaPlayer.MEDIA_ERROR_UNKNOWN:
+                    message = "该视频暂时无法播放";
+                    showToastTips(message);
+                    videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
+                    break;
+                default:
                     message = "该视频暂时无法播放";
                     showToastTips(message);
                     videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
@@ -465,7 +421,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
 
     private PLMediaPlayer.OnPreparedListener mOnPreparedListener = new PLMediaPlayer.OnPreparedListener() {
         @Override
-        public void onPrepared(PLMediaPlayer plMediaPlayer) {
+        public void onPrepared(PLMediaPlayer plMediaPlayer, int i) {
             hideLoading();
             isReCheck = false;
             videoSeekBar.setMax((int) mVideoView.getDuration());
@@ -709,8 +665,6 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
         } else if (index < 0) {
             index = 0;
         }
-
-
         // 变更进度条
         int i = (int) (index * 1.0 / mMaxVolume * 100);
         String s = i + "%";
