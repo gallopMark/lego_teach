@@ -272,7 +272,7 @@
             android:name="com.haoyu.app.activity.WSTeachingDiscussActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity android:name="com.haoyu.app.activity.AppSubmitAssignmentActivity" />
-        <!--教学观摩-->
+        <!--评课议课-->
         <activity
             android:name="com.haoyu.app.activity.WSClassDiscussEditActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
