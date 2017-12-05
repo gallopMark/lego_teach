@@ -43,8 +43,8 @@ import okhttp3.Request;
  * 描述：工作坊添加教学研讨活动
  * 作者:马飞奔 Administrator
  */
-public class WSTeachingDiscussActivity extends BaseActivity implements View.OnClickListener {
-    private WSTeachingDiscussActivity context = this;
+public class WSTDEditActivity extends BaseActivity implements View.OnClickListener {
+    private WSTDEditActivity context = this;
     @BindView(R.id.toolBar)
     AppToolBar toolBar;
     @BindView(R.id.scrollView)

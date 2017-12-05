@@ -166,7 +166,7 @@
         <activity android:name="com.haoyu.app.activity.AppSurveyResultActivity" />
         <!--课程学习研讨-->
         <activity
-            android:name="com.haoyu.app.activity.TeachingDiscussionActivity"
+            android:name="com.haoyu.app.activity.WSTDInfoActivity"
             android:configChanges="screenSize|orientation|keyboardHidden" />
         <!--课程学习作业-->
         <activity android:name="com.haoyu.app.activity.TestAssignmentActivity" />
@@ -269,15 +269,15 @@
         <activity android:name="com.haoyu.app.activity.StudentEvaluateActivity" />
         <!--添加研讨-->
         <activity
-            android:name="com.haoyu.app.activity.WSTeachingDiscussActivity"
+            android:name="com.haoyu.app.activity.WSTDEditActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity android:name="com.haoyu.app.activity.AppSubmitAssignmentActivity" />
         <!--评课议课-->
         <activity
-            android:name="com.haoyu.app.activity.WSClassDiscussEditActivity"
+            android:name="com.haoyu.app.activity.WSCDEditActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <!--听课评课-->
-        <activity android:name="com.haoyu.app.activity.WSTeachingStudyEditActivity" />
+        <activity android:name="com.haoyu.app.activity.WSTSEditActivity" />
         <!--听课评课上传录像-->
         <!--选择授课人-->
         <activity android:name="com.haoyu.app.activity.TeachingStudyLeacturerActivity" />
@@ -294,11 +294,11 @@
         <!--成员管理搜索-->
         <!--听课评课详情-->
         <activity
-            android:name="com.haoyu.app.activity.TeachingStudyActivity"
+            android:name="com.haoyu.app.activity.WSTSInfoActivity"
             android:configChanges="screenSize|orientation|keyboardHidden" />
         <!--评课议课-->
         <activity
-            android:name="com.haoyu.app.activity.WSClassDiscussInfoActivity"
+            android:name="com.haoyu.app.activity.WSCDInfoActivity"
             android:configChanges="screenSize|orientation|keyboardHidden" />
         <!--听课评课的结果-->
         <activity android:name="com.haoyu.app.activity.TeachingStudyResultDetailActiivty" />
