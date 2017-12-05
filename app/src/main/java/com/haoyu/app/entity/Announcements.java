@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnnouncementListResult {
+public class Announcements {
     @Expose
     @SerializedName("responseCode")
     private String responseCode;
@@ -56,16 +56,16 @@ public class AnnouncementListResult {
     public class AnnouncementListResponseData implements Serializable {
         @Expose
         @SerializedName("announcements")
-        private List<AnnouncementEntity> announcements = new ArrayList<>();
+        private List<Announcement> announcements = new ArrayList<>();
         @Expose
         @SerializedName("paginator")
         private Paginator paginator;
 
-        public List<AnnouncementEntity> getAnnouncements() {
+        public List<Announcement> getAnnouncements() {
             return announcements;
         }
 
-        public void setAnnouncements(List<AnnouncementEntity> announcements) {
+        public void setAnnouncements(List<Announcement> announcements) {
             this.announcements = announcements;
         }
 

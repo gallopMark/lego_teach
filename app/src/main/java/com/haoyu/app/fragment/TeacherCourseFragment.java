@@ -17,9 +17,9 @@ import com.haoyu.app.activity.AppSurveyHomeActivity;
 import com.haoyu.app.activity.AppTestHomeActivity;
 import com.haoyu.app.activity.AppTestResultActivity;
 import com.haoyu.app.activity.CoursewareViewerActivity;
+import com.haoyu.app.activity.TeachingDiscussionActivity;
 import com.haoyu.app.activity.TestAssignmentActivity;
 import com.haoyu.app.activity.VideoPlayerActivity;
-import com.haoyu.app.activity.WSTDInfoActivity;
 import com.haoyu.app.adapter.CourseActivityAdapter;
 import com.haoyu.app.adapter.CourseStudyAdapter;
 import com.haoyu.app.base.BaseFragment;
@@ -476,7 +476,7 @@ public class TeacherCourseFragment extends BaseFragment {
 
     private void openDiscussion(AppActivityViewResult response, CourseSectionActivity activity) {
         if (response.getResponseData() != null && response.getResponseData().getmDiscussionUser() != null) {
-            Intent intent = new Intent(context, WSTDInfoActivity.class);
+            Intent intent = new Intent(context, TeachingDiscussionActivity.class);
             if (activity.getmTimePeriod() != null && activity.getmTimePeriod().getState() != null && activity.getmTimePeriod().getState().equals("进行中"))
                 intent.putExtra("running", true);
             else if (activity.getmTimePeriod() != null && activity.getmTimePeriod().getMinutes() > 0)

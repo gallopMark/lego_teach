@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
-import com.haoyu.app.entity.AnnouncementEntity;
+import com.haoyu.app.entity.Announcement;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.swipe.SwipeMenuLayout;
 import com.haoyu.app.utils.TimeUtil;
@@ -18,16 +18,16 @@ import java.util.List;
  * 描述:
  * 作者:马飞奔 Administrator
  */
-public class AnnouncementAdapter extends BaseArrayRecyclerAdapter<AnnouncementEntity> {
+public class AnnouncementAdapter extends BaseArrayRecyclerAdapter<Announcement> {
     private boolean isTeacher;
     private onItemClickCallBack itemClickCallBack;
     private onDisposeCallBack onDisposeCallBack;
 
-    public AnnouncementAdapter(List<AnnouncementEntity> mDatas) {
+    public AnnouncementAdapter(List<Announcement> mDatas) {
         super(mDatas);
     }
 
-    public AnnouncementAdapter(List<AnnouncementEntity> mDatas, boolean isTeacher) {
+    public AnnouncementAdapter(List<Announcement> mDatas, boolean isTeacher) {
         super(mDatas);
         this.isTeacher = isTeacher;
     }
@@ -41,7 +41,7 @@ public class AnnouncementAdapter extends BaseArrayRecyclerAdapter<AnnouncementEn
     }
 
     @Override
-    public void onBindHoder(RecyclerHolder holder,final AnnouncementEntity entity,final int position) {
+    public void onBindHoder(RecyclerHolder holder, final Announcement entity, final int position) {
         final SwipeMenuLayout swipeLayout = holder.obtainView(R.id.swipeLayout);
         View item_layout = holder.obtainView(R.id.item_layout);
         ImageView ic_consult = holder.obtainView(R.id.ic_consult);
@@ -104,8 +104,8 @@ public class AnnouncementAdapter extends BaseArrayRecyclerAdapter<AnnouncementEn
     }
 
     public interface onDisposeCallBack {
-        void onAlter(int position, AnnouncementEntity entity);
+        void onAlter(int position, Announcement entity);
 
-        void onDelete(int position, AnnouncementEntity entity);
+        void onDelete(int position, Announcement entity);
     }
 }

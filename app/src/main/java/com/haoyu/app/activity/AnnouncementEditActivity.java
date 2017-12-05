@@ -11,7 +11,7 @@ import android.widget.EditText;
 
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
-import com.haoyu.app.entity.AnnouncementEntity;
+import com.haoyu.app.entity.Announcement;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.rxBus.RxBus;
@@ -59,7 +59,7 @@ public class AnnouncementEditActivity extends BaseActivity {
     public void initData() {
         if (isAlter) {
             String url = Constants.OUTRT_NET + "/m/announcement/view/" + entityId;
-            addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<AnnouncementEntity>>() {
+            addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<Announcement>>() {
                 @Override
                 public void onBefore(Request request) {
                     showTipDialog();
@@ -72,7 +72,7 @@ public class AnnouncementEditActivity extends BaseActivity {
                 }
 
                 @Override
-                public void onResponse(BaseResponseResult<AnnouncementEntity> response) {
+                public void onResponse(BaseResponseResult<Announcement> response) {
                     hideTipDialog();
                     if (response != null && response.getResponseData() != null) {
                         updateUI(response.getResponseData());
@@ -82,7 +82,7 @@ public class AnnouncementEditActivity extends BaseActivity {
         }
     }
 
-    private void updateUI(AnnouncementEntity entity) {
+    private void updateUI(Announcement entity) {
         et_title.setText(entity.getTitle());
         Spanned spanned = Html.fromHtml(entity.getContent());
         et_content.setText(spanned);
@@ -159,7 +159,7 @@ public class AnnouncementEditActivity extends BaseActivity {
         map.put("type", type);
         map.put("announcementRelations[0].relation.id", relationId);
         map.put("announcementRelations[0].relation.type", "workshop");
-        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<AnnouncementEntity>>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<Announcement>>() {
             @Override
             public void onBefore(Request request) {
                 showTipDialog();
@@ -172,7 +172,7 @@ public class AnnouncementEditActivity extends BaseActivity {
             }
 
             @Override
-            public void onResponse(BaseResponseResult<AnnouncementEntity> response) {
+            public void onResponse(BaseResponseResult<Announcement> response) {
                 hideTipDialog();
                 if (response != null && response.getResponseData() != null) {
                     MessageEvent event = new MessageEvent();
@@ -194,7 +194,7 @@ public class AnnouncementEditActivity extends BaseActivity {
         map.put("_method", "put");
         map.put("title", title);
         map.put("content", content);
-        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<AnnouncementEntity>>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<Announcement>>() {
             @Override
             public void onBefore(Request request) {
                 showTipDialog();
@@ -206,7 +206,7 @@ public class AnnouncementEditActivity extends BaseActivity {
             }
 
             @Override
-            public void onResponse(BaseResponseResult<AnnouncementEntity> response) {
+            public void onResponse(BaseResponseResult<Announcement> response) {
                 hideTipDialog();
                 if (response != null && response.getResponseData() != null) {
                     MessageEvent event = new MessageEvent();

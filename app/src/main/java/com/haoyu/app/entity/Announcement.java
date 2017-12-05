@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class AnnouncementEntity implements Serializable {
+public class Announcement implements Serializable {
     @Expose
     @SerializedName("content")
     private String content;
@@ -67,8 +67,8 @@ public class AnnouncementEntity implements Serializable {
         if (this == obj) {
             return true;
         }
-        if (obj.getClass() == AnnouncementEntity.class) {
-            return ((AnnouncementEntity) obj).id.equals(this.id);
+        if (obj.getClass() == Announcement.class) {
+            return ((Announcement) obj).id.equals(this.id);
         }
         return false;
     }
