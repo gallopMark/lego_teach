@@ -2,7 +2,6 @@ package com.haoyu.app.entity;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.haoyu.app.adapter.TeachStudyEvaluateAdapter;
 
 import java.util.List;
 
