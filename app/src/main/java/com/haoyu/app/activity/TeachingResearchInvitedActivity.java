@@ -16,9 +16,10 @@ import android.widget.TextView;
 import com.haoyu.app.adapter.TeachingInvitedAdapter;
 import com.haoyu.app.adapter.TeachingResearchInvitedAdapter;
 import com.haoyu.app.base.BaseActivity;
+import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.entity.MobileUser;
-import com.haoyu.app.entity.MobileUserResult;
+import com.haoyu.app.entity.MobileUserData;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.utils.Common;
 import com.haoyu.app.utils.Constants;
@@ -93,7 +94,7 @@ public class TeachingResearchInvitedActivity extends BaseActivity implements Vie
             showDialog(arrayMap.get(name));
         } else {
             String url = Constants.OUTRT_NET + "/m/user?id=" + getUserId() + "&paramMap[realName]=" + name;
-            OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<MobileUserResult>() {
+            OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<MobileUserData>>() {
                 @Override
                 public void onBefore(Request request) {
                     super.onBefore(request);
@@ -107,7 +108,7 @@ public class TeachingResearchInvitedActivity extends BaseActivity implements Vie
                 }
 
                 @Override
-                public void onResponse(MobileUserResult response) {
+                public void onResponse(BaseResponseResult<MobileUserData> response) {
                     hideTipDialog();
                     if (response != null && response.getResponseData() != null && response.getResponseData().getmUsers() != null
                             && response.getResponseData().getmUsers().size() > 0) {
