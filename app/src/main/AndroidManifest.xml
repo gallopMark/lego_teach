@@ -322,7 +322,9 @@
         <!--评价总结及建议列表-->
         <activity android:name="com.haoyu.app.activity.AppMultiImageShowActivity" />
         <!--教研活动添加受邀人员-->
-        <activity android:name="com.haoyu.app.activity.TeachingResearchInvitedActivity" />
+        <activity
+            android:name="com.haoyu.app.activity.MultiSearchUsersActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <!--调查问卷问答详情-->
         <activity android:name="com.haoyu.app.activity.AppSurveyAnswerActivity" />
 

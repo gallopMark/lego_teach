@@ -293,7 +293,7 @@ public class CmtsMovementCreateActivity extends BaseActivity implements View.OnC
                 initTimePicker("选择报名截止时间");
                 break;
             case R.id.ll_partUser:
-                Intent intent = new Intent(context, TeachingResearchInvitedActivity.class);
+                Intent intent = new Intent(context, MultiSearchUsersActivity.class);
                 intent.putExtra("mobileUserList", (Serializable) userList);
                 startActivityForResult(intent, 1);
                 break;

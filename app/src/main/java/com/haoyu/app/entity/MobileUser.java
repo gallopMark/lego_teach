@@ -138,4 +138,16 @@ public class MobileUser implements Serializable {
     public void setmDepartment(MDepartment mDepartment) {
         this.mDepartment = mDepartment;
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (this == obj)
+            return true;
+        if (obj instanceof MobileUser) {
+            MobileUser entity = (MobileUser) obj;
+            return entity.id.equals(this.id);
+        }
+        return false;
+    }
 }
