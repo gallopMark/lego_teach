@@ -11,8 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="12dp"
-        android:text="语文"
-        android:textSize="15sp" />
+        android:padding="@dimen/margin_size_14"
+        android:textSize="@dimen/font_size_16" />
 
 </LinearLayout>

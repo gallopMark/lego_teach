@@ -65,7 +65,7 @@ public class CmtsMainActivity extends BaseActivity {
                 else if (selected == 2)
                     startActivity(new Intent(context, CmtsLessonCreateActivity.class));
                 else {
-                    startActivity(new Intent(context, CmtsMovementCreateActivity.class));
+                    startActivity(new Intent(context, CmtsMovementEditActivity.class));
                 }
             }
         });

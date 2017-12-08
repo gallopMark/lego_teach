@@ -75,6 +75,12 @@
     <string name="gen_class_empty_resource">没有课程资源</string>
     <string name="gen_class_teach_advise">建议</string>
     <string name="teach_active">活动</string>
+    <string name="teach_active_communicationMeeting">跨校交流会</string>
+    <string name="teach_active_expertInteraction">专家互动</string>
+    <string name="teach_active_lessonViewing">创课观摩</string>
+    <string name="teach_active_ticket">须报名预约，凭电子票入场</string>
+    <string name="teach_active_free">在线报名，免费入场</string>
+    <string name="teach_active_chair">讲座视频录像+在线问答交流</string>
     <string name="teach_active_emptylist">没有活动信息~</string>
     <string name="teach_active_detail">活动详情</string>
     <string name="teach_active_all">全部活动</string>

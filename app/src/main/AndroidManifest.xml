@@ -235,7 +235,7 @@
 
         <!--教研创建活动-->
         <activity
-            android:name="com.haoyu.app.activity.CmtsMovementCreateActivity"
+            android:name="com.haoyu.app.activity.CmtsMovementEditActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <!--社区活动详情页-->
         <activity android:name="com.haoyu.app.activity.CmtsMovementActivity" />

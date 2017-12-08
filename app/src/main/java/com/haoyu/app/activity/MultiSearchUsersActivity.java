@@ -109,6 +109,7 @@ public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerV
     private void setToolBar() {
         toolBar.setTitle_text("受邀人员");
         toolBar.setRight_button_text("完成");
+        toolBar.setShow_right_button(true);
         toolBar.setOnTitleClickListener(new AppToolBar.TitleOnClickListener() {
             @Override
             public void onLeftClick(View view) {
@@ -120,6 +121,7 @@ public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerV
                 Intent intent = new Intent();
                 intent.putExtra("mobileUserList", (Serializable) selectList);
                 setResult(RESULT_OK, intent);
+                finish();
             }
         });
     }
