@@ -8,6 +8,7 @@ import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 import com.haoyu.app.utils.Constants;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import org.wlf.filedownloader.FileDownloadConfiguration;
 
@@ -28,7 +29,7 @@ public class LegoApplication extends Application {
         super.onCreate();
         application = this;
         initFileDownloader();
-//        CrashReport.initCrashReport(this);
+        CrashReport.initCrashReport(this);
     }
 
     private void initFileDownloader() {
