@@ -420,7 +420,7 @@ public class TestAssignmentActivity extends BaseActivity implements OnClickListe
         String url = Constants.OUTRT_NET + "/" + mAcid + "/teach/unique_uid_" + userId + "/m/assignment/user/" + mResult.getResponseData().getmAssignmentUser().getId() + "/back";
         Map<String, String> map = new HashMap<>();
         map.put("_method", "put");
-        OkHttpClientManager.putAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+        OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
             public void onBefore(Request request) {
                 super.onBefore(request);

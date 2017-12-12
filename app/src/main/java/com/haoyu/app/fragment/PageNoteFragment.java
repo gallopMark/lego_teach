@@ -12,7 +12,6 @@ import android.widget.RelativeLayout;
 import com.haoyu.app.activity.CreateOrAlterNoteActivity;
 import com.haoyu.app.adapter.PageNoteAdapter;
 import com.haoyu.app.base.BaseFragment;
-import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.entity.NoteEntity;
 import com.haoyu.app.entity.NoteListResult;
@@ -263,33 +262,33 @@ public class PageNoteFragment extends BaseFragment implements XRecyclerView.Load
     }
 
     /* 删除某条笔记记录 */
-    private void deletePosition(final int position) {
-        String url = Constants.OUTRT_NET + "notes/" + notes.get(position).getId();
-        OkHttpClientManager.deleteAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
-            public void onError(Request request, Exception exception) {
-              onNetWorkError();
-            }
-
-            public void onResponse(BaseResponseResult response) {
-                if (response == null) {
-                    return;
-                }
-                if (response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-                    notes.remove(position);
-                    adapter.notifyDataSetChanged();
-                    if (notes.size() == 0) {
-                        emptyNote.setVisibility(View.VISIBLE);
-//                                xListView.setVisibility(View.GONE);
-                        xRecyclerView.setVisibility(View.GONE);
-                    }
-                } else {
-                    if (response.getResponseMsg() != null) {
-                        toast(response.getResponseMsg());
-                    }
-                }
-            }
-        }, null);
-    }
+//    private void deletePosition(final int position) {
+//        String url = Constants.OUTRT_NET + "notes/" + notes.get(position).getId();
+//        OkHttpClientManager.deleteAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+//            public void onError(Request request, Exception exception) {
+//              onNetWorkError();
+//            }
+//
+//            public void onResponse(BaseResponseResult response) {
+//                if (response == null) {
+//                    return;
+//                }
+//                if (response.getResponseCode() != null && response.getResponseCode().equals("00")) {
+//                    notes.remove(position);
+//                    adapter.notifyDataSetChanged();
+//                    if (notes.size() == 0) {
+//                        emptyNote.setVisibility(View.VISIBLE);
+////                                xListView.setVisibility(View.GONE);
+//                        xRecyclerView.setVisibility(View.GONE);
+//                    }
+//                } else {
+//                    if (response.getResponseMsg() != null) {
+//                        toast(response.getResponseMsg());
+//                    }
+//                }
+//            }
+//        }, null);
+//    }
 
     @Override
     public void onRetry(View v) {

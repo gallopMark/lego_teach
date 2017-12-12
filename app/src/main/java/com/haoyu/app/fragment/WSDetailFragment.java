@@ -106,7 +106,6 @@ public class WSDetailFragment extends BaseFragment implements PullToLoadMoreLayo
     Button bt_more;  //工作坊简介(研修简报)展开内容或者收起内容
     private String workshopId;
     private int userPage = 1, limit = 4;
-    private int userTotalPage;
     private int selected = -1;
 
     @Override
