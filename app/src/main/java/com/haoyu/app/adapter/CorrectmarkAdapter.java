@@ -310,7 +310,7 @@ public class CorrectmarkAdapter extends BaseArrayRecyclerAdapter<CorrectResult> 
         }
 
         //获取提交批阅的结果
-        OkHttpClientManager.putAsyn(mContext, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+        OkHttpClientManager.postAsyn(mContext, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
             public void onError(Request request, Exception e) {
 
