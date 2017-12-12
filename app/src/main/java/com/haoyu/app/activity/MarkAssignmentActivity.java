@@ -200,7 +200,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
             enable = false;
         }
         final double evaluate = fullScore / mDatas.size();
-        EvaluateItemAdapter evaluateAdapter = new EvaluateItemAdapter(mDatas, enable, evaluate);
+        EvaluateItemAdapter evaluateAdapter = new EvaluateItemAdapter(mDatas, enable);
         FullyLinearLayoutManager layoutManager = new FullyLinearLayoutManager(context);
         layoutManager.setOrientation(FullyLinearLayoutManager.VERTICAL);
         contentRV.setLayoutManager(layoutManager);
