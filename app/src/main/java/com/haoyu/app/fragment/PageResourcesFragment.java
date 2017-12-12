@@ -9,7 +9,6 @@ import android.widget.LinearLayout;
 
 import com.haoyu.app.activity.MFileInfoActivity;
 import com.haoyu.app.activity.ResourcesUploadActivity;
-import com.haoyu.app.activity.VideoPlayerActivity;
 import com.haoyu.app.adapter.PageResourcesAdapter;
 import com.haoyu.app.base.BaseFragment;
 import com.haoyu.app.entity.CourseResourceListResult;
@@ -20,7 +19,6 @@ import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
-import com.haoyu.app.utils.MediaFile;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.LoadFailView;
 import com.haoyu.app.view.LoadingView;
@@ -157,20 +155,9 @@ public class PageResourcesFragment extends BaseFragment implements XRecyclerView
         adapter.setCallBack(new PageResourcesAdapter.OpenResourceCallBack() {
             @Override
             public void open(MFileInfo mFileInfo) {
-                if (mFileInfo.getUrl() == null) {
-                    toast("文件链接不存在");
-                } else {
-                    if (MediaFile.isVideoFileType(mFileInfo.getUrl())) {
-                        Intent intent = new Intent(context, VideoPlayerActivity.class);
-                        intent.putExtra("videoUrl", mFileInfo.getUrl());
-                        intent.putExtra("fileName", mFileInfo.getFileName());
-                        startActivity(intent);
-                    } else {
-                        Intent intent = new Intent(context, MFileInfoActivity.class);
-                        intent.putExtra("fileInfo", mFileInfo);
-                        startActivity(intent);
-                    }
-                }
+                Intent intent = new Intent(context, MFileInfoActivity.class);
+                intent.putExtra("fileInfo", mFileInfo);
+                startActivity(intent);
             }
         });
         bt_upload.setOnClickListener(new View.OnClickListener() {

@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -201,8 +202,8 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         }
         final double evaluate = fullScore / mDatas.size();
         EvaluateItemAdapter evaluateAdapter = new EvaluateItemAdapter(mDatas, enable);
-        FullyLinearLayoutManager layoutManager = new FullyLinearLayoutManager(context);
-        layoutManager.setOrientation(FullyLinearLayoutManager.VERTICAL);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         contentRV.setLayoutManager(layoutManager);
         contentRV.setAdapter(evaluateAdapter);
         evaluateAdapter.setScoreChangeListener(new EvaluateItemAdapter.ScoreChangeListener() {
