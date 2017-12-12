@@ -55,7 +55,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
                 <TextView
@@ -69,14 +69,20 @@
                     android:padding="@dimen/margin_size_12"
                     android:textSize="@dimen/font_size_17" />
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_file"
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_size_6"
-                    android:background="@color/white"
-                    android:nestedScrollingEnabled="false"
-                    android:overScrollMode="never" />
+                    android:descendantFocusability="blocksDescendants">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rv_file"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_size_6"
+                        android:background="@color/white"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never" />
+                </RelativeLayout>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -89,14 +95,20 @@
                     android:text="评价内容"
                     android:textSize="@dimen/font_size_16" />
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/contentRV"
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_size_1"
-                    android:background="@color/white"
-                    android:nestedScrollingEnabled="false"
-                    android:overScrollMode="never" />
+                    android:descendantFocusability="blocksDescendants">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/contentRV"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_size_1"
+                        android:background="@color/white"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never" />
+                </RelativeLayout>
 
                 <LinearLayout
                     android:id="@+id/ll_remark"
@@ -135,10 +147,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_size_1"
+                        android:background="@color/white"
                         android:gravity="top"
                         android:maxLines="4"
                         android:minLines="4"
-                        android:background="@color/white"
                         android:padding="@dimen/margin_size_10"
                         android:textColorHint="@color/blow_gray"
                         android:textSize="@dimen/font_size_16" />

@@ -111,7 +111,6 @@ public class MFileInfoActivity extends BaseActivity {
             toolBar.setTitle_text(title);
         }
         url = fileInfo.getUrl();
-        fileName = fileInfo.getFileName();
         fragmentManager = getSupportFragmentManager();
         if (MediaFile.isImageFileType(url)) {
             setPictureFragment();
@@ -121,7 +120,7 @@ public class MFileInfoActivity extends BaseActivity {
             if (url == null) {
                 toast(context, "文件链接不存在");
             } else {
-                if (fileName == null) fileName = Common.getFileName(url);
+                fileName = Common.getFileName(url);
                 FileDownloader.setup(context);
                 if (!isFileExists()) {
                     beginDownload();
@@ -141,7 +140,7 @@ public class MFileInfoActivity extends BaseActivity {
     private void playVideo() {
         Intent intent = new Intent(context, VideoPlayerLibActivity.class);
         intent.putExtra("videoUrl", url);
-        intent.putExtra("videoTitle", fileName);
+        intent.putExtra("videoTitle", fileInfo.getFileName());
         startActivity(intent);
         finish();
     }
@@ -169,6 +168,7 @@ public class MFileInfoActivity extends BaseActivity {
     }
 
     private void beginDownload() {
+        showFileContent();
         String path = fileRoot + File.separator + fileName;
         FileDownloader.getImpl().create(url)
                 .addHeader("Referer", Constants.REFERER)
@@ -192,7 +192,7 @@ public class MFileInfoActivity extends BaseActivity {
     private FileDownloadListener downloadListener = new FileDownloadListener() {
         @Override
         protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-            showFileContent();
+
         }
 
         @Override

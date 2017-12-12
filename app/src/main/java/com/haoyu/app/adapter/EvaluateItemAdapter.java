@@ -20,12 +20,10 @@ public class EvaluateItemAdapter extends BaseArrayRecyclerAdapter<EvaluateItemSu
     private ScoreChangeListener scoreChangeListener;
     private ArrayMap<Integer, Integer> evaluateMap = new ArrayMap<>();
     private boolean enable;
-    private double evaluate;
 
-    public EvaluateItemAdapter(List<EvaluateItemSubmissions> mDatas, boolean enable, double evaluate) {
+    public EvaluateItemAdapter(List<EvaluateItemSubmissions> mDatas, boolean enable) {
         super(mDatas);
         this.enable = enable;
-        this.evaluate = evaluate;
     }
 
     public void setScoreChangeListener(ScoreChangeListener scoreChangeListener) {
