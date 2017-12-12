@@ -42,6 +42,7 @@ import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.rxBus.RxBus;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.MyUtils;
+import com.haoyu.app.utils.NetStatusUtil;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.pili.pldroid.player.AVOptions;
 import com.pili.pldroid.player.PLMediaPlayer;
@@ -94,6 +95,8 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
     TextView warnContinue;
     @BindView(R.id.warn_content)
     TextView warnContent;
+    @BindView(R.id.iv_play)
+    ImageView iv_play;
 
     private final int VIDEO_HIDECENTERBOX = 1;// 视屏的亮度
     private final int VIDEO_FORWARD = 2;// 滑动屏幕快进
@@ -111,7 +114,6 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
     private boolean isWarn = false;
     private boolean isNet;//判断是否非wifi下播放
     // 处理点击事件
-    private boolean lockVideo = false;
     private int mMaxVolume;
     private int screenWidthPixels;  //获取屏幕的宽度像素
     private int interval;//更新时间间隔
@@ -265,6 +267,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
                     warnContent.setText("没有网络，请开启网络");
                     showWarnControll();
                 } else if (WIFI.equals(obj)) {
+                    isOpen = true;
                     hideWarnControll();
                     if (mVideoView.getDuration() != -1) {
                         if (!mVideoView.isPlaying()) {
@@ -277,14 +280,14 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
                 } else {
                     hideLoading();
                     hideWarnControll();
-                    if (!isNet) {
+                    if (!isNet && isOpen) {
                         mVideoView.pause();
                         hideVideoCenterPause();
                         hideCenterBox();
                         showWarnControll();
                         warnContent.setText("当前是移动流量，\n您要继续播放吗");
                         if (mVideoView.getDuration() == -1) {
-                            if (!isReCheck) {
+                            if (!isReCheck && isOpen) {
                                 isReCheck = true;
                                 videoViewStart();
                             }
@@ -312,6 +315,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
 
     }
 
+    private boolean isOpen = false;
 
     private void initContent() {
         mVideoPath = getIntent().getStringExtra("videoUrl");
@@ -338,8 +342,22 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
         mVideoView.setOnPreparedListener(mOnPreparedListener);
         mVideoView.setScreenOnWhilePlaying(true);
         mVideoView.setBufferingIndicator(loadingView);
-        mVideoView.setVideoPath(mVideoPath);
-        mVideoView.start();
+        if (NetStatusUtil.isWifi(context)) {
+            setVideoPath();
+        } else {
+            iv_play.setVisibility(View.VISIBLE);
+            iv_play.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showWarnControll();
+                    warnContent.setText("当前是移动流量，\n您要继续播放吗");
+                    isOpen = true;
+                    hideIV();
+                }
+            });
+
+        }
+
         // 手势监听
         gestureDetector = new GestureDetector(context, new PlayerGestureListener());
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -362,6 +380,14 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
             }
         });
 
+    }
+
+    private void setVideoPath() {
+        mVideoView.setVideoPath(mVideoPath);
+    }
+
+    private void hideIV() {
+        iv_play.setVisibility(View.GONE);
     }
 
 
@@ -428,6 +454,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
             mVideoView.seekTo(seekTime);
             firstPause = true;
             setVideoProgress();
+            mVideoView.start();
         }
     };
 
@@ -450,9 +477,8 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
                 showWarnControll();
             }
             if (mVideoView.getDuration() != -1 && !NONE.equals(netType) || isLocal) {
-                if (mVideoView != null) {
-                    mVideoView.seekTo(seekBar.getProgress());
-                }
+                mVideoView.seekTo(seekBar.getProgress());
+
             }
         }
     };
@@ -524,7 +550,6 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
         videoLayout.setLayoutParams(params);
     }
 
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -539,7 +564,12 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
                     hideWarnControll();
                     if (FLOW.equals(netType)) {
                         isNet = true;
-                        choose();
+                        if (isOpen) {
+                            isOpen = false;
+                            setVideoPath();
+                        } else {
+                            choose();
+                        }
                     } else if (NONE.equals(netType)) {
                         Intent intent;
                         //判断手机系统的版本  即API大于10 就是3.0或以上版本
@@ -781,7 +811,6 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
     private void videoViewStart() {
         showLoading();
         mVideoView.setVideoPath(mVideoPath);
-        mVideoView.start();
         mVideoView.seekTo(videoSeekBar.getProgress());
     }
 
