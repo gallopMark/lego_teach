@@ -53,8 +53,8 @@ import okhttp3.Request;
  * 描述: 社区活动详情
  * 作者:马飞奔 Administrator
  */
-public class CmtsMovementActivity extends BaseActivity {
-    private CmtsMovementActivity context = this;
+public class CmtsMovInfoActivity extends BaseActivity {
+    private CmtsMovInfoActivity context = this;
     @BindView(R.id.toolBar)
     AppToolBar toolBar;
     @BindView(R.id.loadingView)

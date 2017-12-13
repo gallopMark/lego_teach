@@ -54,8 +54,8 @@ import okhttp3.Request;
  * 描述:
  * 作者:马飞奔 Administrator
  */
-public class CmtsLessonActivity extends BaseActivity {
-    private CmtsLessonActivity context = this;
+public class CmtsLsonInfoActivity extends BaseActivity {
+    private CmtsLsonInfoActivity context = this;
     @BindView(R.id.toolBar)
     AppToolBar toolBar;
     @BindView(R.id.loadingView)

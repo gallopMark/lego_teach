@@ -68,8 +68,8 @@ import okhttp3.Request;
  * 作者:xiaoma
  */
 
-public class CmtsMovementEditActivity extends BaseActivity implements View.OnClickListener {
-    private CmtsMovementEditActivity context;
+public class CmtsMovEditActivity extends BaseActivity implements View.OnClickListener {
+    private CmtsMovEditActivity context;
     @BindView(R.id.toolBar)
     AppToolBar toolBar;
     @BindView(R.id.scrollview)
