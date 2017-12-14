@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/spaceColor"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.haoyu.app.view.AppToolBar
+            android:id="@+id/toolBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:show_right_button="false" />
+
+        <RelativeLayout
+            android:id="@+id/rl_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="@dimen/title_padding"
+                android:paddingLeft="@dimen/margin_size_12"
+                android:paddingRight="@dimen/margin_size_12"
+                android:paddingTop="@dimen/title_padding"
+                android:text="全不选"
+                android:textColor="@color/white"
+                android:textSize="@dimen/font_size_17" />
+
+            <TextView
+                android:id="@+id/tv_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:gravity="center"
+                android:paddingBottom="@dimen/title_padding"
+                android:paddingLeft="@dimen/margin_size_12"
+                android:paddingRight="@dimen/margin_size_12"
+                android:paddingTop="@dimen/title_padding"
+                android:text="取消"
+                android:textColor="@color/white"
+                android:textSize="@dimen/font_size_17" />
+        </RelativeLayout>
+    </FrameLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.haoyu.app.view.LoadingView
+            android:id="@+id/loadingView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <com.haoyu.app.view.LoadFailView
+            android:id="@+id/loadFailView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/seaShell"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/margin_size_12"
+                android:paddingLeft="@dimen/margin_size_16"
+                android:paddingRight="@dimen/margin_size_16"
+                android:paddingTop="@dimen/margin_size_12">
+
+                <ImageView
+                    android:id="@+id/ic_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/assignment_queren_tip" />
+
+                <TextView
+                    android:id="@+id/tv_tips"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="@dimen/margin_size_10"
+                    android:lineSpacingExtra="@dimen/margin_size_2"
+                    android:textSize="@dimen/font_size_16" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/second"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/top"
+                android:layout_marginTop="@dimen/margin_size_12"
+                android:background="@color/seaShell"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:paddingBottom="@dimen/margin_size_12"
+                    android:paddingTop="@dimen/margin_size_12"
+                    android:text="姓名"
+                    android:textColor="@color/blow_gray"
+                    android:textSize="@dimen/font_size_16" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="积分"
+                    android:textColor="@color/blow_gray"
+                    android:textSize="@dimen/font_size_16" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="评价"
+                    android:textColor="@color/blow_gray"
+                    android:textSize="@dimen/font_size_16" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/bottom"
+                android:layout_below="@+id/second"
+                android:background="@color/white">
+
+                <com.haoyu.app.xrecyclerview.XRecyclerView
+                    android:id="@+id/xRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:overScrollMode="never" />
+
+                <TextView
+                    android:id="@+id/tv_empty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:drawablePadding="@dimen/margin_size_16"
+                    android:drawableTop="@drawable/empty_list"
+                    android:gravity="center"
+                    android:text="没有学员信息~"
+                    android:textColor="@color/blow_gray"
+                    android:textSize="@dimen/font_size_16"
+                    android:visibility="gone" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tv_selected"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/spaceColor"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:padding="@dimen/margin_size_12"
+                    android:singleLine="true"
+                    android:textSize="@dimen/font_size_16" />
+
+                <TextView
+                    android:id="@+id/tv_send"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@color/darkorange"
+                    android:gravity="center"
+                    android:paddingLeft="@dimen/margin_size_20"
+                    android:paddingRight="@dimen/margin_size_20"
+                    android:text="发消息"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/font_size_16" />
+
+                <TextView
+                    android:id="@+id/tv_evaluate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@color/defaultColor"
+                    android:gravity="center"
+                    android:paddingLeft="@dimen/margin_size_20"
+                    android:paddingRight="@dimen/margin_size_20"
+                    android:text="批量评价"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/font_size_16" />
+            </LinearLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+</LinearLayout>

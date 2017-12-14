@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <com.haoyu.app.view.AppToolBar
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:show_right_button="false" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bt_evaluate"
+        android:layout_below="@+id/toolBar"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/rb_excellent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/margin_size_16"
+                android:layout_marginRight="@dimen/margin_size_16"
+                android:layout_marginTop="@dimen/margin_size_30"
+                android:button="@null"
+                android:drawableLeft="@drawable/checkbox_optorange"
+                android:drawablePadding="@dimen/margin_size_6"
+                android:text="优秀"
+                android:textColor="@color/darkorange"
+                android:textSize="@dimen/font_size_16" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_size_30"
+                android:layout_marginLeft="@dimen/margin_size_16"
+                android:layout_marginRight="@dimen/margin_size_16"
+                android:layout_marginTop="@dimen/margin_size_12"
+                android:text="@string/wsexamine_excellent"
+                android:textSize="@dimen/font_size_16" />
+
+            <RadioButton
+                android:id="@+id/rb_qualified"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/margin_size_16"
+                android:layout_marginRight="@dimen/margin_size_16"
+                android:button="@null"
+                android:drawableLeft="@drawable/checkbox_optgreen"
+                android:drawablePadding="@dimen/margin_size_6"
+                android:text="合格"
+                android:textColor="@color/mediumseagreen"
+                android:textSize="@dimen/font_size_16" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_size_30"
+                android:layout_marginLeft="@dimen/margin_size_16"
+                android:layout_marginRight="@dimen/margin_size_16"
+                android:layout_marginTop="@dimen/margin_size_12"
+                android:text="@string/wsexamine_excellent"
+                android:textSize="@dimen/font_size_16" />
+
+
+            <RadioButton
+                android:id="@+id/rb_fail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@null"
+                android:drawableLeft="@drawable/checkbox_optred"
+                android:drawablePadding="@dimen/margin_size_6"
+                android:paddingLeft="@dimen/margin_size_16"
+                android:paddingRight="@dimen/margin_size_16"
+                android:text="未达标"
+                android:textColor="@color/lightpink"
+                android:textSize="@dimen/font_size_16" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_size_30"
+                android:layout_marginLeft="@dimen/margin_size_16"
+                android:layout_marginRight="@dimen/margin_size_16"
+                android:layout_marginTop="@dimen/margin_size_12"
+                android:text="@string/wsexamine_excellent"
+                android:textSize="@dimen/font_size_16" />
+        </RadioGroup>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/bt_evaluate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/margin_size_20"
+        android:layout_marginLeft="@dimen/margin_size_30"
+        android:layout_marginRight="@dimen/margin_size_30"
+        android:layout_marginTop="@dimen/margin_size_30"
+        android:background="@drawable/shape_default_corner"
+        android:paddingBottom="@dimen/margin_size_12"
+        android:paddingTop="@dimen/margin_size_12"
+        android:text="确认评价"
+        android:textColor="@color/white"
+        android:textSize="@dimen/font_size_16" />
+</RelativeLayout>

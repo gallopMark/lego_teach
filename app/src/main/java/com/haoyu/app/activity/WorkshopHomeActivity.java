@@ -52,6 +52,7 @@ public class WorkshopHomeActivity extends BaseActivity {
     @BindView(R.id.tv_empty)
     TextView tv_empty;
     private String workshopId;
+    private int qualifiedPoint;  //工作坊达标积分
 
     @Override
     public int setLayoutResID() {
@@ -64,7 +65,7 @@ public class WorkshopHomeActivity extends BaseActivity {
         String workshopTitle = getIntent().getStringExtra("workshopTitle");
         toolBar.setTitle_text(workshopTitle);
         toolBar.getIv_rightImage().setImageResource(R.drawable.workshop_menu);
-        toolBar.setShow_right_button(true);
+        toolBar.setShow_right_button(false);
     }
 
     public void initData() {
@@ -109,7 +110,11 @@ public class WorkshopHomeActivity extends BaseActivity {
 
     private void updateUI(WorkShopSingleResult response) {
         if (response != null && response.getResponseData() != null) {
+            toolBar.setShow_right_button(true);
             WorkShopMobileEntity mWorkshop = response.getResponseData().getmWorkshop();
+            if (mWorkshop != null) {
+                qualifiedPoint = mWorkshop.getQualifiedPoint();
+            }
             WorkShopMobileUser mWorkshopUser = response.getResponseData().getmWorkshopUser();
             List<MWorkshopSection> mWorkshopSections = response.getResponseData().getmWorkshopSections();
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -196,8 +201,9 @@ public class WorkshopHomeActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 pw.dismiss();
-                Intent intent = new Intent(context, StudentAssignmentActivity.class);
+                Intent intent = new Intent(context, WSExamineActivity.class);
                 intent.putExtra("workshopId", workshopId);
+                intent.putExtra("qualifiedPoint", qualifiedPoint);
                 startActivity(intent);
             }
         });

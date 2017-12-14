@@ -261,11 +261,13 @@
         <!--成员管理-->
         <activity android:name="com.haoyu.app.activity.ManagentMemberActivity" />
         <!--学员考核-->
-        <activity android:name="com.haoyu.app.activity.StudentAssignmentActivity" />
+        <activity android:name="com.haoyu.app.activity.WSExamineActivity" />
         <!--学员考核批量发送消息-->
-        <activity android:name="com.haoyu.app.activity.StudentSendMessageActivity" />
+        <activity
+            android:name="com.haoyu.app.activity.WSExamineMsgActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <!--批量评价-->
-        <activity android:name="com.haoyu.app.activity.StudentEvaluateActivity" />
+        <activity android:name="com.haoyu.app.activity.WSExamineEvaActivity" />
         <!--添加研讨-->
         <activity
             android:name="com.haoyu.app.activity.WSTDEditActivity"
