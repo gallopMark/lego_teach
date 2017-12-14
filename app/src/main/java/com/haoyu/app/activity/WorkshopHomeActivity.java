@@ -211,7 +211,7 @@ public class WorkshopHomeActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 pw.dismiss();
-                Intent intent = new Intent(context, ManagentMemberActivity.class);
+                Intent intent = new Intent(context, WSManagerMebActivity.class);
                 intent.putExtra("workshopId", workshopId);
                 startActivity(intent);
             }

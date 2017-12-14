@@ -34,23 +34,28 @@ public class AssignmentListAdapter extends BaseArrayRecyclerAdapter<MAssignmentU
         } else {
             tv_userName.setText(null);
         }
+        int textColor;
+        String score, state;
         if (entity.getState() != null && entity.getState().equals("commit")) {
-            tv_responseScore.setText("--");
-            tv_state.setText("待批阅");
-            tv_state.setTextColor(ContextCompat.getColor(context, R.color.blue));
+            score = "－－";
+            state = "待批阅";
+            textColor = ContextCompat.getColor(context, R.color.blue);
         } else if (entity.getState() != null && entity.getState().equals("complete")) {
-            tv_responseScore.setText(String.valueOf(getScore(entity.getResponseScore())));
-            tv_state.setText("已批阅");
-            tv_state.setTextColor(ContextCompat.getColor(context, R.color.defaultColor));
+            score = String.valueOf(getScore(entity.getResponseScore()));
+            state = "已批阅";
+            textColor = ContextCompat.getColor(context, R.color.defaultColor);
         } else if (entity.getState() != null && entity.getState().equals("return")) {
-            tv_responseScore.setText("--");
-            tv_state.setText("发回重做");
-            tv_state.setTextColor(ContextCompat.getColor(context, R.color.orange));
+            score = "－－";
+            state = "发回重做";
+            textColor = ContextCompat.getColor(context, R.color.orange);
         } else {
-            tv_responseScore.setText("--");
-            tv_state.setText("--");
-            tv_state.setTextColor(ContextCompat.getColor(context, R.color.blow_gray));
+            score = "－－";
+            state = "－－";
+            textColor = ContextCompat.getColor(context, R.color.blow_gray);
         }
+        tv_responseScore.setText(score);
+        tv_state.setText(state);
+        tv_state.setTextColor(textColor);
     }
 
 

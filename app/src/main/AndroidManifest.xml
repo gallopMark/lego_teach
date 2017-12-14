@@ -203,8 +203,6 @@
         <activity android:name="com.haoyu.app.activity.WorkshopQuestionActivity" />
         <!--工作坊问卷调查-->
 
-        <!--选课中心-->
-        <!--工作坊群-->
         <!--短息消息-->
         <activity android:name="com.haoyu.app.activity.MessageActivity" />
         <!--消息详情-->
@@ -257,9 +255,8 @@
             android:name="com.haoyu.app.activity.ResourcesUploadActivity"
             android:windowSoftInputMode="stateHidden|stateUnchanged" />
 
-        <!--工作坊详情-->
         <!--成员管理-->
-        <activity android:name="com.haoyu.app.activity.ManagentMemberActivity" />
+        <activity android:name="com.haoyu.app.activity.WSManagerMebActivity" />
         <!--学员考核-->
         <activity android:name="com.haoyu.app.activity.WSExamineActivity" />
         <!--学员考核批量发送消息-->
@@ -312,7 +309,6 @@
 
         <!--研修简报详情-->
         <activity android:name="com.haoyu.app.activity.BriefingDetailActivity" />
-        <!--成员管理搜索-->
         <!--编辑研修简报-->
         <activity
             android:name="com.haoyu.app.activity.BriefingEditActivity"

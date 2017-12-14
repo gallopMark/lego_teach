@@ -60,10 +60,13 @@ public class WSMobileUserAdapter extends BaseArrayRecyclerAdapter<WorkShopMobile
         TextView tv_score = holder.obtainView(R.id.tv_score);
         TextView tv_evaluate = holder.obtainView(R.id.tv_evaluate);
         TextView tv_creator = holder.obtainView(R.id.tv_creator);
+        TextView tv_finallyResult = holder.obtainView(R.id.tv_finallyResult);
         if (isEdit) {
             checkBox.setVisibility(View.VISIBLE);
+            tv_finallyResult.setVisibility(View.GONE);
         } else {
             checkBox.setVisibility(View.GONE);
+            tv_finallyResult.setVisibility(View.VISIBLE);
         }
         if (entity.getmUser() != null) {
             tv_name.setText(entity.getmUser().getRealName());
@@ -71,29 +74,44 @@ public class WSMobileUserAdapter extends BaseArrayRecyclerAdapter<WorkShopMobile
             tv_name.setText("");
         }
         tv_score.setText(String.valueOf((int) entity.getPoint()));
-        int textColor;
-        String finallyResult;
-        if (entity.getFinallyResult() != null && entity.getFinallyResult().equals("excellent")) {
-            textColor = ContextCompat.getColor(context, R.color.darkorange);
-            finallyResult = "优秀";
-        } else if (entity.getFinallyResult() != null && entity.getFinallyResult().equals("qualified")) {
-            textColor = ContextCompat.getColor(context, R.color.mediumseagreen);
-            finallyResult = "合格";
-        } else if (entity.getFinallyResult() != null && entity.getFinallyResult().equals("fail")) {
-            textColor = ContextCompat.getColor(context, R.color.pink);
-            finallyResult = "未达标";
+        int color_evaluate, color_finally;
+        String evaluate, finallyResult;
+        if (entity.getEvaluate() != null && entity.getEvaluate().equals("excellent")) {
+            color_evaluate = ContextCompat.getColor(context, R.color.darkorange);
+            evaluate = "优秀";
+        } else if (entity.getEvaluate() != null && entity.getEvaluate().equals("qualified")) {
+            color_evaluate = ContextCompat.getColor(context, R.color.mediumseagreen);
+            evaluate = "合格";
+        } else if (entity.getEvaluate() != null && entity.getEvaluate().equals("fail")) {
+            color_evaluate = ContextCompat.getColor(context, R.color.pink);
+            evaluate = "未达标";
         } else {
-            textColor = ContextCompat.getColor(context, R.color.skyblue);
-            finallyResult = "待评价";
+            color_evaluate = ContextCompat.getColor(context, R.color.skyblue);
+            evaluate = "待评价";
         }
-        tv_evaluate.setTextColor(textColor);
-        tv_evaluate.setText(finallyResult);
+        tv_evaluate.setTextColor(color_evaluate);
+        tv_evaluate.setText(evaluate);
         if (entity.getEvaluateCreator() != null && entity.getEvaluateCreator().getRealName() != null) {
-            tv_creator.setText(entity.getEvaluateCreator().getRealName());
+            tv_creator.setText("评估人：" + entity.getEvaluateCreator().getRealName());
             tv_creator.setVisibility(View.VISIBLE);
         } else {
             tv_creator.setVisibility(View.GONE);
         }
+        if (entity.getFinallyResult() != null && entity.getFinallyResult().equals("excellent")) {
+            color_finally = ContextCompat.getColor(context, R.color.darkorange);
+            finallyResult = "优秀";
+        } else if (entity.getFinallyResult() != null && entity.getFinallyResult().equals("qualified")) {
+            color_finally = ContextCompat.getColor(context, R.color.mediumseagreen);
+            finallyResult = "合格";
+        } else if (entity.getFinallyResult() != null && entity.getFinallyResult().equals("fail")) {
+            color_finally = ContextCompat.getColor(context, R.color.pink);
+            finallyResult = "未达标";
+        } else {
+            color_finally = ContextCompat.getColor(context, R.color.skyblue);
+            finallyResult = "－－";
+        }
+        tv_finallyResult.setTextColor(color_finally);
+        tv_finallyResult.setText(finallyResult);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

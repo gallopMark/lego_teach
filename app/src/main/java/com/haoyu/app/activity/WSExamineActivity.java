@@ -12,10 +12,9 @@ import android.widget.TextView;
 
 import com.haoyu.app.adapter.WSMobileUserAdapter;
 import com.haoyu.app.base.BaseActivity;
-import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.entity.Paginator;
-import com.haoyu.app.entity.WSMobileUserData;
+import com.haoyu.app.entity.WSMobileUsers;
 import com.haoyu.app.entity.WorkShopMobileUser;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.utils.Constants;
@@ -56,6 +55,8 @@ public class WSExamineActivity extends BaseActivity implements XRecyclerView.Loa
     RelativeLayout container;
     @BindView(R.id.tv_tips)
     TextView tv_tips;
+    @BindView(R.id.tv_finallyResult)
+    TextView tv_finallyResult;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
     @BindView(R.id.tv_empty)
@@ -120,6 +121,7 @@ public class WSExamineActivity extends BaseActivity implements XRecyclerView.Loa
     private void setEdit() {
         toolBar.setShow_left_button(false);
         toolBar.setShow_right_button(false);
+        tv_finallyResult.setVisibility(View.GONE);
         adapter.setEdit(true);
         rl_edit.setVisibility(View.VISIBLE);
         bottom.setVisibility(View.VISIBLE);
@@ -128,7 +130,7 @@ public class WSExamineActivity extends BaseActivity implements XRecyclerView.Loa
     @Override
     public void initData() {
         String url = Constants.OUTRT_NET + "/master_" + workshopId + "/m/workshop_user/" + workshopId + "/students?page=" + page + "&limit=" + limit;
-        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<WSMobileUserData>>() {
+        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<WSMobileUsers>() {
             @Override
             public void onBefore(Request request) {
                 if (isRefresh || isLoadMore) {
@@ -152,16 +154,14 @@ public class WSExamineActivity extends BaseActivity implements XRecyclerView.Loa
             }
 
             @Override
-            public void onResponse(BaseResponseResult<WSMobileUserData> response) {
+            public void onResponse(WSMobileUsers response) {
                 loadingView.setVisibility(View.GONE);
-                if (response != null && response.getResponseData() != null) {
-                    if (firstLoad) {
-                        setTopTips(response.getResponseData().getPaginator());
-                        if (response.getResponseData().getWorkshopUsers().size() > 0) {
-                            toolBar.setShow_right_button(true);
-                        }
-                        firstLoad = false;
+                if (response != null && response.getResponseData() != null && firstLoad) {
+                    setTopTips(response.getResponseData().getPaginator());
+                    if (response.getResponseData().getWorkshopUsers().size() > 0) {
+                        toolBar.setShow_right_button(true);
                     }
+                    firstLoad = false;
                 }
                 if (response != null && response.getResponseData() != null && response.getResponseData().getWorkshopUsers().size() > 0) {
                     updateUI(response.getResponseData().getWorkshopUsers(), response.getResponseData().getPaginator());
@@ -291,6 +291,7 @@ public class WSExamineActivity extends BaseActivity implements XRecyclerView.Loa
     private void cancelEdit() {
         toolBar.setShow_left_button(true);
         toolBar.setShow_right_button(true);
+        tv_finallyResult.setVisibility(View.VISIBLE);
         adapter.cancelAll();
         adapter.setEdit(false);
         rl_edit.setVisibility(View.GONE);

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <FrameLayout
@@ -14,43 +15,112 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:right_button_image="@drawable/search"
-            android:visibility="gone"
-            app:show_right_button="true" />
+            app:show_right_button="true"
+            app:title_text="管理成员" />
 
         <LinearLayout
+            android:id="@+id/ll_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:orientation="horizontal">
+            android:background="@color/transparent"
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <ImageView
-                android:id="@id/toolbar_left_iv"
+                android:id="@+id/iv_cancel"
                 android:layout_width="55dp"
                 android:layout_height="match_parent"
                 android:scaleType="center"
                 android:src="@drawable/app_back" />
 
-            <EditText
-                android:id="@+id/et_name"
-                android:layout_width="match_parent"
+            <FrameLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:hint="输入姓名"
-                android:maxLines="1"
-                android:padding="@dimen/title_padding"
-                android:paddingLeft="@dimen/margin_size_16"
-                android:paddingRight="@dimen/margin_size_16"
-                android:textSize="@dimen/font_size_16" />
+                android:layout_weight="1">
+
+                <EditText
+                    android:id="@+id/et_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:hint="输入姓名"
+                    android:maxLines="1"
+                    android:padding="@dimen/title_padding"
+                    android:textColor="@color/whitesmoke"
+                    android:textColorHint="@color/drak_green"
+                    android:textSize="@dimen/font_size_16" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/margin_size_1"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="@dimen/margin_size_1"
+                    android:background="@color/white" />
+            </FrameLayout>
 
             <ImageView
                 android:id="@+id/iv_search"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center"
-                android:layout_marginRight="@dimen/margin_size_10"
-                android:padding="@dimen/margin_size_6"
-                android:scaleType="centerCrop"
-                android:src="@drawable/member_search" />
+                android:layout_width="55dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:scaleType="centerInside"
+                android:src="@drawable/search" />
         </LinearLayout>
     </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.haoyu.app.view.LoadingView
+            android:id="@+id/loadingView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <com.haoyu.app.view.LoadFailView
+            android:id="@+id/loadFailView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_topTips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/spaceColor"
+                android:padding="@dimen/margin_size_14"
+                android:textColor="@color/blow_gray"
+                android:textSize="@dimen/font_size_16" />
+
+            <com.haoyu.app.xrecyclerview.XRecyclerView
+                android:id="@+id/xRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/tv_topTips"
+                android:overScrollMode="never" />
+
+            <TextView
+                android:id="@+id/tv_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:drawablePadding="@dimen/margin_size_12"
+                android:drawableTop="@drawable/empty_list"
+                android:gravity="center"
+                android:text="暂时没有成员~"
+                android:textColor="@color/blow_gray"
+                android:textSize="@dimen/font_size_16"
+                android:visibility="gone" />
+        </RelativeLayout>
+    </RelativeLayout>
 </LinearLayout>

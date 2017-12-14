@@ -19,7 +19,6 @@ import com.haoyu.app.xrecyclerview.XRecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
 import okhttp3.Request;
 
 /**
@@ -28,14 +27,10 @@ import okhttp3.Request;
  * 作者:马飞奔 Administrator
  */
 public class PageStatisticSChildFragment extends BaseFragment implements XRecyclerView.LoadingListener {
-    @BindView(R.id.loadingView)
-    LoadingView loadingView;
-    @BindView(R.id.loadFailView)
-    LoadFailView loadFailView;
-    @BindView(R.id.xRecyclerView)
-    XRecyclerView xRecyclerView;
-    @BindView(R.id.emptyView)
-    TextView emptyView;
+    private LoadingView loadingView;
+    private LoadFailView loadFailView;
+    private XRecyclerView xRecyclerView;
+    private TextView emptyView;
     private String courseId;
     private int type = 1;
     private int totalCount;
@@ -52,6 +47,10 @@ public class PageStatisticSChildFragment extends BaseFragment implements XRecycl
 
     @Override
     public void initView(View view) {
+        loadingView = view.findViewById(R.id.loadingView);
+        loadFailView = view.findViewById(R.id.loadFailView);
+        xRecyclerView = view.findViewById(R.id.xRecyclerView);
+        emptyView = view.findViewById(R.id.emptyView);
         courseId = getArguments().getString("courseId");
         type = getArguments().getInt("type", 1);
         totalCount = getArguments().getInt("totalCount", 0);
