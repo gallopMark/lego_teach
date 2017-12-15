@@ -6,68 +6,13 @@
     android:background="@color/white"
     android:orientation="vertical">
 
-    <FrameLayout
+    <com.haoyu.app.view.AppToolBar
+        android:id="@+id/toolBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.haoyu.app.view.AppToolBar
-            android:id="@+id/toolBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:right_button_image="@drawable/search"
-            app:show_right_button="true"
-            app:title_text="管理成员" />
-
-        <LinearLayout
-            android:id="@+id/ll_search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@color/transparent"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/iv_cancel"
-                android:layout_width="55dp"
-                android:layout_height="match_parent"
-                android:scaleType="center"
-                android:src="@drawable/app_back" />
-
-            <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <EditText
-                    android:id="@+id/et_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:hint="输入姓名"
-                    android:maxLines="1"
-                    android:padding="@dimen/title_padding"
-                    android:textColor="@color/whitesmoke"
-                    android:textColorHint="@color/drak_green"
-                    android:textSize="@dimen/font_size_16" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/margin_size_1"
-                    android:layout_gravity="bottom"
-                    android:layout_marginBottom="@dimen/margin_size_1"
-                    android:background="@color/white" />
-            </FrameLayout>
-
-            <ImageView
-                android:id="@+id/iv_search"
-                android:layout_width="55dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:scaleType="centerInside"
-                android:src="@drawable/search" />
-        </LinearLayout>
-    </FrameLayout>
+        android:layout_height="wrap_content"
+        app:right_button_image="@drawable/search"
+        app:show_right_button="true"
+        app:title_text="管理成员" />
 
     <RelativeLayout
         android:layout_width="match_parent"

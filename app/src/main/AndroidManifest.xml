@@ -257,6 +257,9 @@
 
         <!--成员管理-->
         <activity android:name="com.haoyu.app.activity.WSManagerMebActivity" />
+        <activity
+            android:name="com.haoyu.app.activity.WSSearchMebActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <!--学员考核-->
         <activity android:name="com.haoyu.app.activity.WSExamineActivity" />
         <!--学员考核批量发送消息-->

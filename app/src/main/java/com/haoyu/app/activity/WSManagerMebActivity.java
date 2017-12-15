@@ -1,25 +1,21 @@
 package com.haoyu.app.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.widget.LinearLayoutManager;
-import android.text.TextUtils;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.haoyu.app.adapter.WSMemberAdapter;
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
-import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
 import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.entity.WSMobileUsers;
 import com.haoyu.app.entity.WorkShopMobileUser;
-import com.haoyu.app.imageloader.GlideImgManager;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.swipe.SwipeMenuLayout;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.AppToolBar;
@@ -43,14 +39,6 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
     private WSManagerMebActivity context;
     @BindView(R.id.toolBar)
     AppToolBar toolBar;
-    @BindView(R.id.ll_search)
-    LinearLayout ll_search;
-    @BindView(R.id.iv_cancel)
-    ImageView iv_cancel;
-    @BindView(R.id.et_name)
-    EditText et_name;
-    @BindView(R.id.iv_search)
-    ImageView iv_search;
     @BindView(R.id.loadingView)
     LoadingView loadingView;
     @BindView(R.id.loadFailView)
@@ -65,10 +53,10 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
     TextView tv_empty;
     private String workshopId;
     private int page = 1, limit = 20;
-    private boolean isRefresh, isLoadMore, firstLoad = true, isSearch;
+    private boolean isRefresh, isLoadMore, firstLoad = true;
     private List<WorkShopMobileUser> mDatas = new ArrayList<>();
-    private MemberAdapter adapter;
-    private String userName;
+    private WSMemberAdapter adapter;
+    private DeleteReceiver receiver;
 
     @Override
     public int setLayoutResID() {
@@ -83,7 +71,7 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         xRecyclerView.setLayoutManager(layoutManager);
-        adapter = new MemberAdapter(mDatas);
+        adapter = new WSMemberAdapter(context, mDatas);
         xRecyclerView.setAdapter(adapter);
         xRecyclerView.setLoadingListener(context);
     }
@@ -98,24 +86,20 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
 
             @Override
             public void onRightClick(View view) {
-                setEdit();
+                Intent intent = new Intent(context, WSSearchMebActivity.class);
+                intent.putExtra("workshopId", workshopId);
+                startActivity(intent);
+                overridePendingTransition(0, 0);//用于屏蔽 activity 默认的转场动画效果
+                receiver = new DeleteReceiver();
+                IntentFilter filter = new IntentFilter("delete");
+                registerReceiver(receiver, filter);
             }
         });
-    }
-
-    private void setEdit() {
-        toolBar.setShow_left_button(false);
-        toolBar.setShow_right_button(false);
-        toolBar.getTv_title().setVisibility(View.INVISIBLE);
-        ll_search.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void initData() {
         String url = Constants.OUTRT_NET + "/master_" + workshopId + "/m/workshop_user/" + workshopId + "/members?page=" + page + "&limit=" + limit;
-        if (!TextUtils.isEmpty(userName)) {
-            url += "&realName=" + userName;
-        }
         addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<WSMobileUsers>() {
             @Override
             public void onBefore(Request request) {
@@ -154,11 +138,6 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
                 } else {
                     if (isRefresh) {
                         xRecyclerView.refreshComplete(true);
-                        if (isSearch) {
-                            tv_empty.setVisibility(View.VISIBLE);
-                            xRecyclerView.setVisibility(View.GONE);
-                            isSearch = false;
-                        }
                     } else if (isLoadMore) {
                         xRecyclerView.loadMoreComplete(true);
                     } else {
@@ -179,6 +158,9 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
     }
 
     private void updateUI(List<WorkShopMobileUser> users, Paginator paginator) {
+        if (xRecyclerView.getVisibility() != View.VISIBLE) {
+            xRecyclerView.setVisibility(View.VISIBLE);
+        }
         if (isRefresh) {
             mDatas.clear();
             xRecyclerView.refreshComplete(true);
@@ -202,34 +184,41 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
                 initData();
             }
         });
-        View.OnClickListener listener = new View.OnClickListener() {
+        adapter.setOnItemDeleteListener(new WSMemberAdapter.OnItemDeleteListener() {
             @Override
-            public void onClick(View view) {
-                switch (view.getId()) {
-                    case R.id.iv_cancel:
-                        cancelEdit();
-                        break;
-                    case R.id.iv_search:
-                        String name = et_name.getText().toString().trim();
-                        if (TextUtils.isEmpty(name)) {
-                            showMaterialDialog("提示", "请输入姓名");
-                        } else {
-                            userName = name;
-                            onRefresh();
-                        }
-                        break;
-                }
+            public void onItemDelete(WorkShopMobileUser entity, int position) {
+                delete(entity, position);
             }
-        };
-        iv_cancel.setOnClickListener(listener);
-        iv_search.setOnClickListener(listener);
+        });
     }
 
-    private void cancelEdit() {
-        toolBar.setShow_left_button(true);
-        toolBar.setShow_right_button(true);
-        toolBar.getTv_title().setVisibility(View.VISIBLE);
-        ll_search.setVisibility(View.GONE);
+    private void delete(WorkShopMobileUser entity, final int position) {
+        String url = Constants.OUTRT_NET + "/master_" + workshopId + "/m/workshop_user/" + entity.getId();
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+            @Override
+            public void onBefore(Request request) {
+                showTipDialog();
+            }
+
+            @Override
+            public void onError(Request request, Exception e) {
+                hideTipDialog();
+                onNetWorkError(context);
+            }
+
+            @Override
+            public void onResponse(BaseResponseResult response) {
+                hideTipDialog();
+                if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
+                    mDatas.remove(position);
+                    adapter.notifyItemRemoved(position);
+                    if (mDatas.size() == 0) {
+                        xRecyclerView.setVisibility(View.GONE);
+                        tv_empty.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        }, new OkHttpClientManager.Param("_method", "delete")));
     }
 
     @Override
@@ -248,86 +237,29 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
         initData();
     }
 
-    private class MemberAdapter extends BaseArrayRecyclerAdapter<WorkShopMobileUser> {
-
-        public MemberAdapter(List<WorkShopMobileUser> mDatas) {
-            super(mDatas);
-        }
+    private class DeleteReceiver extends BroadcastReceiver {
 
         @Override
-        public int bindView(int viewtype) {
-            return R.layout.wsmanagermeb_item;
-        }
-
-        @Override
-        public void onBindHoder(RecyclerHolder holder, final WorkShopMobileUser entity, final int position) {
-            final SwipeMenuLayout swipeLayout = holder.obtainView(R.id.swipeLayout);
-            LinearLayout contentView = holder.obtainView(R.id.contentView);
-            ImageView iv_ico = holder.obtainView(R.id.iv_ico);
-            TextView tv_realName = holder.obtainView(R.id.tv_realName);
-            TextView tv_deptName = holder.obtainView(R.id.tv_deptName);
-            Button bt_delete = holder.obtainView(R.id.bt_delete);
-            if (entity.getmUser() != null && entity.getmUser().getAvatar() != null) {
-                String avatar = entity.getmUser().getAvatar();
-                GlideImgManager.loadCircleImage(context, avatar, R.drawable.user_default, R.drawable.user_default, iv_ico);
-            } else {
-                iv_ico.setImageResource(R.drawable.user_default);
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("delete")) {
+                WorkShopMobileUser entity = (WorkShopMobileUser) intent.getSerializableExtra("entity");
+                if (mDatas.contains(entity)) {
+                    mDatas.remove(entity);
+                    adapter.notifyDataSetChanged();
+                }
+                if (mDatas.size() == 0) {
+                    xRecyclerView.setVisibility(View.GONE);
+                    tv_empty.setVisibility(View.VISIBLE);
+                }
             }
-            if (entity.getmUser() != null) {
-                tv_realName.setText(entity.getmUser().getRealName());
-                if (!TextUtils.isEmpty(entity.getmUser().getDeptName())) {
-                    tv_deptName.setVisibility(View.VISIBLE);
-                    tv_deptName.setText(entity.getmUser().getDeptName());
-                } else {
-                    tv_deptName.setVisibility(View.GONE);
-                }
-            } else {
-                tv_realName.setText("");
-                tv_deptName.setVisibility(View.GONE);
-            }
-            contentView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    swipeLayout.smoothClose();
-                    return false;
-                }
-            });
-            bt_delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    delete(entity);
-                }
-            });
         }
+    }
 
-        private void delete(final WorkShopMobileUser entity) {
-            String id = entity.getId();
-            String url = Constants.OUTRT_NET + "/master_" + workshopId + "/m/workshop_user/" + id;
-            addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
-                @Override
-                public void onBefore(Request request) {
-                    showTipDialog();
-                }
-
-                @Override
-                public void onError(Request request, Exception e) {
-                    hideTipDialog();
-                    onNetWorkError(context);
-                }
-
-                @Override
-                public void onResponse(BaseResponseResult response) {
-                    hideTipDialog();
-                    if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-                        mDatas.remove(entity);
-                        notifyDataSetChanged();
-                        if (mDatas.size() == 0) {
-                            xRecyclerView.setVisibility(View.GONE);
-                            tv_empty.setVisibility(View.VISIBLE);
-                        }
-                    }
-                }
-            }, new OkHttpClientManager.Param("_method", "delete")));
+    @Override
+    protected void onDestroy() {
+        if (receiver != null) {
+            unregisterReceiver(receiver);
         }
+        super.onDestroy();
     }
 }
