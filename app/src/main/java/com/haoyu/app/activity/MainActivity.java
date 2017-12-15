@@ -2,17 +2,19 @@ package com.haoyu.app.activity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.haoyu.app.adapter.TeacherCourseListAdapter;
-import com.haoyu.app.adapter.TeacherWorkShopListAdater;
+import com.haoyu.app.adapter.CoachCourseAdapter;
+import com.haoyu.app.adapter.ManageWSAdapter;
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.LegoApplication;
 import com.haoyu.app.basehelper.BaseRecyclerAdapter;
@@ -20,7 +22,7 @@ import com.haoyu.app.dialog.MaterialDialog;
 import com.haoyu.app.entity.CaptureResult;
 import com.haoyu.app.entity.CourseMobileEntity;
 import com.haoyu.app.entity.MobileUser;
-import com.haoyu.app.entity.TeacherHomePageResult;
+import com.haoyu.app.entity.TeachMainResult;
 import com.haoyu.app.entity.UserInfoResult;
 import com.haoyu.app.entity.VersionEntity;
 import com.haoyu.app.entity.WorkShopMobileEntity;
@@ -30,7 +32,6 @@ import com.haoyu.app.service.VersionUpdateService;
 import com.haoyu.app.utils.Common;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
-import com.haoyu.app.view.FullyLinearLayoutManager;
 import com.haoyu.app.view.LoadFailView;
 import com.haoyu.app.view.LoadingView;
 import com.haoyu.app.zxing.CodeUtils;
@@ -49,7 +50,7 @@ import okhttp3.Request;
 
 /**
  * 创建日期：2017/2/4 on 14:57
- * 描述:
+ * 描述:首页
  * 作者:马飞奔 Administrator
  */
 public class MainActivity extends BaseActivity implements View.OnClickListener {
@@ -71,11 +72,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @BindView(R.id.empty_data)
     TextView empty_data;
     @BindView(R.id.contentView)
-    View contentView;
+    ScrollView contentView;
     private List<CourseMobileEntity> mCourses = new ArrayList<>();
     private List<WorkShopMobileEntity> mWorkshops = new ArrayList<>();
-    private TeacherCourseListAdapter courseListAdapter;
-    private TeacherWorkShopListAdater workShopListAdater;
+    private CoachCourseAdapter courseAdapter;
+    private ManageWSAdapter wsAdapter;
     @BindView(R.id.empty_course)
     TextView empty_course;
     @BindView(R.id.empty_workshop)
@@ -106,16 +107,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         View menuView = LayoutInflater.from(context).inflate(R.layout.app_homepage_menu, null);
         initMenuView(menuView);
         menu.setMenu(menuView);
-        FullyLinearLayoutManager courseManager = new FullyLinearLayoutManager(context);
-        courseManager.setOrientation(FullyLinearLayoutManager.VERTICAL);
+        LinearLayoutManager courseManager = new LinearLayoutManager(context);
+        courseManager.setOrientation(LinearLayoutManager.VERTICAL);
         courseRV.setLayoutManager(courseManager);
-        FullyLinearLayoutManager workshopManager = new FullyLinearLayoutManager(context);
-        workshopManager.setOrientation(FullyLinearLayoutManager.VERTICAL);
+        LinearLayoutManager workshopManager = new LinearLayoutManager(context);
+        workshopManager.setOrientation(LinearLayoutManager.VERTICAL);
         workshopRV.setLayoutManager(workshopManager);
-        courseListAdapter = new TeacherCourseListAdapter(context, mCourses);
-        courseRV.setAdapter(courseListAdapter);
-        workShopListAdater = new TeacherWorkShopListAdater(context, mWorkshops);
-        workshopRV.setAdapter(workShopListAdater);
+        courseAdapter = new CoachCourseAdapter(context, mCourses);
+        courseRV.setAdapter(courseAdapter);
+        wsAdapter = new ManageWSAdapter(context, mWorkshops);
+        workshopRV.setAdapter(wsAdapter);
         courseRV.setNestedScrollingEnabled(false);
         workshopRV.setNestedScrollingEnabled(false);
         registRxBus();
@@ -184,7 +185,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     public void initData() {
         String url = Constants.OUTRT_NET + "/m/uc/teachIndex";
-        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<TeacherHomePageResult>() {
+        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<TeachMainResult>() {
             @Override
             public void onBefore(Request request) {
                 loadingView.setVisibility(View.VISIBLE);
@@ -197,31 +198,37 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             }
 
             @Override
-            public void onResponse(TeacherHomePageResult response) {
+            public void onResponse(TeachMainResult response) {
                 loadingView.setVisibility(View.GONE);
                 if (response != null && response.getResponseData() != null) {
                     contentView.setVisibility(View.VISIBLE);
                     updateUI(response.getResponseData());
                 } else {
-                    empty_data.setVisibility(View.VISIBLE);
+                    if (response == null) {
+                        loadFailView.setVisibility(View.VISIBLE);
+                    } else {
+                        empty_data.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         }));
     }
 
-    private void updateUI(TeacherHomePageResult.TeacherHomePageData responseData) {
-        if (responseData.getmCourses() != null && responseData.getmCourses().size() > 0) {
+    private void updateUI(TeachMainResult.MData mData) {
+        if (mData.getmCourses().size() > 0) {
             courseRV.setVisibility(View.VISIBLE);
-            mCourses.addAll(responseData.getmCourses());
-            courseListAdapter.notifyDataSetChanged();
+            mCourses.addAll(mData.getmCourses());
+            courseAdapter.notifyDataSetChanged();
         } else {
+            courseRV.setVisibility(View.GONE);
             empty_course.setVisibility(View.VISIBLE);
         }
-        if (responseData.getmWorkshops() != null && responseData.getmWorkshops().size() > 0) {
+        if (mData.getmWorkshops().size() > 0) {
             workshopRV.setVisibility(View.VISIBLE);
-            mWorkshops.addAll(responseData.getmWorkshops());
-            workShopListAdater.notifyDataSetChanged();
+            mWorkshops.addAll(mData.getmWorkshops());
+            wsAdapter.notifyDataSetChanged();
         } else {
+            workshopRV.setVisibility(View.GONE);
             empty_workshop.setVisibility(View.VISIBLE);
         }
     }
@@ -237,7 +244,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 initData();
             }
         });
-        courseListAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
+        courseAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
                 CourseMobileEntity entity = mCourses.get(position);
@@ -254,7 +261,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             }
         });
 
-        workShopListAdater.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
+        wsAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
                 WorkShopMobileEntity entity = mWorkshops.get(position);
@@ -285,18 +292,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             case R.id.ll_userInfo:  //侧滑菜单个人信息
                 intent.setClass(context, AppUserInfoActivity.class);
                 startActivityForResult(intent, REQUSET_USERINFO_CODE);
-                break;
-            case R.id.iv_userIco:
-                if (getAvatar() != null && getAvatar().length() > 0) {
-                    intent.setClass(context, AppMultiImageShowActivity.class);
-                    ArrayList<String> imgList = new ArrayList<>();
-                    imgList.add(getAvatar());
-                    intent.putStringArrayListExtra("photos", imgList);
-                    intent.putExtra("position", 0);
-                    intent.putExtra("isUser", true);
-                    startActivity(intent);
-                    overridePendingTransition(R.anim.zoom_in, 0);
-                }
                 break;
             case R.id.tv_education:  //侧滑菜单教学
                 menu.toggle(true);

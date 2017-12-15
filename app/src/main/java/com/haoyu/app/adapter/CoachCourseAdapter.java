@@ -1,35 +1,34 @@
 package com.haoyu.app.adapter;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.haoyu.app.activity.AppMultiImageShowActivity;
 import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
 import com.haoyu.app.entity.CourseMobileEntity;
-import com.haoyu.app.lego.teach.R;
+import com.haoyu.app.entity.TimePeriod;
 import com.haoyu.app.imageloader.GlideImgManager;
+import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.utils.PixelFormat;
 import com.haoyu.app.utils.ScreenUtils;
 import com.haoyu.app.utils.TimeUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 创建日期：2017/2/4 on 15:48
- * 描述:
- * 作者:马飞奔 Administrator
+ * 创建日期：2017/12/15.
+ * 描述:我参与辅导的课程  首页课程列表
+ * 作者:xiaoma
  */
-public class TeacherCourseListAdapter extends BaseArrayRecyclerAdapter<CourseMobileEntity> {
-    private Activity context;
+
+public class CoachCourseAdapter extends BaseArrayRecyclerAdapter<CourseMobileEntity> {
+    private Context context;
     private int imageWidth;
     private int imageHeight;
 
-    public TeacherCourseListAdapter(Activity context, List<CourseMobileEntity> mDatas) {
+    public CoachCourseAdapter(Context context, List<CourseMobileEntity> mDatas) {
         super(mDatas);
         this.context = context;
         imageWidth = ScreenUtils.getScreenWidth(context) / 3 - PixelFormat.formatPxToDip(context, 20);
@@ -57,39 +56,31 @@ public class TeacherCourseListAdapter extends BaseArrayRecyclerAdapter<CourseMob
             codeStr += "/" + entity.getTermNo();
         }
         course_code.setText(codeStr);
-        if (entity.getmTimePeriod() != null) {
+        TimePeriod timePeriod = entity.getmTimePeriod();
+        String text_period = "开课：";
+        if (timePeriod != null) {
+            text_period += TimeUtil.getSlashDate(entity.getmTimePeriod().getStartTime());
             course_period.setText("开课：" + TimeUtil.getSlashDate(entity.getmTimePeriod().getStartTime()));
-            course_state.setVisibility(View.VISIBLE);
-            if (entity.getmTimePeriod().getEndTime() >= System.currentTimeMillis()) {
-                course_state.setText("进行中");
-            } else {
-                course_state.setText("已结束");
-            }
+        }
+        course_period.setText(text_period);
+        if (timePeriod != null && timePeriod.getMinutes() > 0) {
+            course_state.setText("进行中");
         } else {
-            course_period.setText("开课：暂未设置");
-            course_state.setVisibility(View.GONE);
+            if (timePeriod != null && timePeriod.getState() != null) {
+                course_state.setText(timePeriod.getState());
+            } else {
+                course_state.setText("进行中");
+            }
         }
         if (position == getItemCount() - 1) {
             line.setVisibility(View.GONE);
         } else {
             line.setVisibility(View.VISIBLE);
         }
-        course_img.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList<String> imgList = new ArrayList<>();
-                imgList.add(entity.getImage());
-                Intent intent = new Intent(context, AppMultiImageShowActivity.class);
-                intent.putStringArrayListExtra("photos", imgList);
-                intent.putExtra("position", 0);
-                context.startActivity(intent);
-                context.overridePendingTransition(R.anim.zoom_in, 0);
-            }
-        });
     }
 
     @Override
     public int bindView(int viewtype) {
-        return R.layout.teacher_course_list_item;
+        return R.layout.coachcourse_item;
     }
 }

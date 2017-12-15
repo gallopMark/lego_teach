@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/spaceColor">
+    android:background="@color/white">
 
     <RelativeLayout
         android:id="@+id/title"
@@ -81,31 +81,32 @@
         android:drawablePadding="@dimen/margin_size_10"
         android:drawableTop="@drawable/empty_list"
         android:gravity="center"
-        android:text="暂无相关信息"
+        android:text="没有培训信息~"
         android:textColor="@color/gray"
         android:textSize="@dimen/font_size_18"
         android:visibility="gone" />
 
-    <android.support.v4.widget.NestedScrollView
+    <ScrollView
         android:id="@+id/contentView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/title"
-        android:layout_marginTop="@dimen/margin_size_12"
-        android:background="@color/white"
+        android:fillViewport="true"
         android:overScrollMode="never"
-        android:scrollbars="vertical"
         android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/spaceColor"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/course"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_size_1"
+                android:layout_marginTop="@dimen/margin_size_12"
                 android:background="@color/white"
                 android:drawableLeft="@drawable/biaotiyuan"
                 android:drawablePadding="@dimen/margin_size_6"
@@ -113,41 +114,39 @@
                 android:text="你参与辅导的课程"
                 android:textSize="@dimen/font_size_18" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/margin_size_1"
-                android:background="@color/spaceColor" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/courseRV"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:overScrollMode="never"
-                android:visibility="gone" />
+                android:background="@color/white"
+                android:descendantFocusability="blocksDescendants">
 
-            <TextView
-                android:id="@+id/empty_course"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="@dimen/margin_size_30"
-                android:drawableLeft="@drawable/empty_course"
-                android:drawablePadding="@dimen/margin_size_16"
-                android:gravity="center"
-                android:text="暂无参与辅导的课程"
-                android:textColor="@color/gray"
-                android:textSize="@dimen/font_size_16"
-                android:visibility="gone" />
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/courseRV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/margin_size_1"
-                android:background="@color/spaceColor" />
+                <TextView
+                    android:id="@+id/empty_course"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/margin_size_30"
+                    android:drawableLeft="@drawable/empty_course"
+                    android:drawablePadding="@dimen/margin_size_16"
+                    android:gravity="center"
+                    android:text="暂无参与辅导的课程"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/font_size_16"
+                    android:visibility="gone" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/workshop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_size_1"
+                android:layout_marginTop="@dimen/margin_size_1"
                 android:background="@color/white"
                 android:drawableLeft="@drawable/biaotiyuan"
                 android:drawablePadding="@dimen/margin_size_6"
@@ -155,33 +154,32 @@
                 android:text="你参与管理的工作坊"
                 android:textSize="@dimen/font_size_18" />
 
-            <View
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/margin_size_1"
-                android:background="@color/spaceColor" />
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:descendantFocusability="blocksDescendants">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/workshopRV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:overScrollMode="never"
-                android:visibility="gone" />
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/workshopRV"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:overScrollMode="never" />
 
-
-            <TextView
-                android:id="@+id/empty_workshop"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="@dimen/margin_size_30"
-                android:drawableLeft="@drawable/empty_course"
-                android:drawablePadding="@dimen/margin_size_16"
-                android:gravity="center"
-                android:text="暂无参与管理的工作坊"
-                android:textColor="@color/gray"
-                android:textSize="@dimen/font_size_16"
-                android:visibility="gone" />
+                <TextView
+                    android:id="@+id/empty_workshop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/margin_size_30"
+                    android:drawableLeft="@drawable/empty_course"
+                    android:drawablePadding="@dimen/margin_size_16"
+                    android:gravity="center"
+                    android:text="暂无参与管理的工作坊"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/font_size_16"
+                    android:visibility="gone" />
+            </RelativeLayout>
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
-
+    </ScrollView>
 </RelativeLayout>
