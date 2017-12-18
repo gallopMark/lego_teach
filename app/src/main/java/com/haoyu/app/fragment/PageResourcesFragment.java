@@ -56,21 +56,24 @@ public class PageResourcesFragment extends BaseFragment implements XRecyclerView
     private String orders = "CREATE_TIME.DESC";
 
     @Override
-    public void obBusEvent(MessageEvent event) {
-        if (event.getAction().equals(Action.UPLOAD_RESOURCES) && event.obj != null && event.obj instanceof ResourcesEntity) {
-            ResourcesEntity entity = (ResourcesEntity) event.obj;
-            resourcesList.add(0, entity);
-            adapter.notifyDataSetChanged();
-            emptyResources.setVisibility(View.GONE);
-            if (xRecyclerView.getVisibility() == View.GONE) {
-                xRecyclerView.setVisibility(View.VISIBLE);
-            }
-        }
+    public int createView() {
+        return R.layout.fragment_page_resources;
     }
 
     @Override
-    public int createView() {
-        return R.layout.fragment_page_resources;
+    public void initView(View view) {
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            courseId = bundle.getString("entityId");
+        }
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        xRecyclerView.setLayoutManager(layoutManager);
+        adapter = new PageResourcesAdapter(context, resourcesList);
+        xRecyclerView.setAdapter(adapter);
+        xRecyclerView.setLoadingListener(this);
+        bt_upload.setVisibility(View.VISIBLE);
+        registRxBus();
     }
 
     @Override
@@ -130,21 +133,6 @@ public class PageResourcesFragment extends BaseFragment implements XRecyclerView
     }
 
     @Override
-    public void initView(View view) {
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            courseId = bundle.getString("entityId");
-        }
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        xRecyclerView.setLayoutManager(layoutManager);
-        adapter = new PageResourcesAdapter(context, resourcesList);
-        xRecyclerView.setAdapter(adapter);
-        xRecyclerView.setLoadingListener(this);
-        bt_upload.setVisibility(View.VISIBLE);
-    }
-
-    @Override
     public void setListener() {
         loadFailView.setOnRetryListener(new LoadFailView.OnRetryListener() {
             @Override
@@ -184,5 +172,18 @@ public class PageResourcesFragment extends BaseFragment implements XRecyclerView
         isLoadMore = true;
         page += 1;
         initData();
+    }
+
+    @Override
+    public void onEvent(MessageEvent event) {
+        if (event.getAction().equals(Action.UPLOAD_RESOURCES) && event.obj != null && event.obj instanceof ResourcesEntity) {
+            ResourcesEntity entity = (ResourcesEntity) event.obj;
+            resourcesList.add(0, entity);
+            adapter.notifyDataSetChanged();
+            emptyResources.setVisibility(View.GONE);
+            if (xRecyclerView.getVisibility() == View.GONE) {
+                xRecyclerView.setVisibility(View.VISIBLE);
+            }
+        }
     }
 }
