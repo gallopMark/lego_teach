@@ -301,7 +301,7 @@ public class PageDiscussionFragment extends BaseFragment implements XRecyclerVie
             case R.id.bt_createDiscussion:
                 Intent intent = new Intent(context, CourseDiscussEditActivity.class);
                 intent.putExtra("courseId", courseId);
-                getActivity().startActivity(intent);
+                startActivity(intent);
                 break;
         }
     }

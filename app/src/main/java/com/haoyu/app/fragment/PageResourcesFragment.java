@@ -1,5 +1,6 @@
 package com.haoyu.app.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,8 +17,6 @@ import com.haoyu.app.entity.MFileInfo;
 import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.entity.ResourcesEntity;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.rxBus.MessageEvent;
-import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.LoadFailView;
@@ -73,7 +72,6 @@ public class PageResourcesFragment extends BaseFragment implements XRecyclerView
         xRecyclerView.setAdapter(adapter);
         xRecyclerView.setLoadingListener(this);
         bt_upload.setVisibility(View.VISIBLE);
-        registRxBus();
     }
 
     @Override
@@ -142,7 +140,8 @@ public class PageResourcesFragment extends BaseFragment implements XRecyclerView
         });
         adapter.setCallBack(new PageResourcesAdapter.OpenResourceCallBack() {
             @Override
-            public void open(MFileInfo mFileInfo) {
+            public void open(String resourcesName, MFileInfo mFileInfo) {
+                mFileInfo.setFileName(resourcesName);
                 Intent intent = new Intent(context, MFileInfoActivity.class);
                 intent.putExtra("fileInfo", mFileInfo);
                 startActivity(intent);
@@ -153,7 +152,7 @@ public class PageResourcesFragment extends BaseFragment implements XRecyclerView
             public void onClick(View v) {
                 Intent intent = new Intent(context, ResourcesUploadActivity.class);
                 intent.putExtra("courseId", courseId);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
     }
@@ -175,9 +174,10 @@ public class PageResourcesFragment extends BaseFragment implements XRecyclerView
     }
 
     @Override
-    public void onEvent(MessageEvent event) {
-        if (event.getAction().equals(Action.UPLOAD_RESOURCES) && event.obj != null && event.obj instanceof ResourcesEntity) {
-            ResourcesEntity entity = (ResourcesEntity) event.obj;
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
+            ResourcesEntity entity = (ResourcesEntity) data.getSerializableExtra("entity");
             resourcesList.add(0, entity);
             adapter.notifyDataSetChanged();
             emptyResources.setVisibility(View.GONE);

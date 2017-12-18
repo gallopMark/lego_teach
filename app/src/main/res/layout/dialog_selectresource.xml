@@ -9,36 +9,35 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginTop="@dimen/margin_size_25"
+        android:layout_marginBottom="@dimen/margin_size_25"
         android:gravity="center"
         android:text="请选择需要上传的文件类型"
-        android:textSize="16sp" />
+        android:textSize="@dimen/font_size_16" />
 
     <Button
         android:id="@+id/bt_picture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginLeft="@dimen/margin_size_30"
+        android:layout_marginRight="@dimen/margin_size_30"
         android:background="@drawable/shape_default_corner"
-        android:padding="12dp"
+        android:padding="@dimen/margin_size_12"
         android:text="图片"
         android:textColor="@color/white"
-        android:textSize="16sp" />
+        android:textSize="@dimen/font_size_16" />
 
     <Button
         android:id="@+id/bt_video"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="25dp"
+        android:layout_marginLeft="@dimen/margin_size_30"
+        android:layout_marginRight="@dimen/margin_size_30"
+        android:layout_marginTop="@dimen/margin_size_16"
+        android:layout_marginBottom="@dimen/margin_size_35"
         android:background="@drawable/shape_cancel_corner"
-        android:padding="12dp"
+        android:padding="@dimen/margin_size_12"
         android:text="视频"
         android:textColor="@color/defaultColor"
-        android:textSize="16sp" />
+        android:textSize="@dimen/font_size_16" />
 </LinearLayout>
