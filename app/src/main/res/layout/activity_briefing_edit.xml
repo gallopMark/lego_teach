@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_size_16"
         android:background="@color/white"
-        android:drawableRight="@drawable/download_more"
+        android:drawableRight="@drawable/go_into"
         android:gravity="top|left|center"
         android:hint="简报标题（必填）"
         android:maxLength="100"
