@@ -42,11 +42,9 @@ public class LoadFailView extends FrameLayout {
 
     private void init(Context context) {
         errorMsg = getResources().getString(R.string.load_fail_message);
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.layout_load_fail, null);
-        LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        layoutParams.gravity = Gravity.CENTER;
-
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_load_fail, null);
+        LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER;
         mErrorTextView = view.findViewById(R.id.error_msg);
         bt_retry = view.findViewById(R.id.bt_retry);
         bt_retry.setOnClickListener(new OnClickListener() {
@@ -59,7 +57,7 @@ public class LoadFailView extends FrameLayout {
             }
         });
         setErrorMsg(errorMsg);
-        addView(view, layoutParams);
+        addView(view, params);
     }
 
     /*设置加载错误信息*/
