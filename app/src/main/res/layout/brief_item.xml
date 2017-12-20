@@ -2,11 +2,10 @@
 <com.haoyu.app.swipe.SwipeMenuLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/swipeLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/transparent">
+    android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/ll_click"
+        android:id="@+id/ll_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/item_click_selector"
@@ -15,37 +14,35 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="@dimen/margin_size_12">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="@dimen/margin_size_6"
                 android:src="@drawable/workshop_brief" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="@dimen/margin_size_12"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/briefContent"
+                    android:id="@+id/tv_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="工作坊研修马上开展，请各位老师注意！"
-                    android:maxLines="2"
                     android:ellipsize="end"
+                    android:maxLines="2"
                     android:textSize="@dimen/font_size_16" />
 
                 <TextView
-                    android:id="@+id/briefCreateTime"
+                    android:id="@+id/tv_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="2016/01/09"
+                    android:layout_marginTop="@dimen/margin_size_4"
                     android:textColor="@color/gray"
                     android:textSize="@dimen/font_size_16" />
             </LinearLayout>
@@ -54,7 +51,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/margin_size_1"
             android:background="@color/spaceColor" />
     </LinearLayout>
 
@@ -63,27 +60,29 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/bt_alter"
+        <TextView
+            android:id="@+id/tv_alter"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@color/gray"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:gravity="center"
+            android:paddingLeft="@dimen/margin_size_20"
+            android:paddingRight="@dimen/margin_size_20"
             android:text="编辑"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:textSize="@dimen/font_size_16" />
 
-        <Button
-            android:id="@+id/bt_delete"
+        <TextView
+            android:id="@+id/tv_delete"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@color/red"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:gravity="center"
+            android:paddingLeft="@dimen/margin_size_20"
+            android:paddingRight="@dimen/margin_size_20"
             android:text="删除"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:textSize="@dimen/font_size_16" />
     </LinearLayout>
 
 </com.haoyu.app.swipe.SwipeMenuLayout>

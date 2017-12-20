@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import com.haoyu.app.adapter.BriefingAdapter;
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
+import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.entity.BriefingEntity;
 import com.haoyu.app.entity.BriefingsResult;
 import com.haoyu.app.entity.Paginator;
@@ -65,7 +66,7 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         xRecyclerView.setLayoutManager(layoutManager);
-        adapter = new BriefingAdapter(brirfList);
+        adapter = new BriefingAdapter(brirfList, true);
         xRecyclerView.setAdapter(adapter);
         xRecyclerView.setLoadingListener(context);
         bt_addBrief.setVisibility(View.VISIBLE);
@@ -172,12 +173,16 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
                 deleteBrief(entity.getId(), position);
             }
         });
-        adapter.setItemClickCallBack(new BriefingAdapter.onItemClickCallBack() {
+        adapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
-            public void onItemCallBack(int position, String id) {
-                Intent intent = new Intent(context, BriefingDetailActivity.class);
-                intent.putExtra("relationId", id);
-                startActivity(intent);
+            public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
+                int select = position - 1;
+                if (select >= 0 && select < brirfList.size()) {
+                    String id = brirfList.get(select).getId();
+                    Intent intent = new Intent(context, BriefingDetailActivity.class);
+                    intent.putExtra("relationId", id);
+                    startActivity(intent);
+                }
             }
         });
 
