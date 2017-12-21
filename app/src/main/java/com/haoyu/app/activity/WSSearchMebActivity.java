@@ -17,6 +17,8 @@ import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.entity.WSMobileUsers;
 import com.haoyu.app.entity.WorkShopMobileUser;
 import com.haoyu.app.lego.teach.R;
+import com.haoyu.app.swipe.OnActivityTouchListener;
+import com.haoyu.app.swipe.RecyclerTouchListener;
 import com.haoyu.app.utils.Common;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
@@ -34,7 +36,7 @@ import okhttp3.Request;
  * 作者:xiaoma
  */
 
-public class WSSearchMebActivity extends BaseActivity implements View.OnClickListener, XRecyclerView.LoadingListener {
+public class WSSearchMebActivity extends BaseActivity implements View.OnClickListener, XRecyclerView.LoadingListener, RecyclerTouchListener.RecyclerTouchListenerHelper {
     private WSSearchMebActivity context;
     @BindView(R.id.tv_cancel)
     TextView tv_cancel;
@@ -54,6 +56,8 @@ public class WSSearchMebActivity extends BaseActivity implements View.OnClickLis
     private WSMemberAdapter adapter;
     private String realName;
     private boolean isRefresh, isLoadMore, isSearch;
+    private RecyclerTouchListener onTouchListener;
+    private OnActivityTouchListener touchListener;
 
     @Override
     public int setLayoutResID() {
@@ -70,6 +74,8 @@ public class WSSearchMebActivity extends BaseActivity implements View.OnClickLis
         adapter = new WSMemberAdapter(context, mDatas);
         xRecyclerView.setAdapter(adapter);
         xRecyclerView.setLoadingListener(context);
+        onTouchListener = new RecyclerTouchListener(context, xRecyclerView);
+        xRecyclerView.addOnItemTouchListener(onTouchListener);
     }
 
     @Override
@@ -97,10 +103,16 @@ public class WSSearchMebActivity extends BaseActivity implements View.OnClickLis
 
             }
         });
-        adapter.setOnItemDeleteListener(new WSMemberAdapter.OnItemDeleteListener() {
+
+        onTouchListener.setSwipeOptionViews(R.id.bt_delete).setSwipeable(R.id.ll_rowFG, R.id.bt_delete, new RecyclerTouchListener.OnSwipeOptionsClickListener() {
             @Override
-            public void onItemDelete(WorkShopMobileUser entity, int position) {
-                delete(entity);
+            public void onSwipeOptionClicked(int viewID, int position) {
+                if (viewID == R.id.bt_delete) {
+                    int selected = position - 1;
+                    if (selected >= 0 && selected < mDatas.size()) {
+                        delete(mDatas.get(selected));
+                    }
+                }
             }
         });
     }
@@ -249,6 +261,11 @@ public class WSSearchMebActivity extends BaseActivity implements View.OnClickLis
     }
 
     @Override
+    public void setOnActivityTouchListener(OnActivityTouchListener listener) {
+        this.touchListener = listener;
+    }
+
+    @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             if (isShouldHideInput(et_name, ev)) {
@@ -256,6 +273,7 @@ public class WSSearchMebActivity extends BaseActivity implements View.OnClickLis
             }
             return super.dispatchTouchEvent(ev);
         }
+        if (touchListener != null) touchListener.getTouchCoordinates(ev);
         // 必不可少，否则所有的组件都不会有TouchEvent了
         if (getWindow().superDispatchTouchEvent(ev)) {
             return true;

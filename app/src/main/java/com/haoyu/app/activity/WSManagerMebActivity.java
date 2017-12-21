@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.haoyu.app.adapter.WSMemberAdapter;
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
-import com.haoyu.app.entity.MobileUser;
 import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.entity.WSMobileUsers;
 import com.haoyu.app.entity.WorkShopMobileUser;
@@ -185,13 +184,6 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
             xRecyclerView.refreshComplete(true);
         } else if (isLoadMore) {
             xRecyclerView.loadMoreComplete(true);
-        }
-        for (int i = 0; i < 16; i++) {
-            WorkShopMobileUser user = new WorkShopMobileUser();
-            MobileUser mobileUser = new MobileUser();
-            mobileUser.setRealName("测试教师" + (i + 1));
-            user.setmUser(mobileUser);
-            mDatas.add(user);
         }
         mDatas.addAll(users);
         adapter.notifyDataSetChanged();

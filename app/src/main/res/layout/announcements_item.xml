@@ -1,14 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.haoyu.app.swipe.SwipeMenuLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/swipeLayout"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/item_layout"
+        android:id="@+id/ll_rowBG"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bt_alter"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/gray"
+            android:paddingLeft="@dimen/margin_size_20"
+            android:paddingRight="@dimen/margin_size_20"
+            android:text="编辑"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_size_16" />
+
+        <Button
+            android:id="@+id/bt_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/red"
+            android:paddingLeft="@dimen/margin_size_20"
+            android:paddingRight="@dimen/margin_size_20"
+            android:text="删除"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_size_16" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_rowFG"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@drawable/item_click_selector"
         android:orientation="vertical">
 
@@ -22,14 +52,14 @@
                 android:id="@+id/ic_consult"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="@dimen/margin_size_8"
                 android:src="@drawable/announcements_yuandian" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingLeft="10dp">
+                android:layout_marginLeft="@dimen/margin_size_12"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tv_title"
@@ -37,25 +67,28 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="2"
-                    android:text="信息技术应用能力提升工程公共服务平台说明手册"
-                    android:textSize="16sp" />
+                    android:textSize="@dimen/font_size_18" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_size_4"
+                    android:layout_marginTop="@dimen/margin_size_6"
                     android:orientation="horizontal">
 
+                    <ImageView
+                        android:layout_width="@dimen/margin_size_18"
+                        android:layout_height="@dimen/margin_size_18"
+                        android:layout_gravity="center"
+                        android:src="@drawable/announcements_createdate" />
+
                     <TextView
-                        android:id="@+id/tv_createDate"
+                        android:id="@+id/tv_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:drawableLeft="@drawable/announcements_createdate"
-                        android:drawablePadding="@dimen/margin_size_4"
-                        android:text="2016/7/19"
-                        android:textColor="@color/gray"
-                        android:textSize="@dimen/font_size_15" />
+                        android:layout_marginLeft="@dimen/margin_size_6"
+                        android:textColor="@color/blow_gray"
+                        android:textSize="@dimen/font_size_16" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -63,35 +96,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/margin_size_1"
-            android:layout_gravity="bottom"
             android:background="@color/spaceColor" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/bt_alter"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@color/gray"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:text="编辑"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-
-        <Button
-            android:id="@+id/bt_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@color/red"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:text="删除"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-    </LinearLayout>
-</com.haoyu.app.swipe.SwipeMenuLayout>
+</RelativeLayout>

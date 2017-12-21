@@ -1,5 +1,6 @@
 package com.haoyu.app.activity;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.Html;
@@ -13,9 +14,6 @@ import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.entity.Announcement;
 import com.haoyu.app.lego.teach.R;
-import com.haoyu.app.rxBus.MessageEvent;
-import com.haoyu.app.rxBus.RxBus;
-import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.AppToolBar;
@@ -39,7 +37,7 @@ public class AnnouncementEditActivity extends BaseActivity {
     EditText et_title;
     @BindView(R.id.et_content)
     EditText et_content;
-    private String relationId, type, entityId;   //工作坊Id，通知公告Id
+    private String relationId, relationType, type, entityId;   //工作坊Id，通知公告Id
     private boolean isAlter;
 
     @Override
@@ -50,6 +48,7 @@ public class AnnouncementEditActivity extends BaseActivity {
     @Override
     public void initView() {
         relationId = getIntent().getStringExtra("relationId");
+        relationType = getIntent().getStringExtra("relationType");
         type = getIntent().getStringExtra("type");
         entityId = getIntent().getStringExtra("entityId");
         isAlter = getIntent().getBooleanExtra("isAlter", false);
@@ -139,26 +138,13 @@ public class AnnouncementEditActivity extends BaseActivity {
 
     /*创建通知公告*/
     private void create(String title, final String content) {
-        /**
-         * title	标题	String	Y
-         content	内容	String	Y	长度最大为1000
-         type	类型	String	Y	系统通知：“system_announcement”
-         工作坊的通知公告：“workshop_announcement”
-         培训简报：“train_report”
-         announcementRelations[0].relation.id	关联Id	String	Y	系统：“system”
-         工作坊：工作坊Id
-
-         announcementRelations[0].relation.type	关联类型	String	Y	系统：不需要传此参数
-         工作坊：“workshop”
-
-         */
         String url = Constants.OUTRT_NET + "/m/announcement";
         Map<String, String> map = new HashMap<>();
         map.put("title", title);
         map.put("content", content);
-        map.put("type", type);
         map.put("announcementRelations[0].relation.id", relationId);
-        map.put("announcementRelations[0].relation.type", "workshop");
+        map.put("announcementRelations[0].relation.type", relationType);
+        map.put("type", type);
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult<Announcement>>() {
             @Override
             public void onBefore(Request request) {
@@ -175,10 +161,10 @@ public class AnnouncementEditActivity extends BaseActivity {
             public void onResponse(BaseResponseResult<Announcement> response) {
                 hideTipDialog();
                 if (response != null && response.getResponseData() != null) {
-                    MessageEvent event = new MessageEvent();
-                    event.action = Action.CREATE_ANNOUNCEMENT;
-                    event.obj = response.getResponseData();
-                    RxBus.getDefault().post(event);
+                    Announcement entity = response.getResponseData();
+                    Intent intent = new Intent();
+                    intent.putExtra("entity", entity);
+                    setResult(RESULT_OK, intent);
                     finish();
                 } else {
                     toast(context, "创建失败");
@@ -209,10 +195,11 @@ public class AnnouncementEditActivity extends BaseActivity {
             public void onResponse(BaseResponseResult<Announcement> response) {
                 hideTipDialog();
                 if (response != null && response.getResponseData() != null) {
-                    MessageEvent event = new MessageEvent();
-                    event.action = Action.ALTER_ANNOUNCEMENT;
-                    event.obj = response.getResponseData();
-                    RxBus.getDefault().post(event);
+                    Announcement entity = response.getResponseData();
+                    Intent intent = new Intent();
+                    intent.putExtra("title", entity.getTitle());
+                    intent.putExtra("content", entity.getContent());
+                    setResult(RESULT_OK, intent);
                     finish();
                 } else {
                     toast(context, "创建失败");

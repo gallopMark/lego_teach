@@ -21,7 +21,6 @@ import java.util.List;
 
 public class WSMemberAdapter extends BaseArrayRecyclerAdapter<WorkShopMobileUser> {
     private Context context;
-    private OnItemDeleteListener onItemDeleteListener;
 
     public WSMemberAdapter(Context context, List<WorkShopMobileUser> mDatas) {
         super(mDatas);
@@ -43,7 +42,6 @@ public class WSMemberAdapter extends BaseArrayRecyclerAdapter<WorkShopMobileUser
         ImageView iv_ico = holder.obtainView(R.id.iv_ico);
         TextView tv_realName = holder.obtainView(R.id.tv_realName);
         TextView tv_deptName = holder.obtainView(R.id.tv_deptName);
-//        Button bt_delete = holder.obtainView(R.id.bt_delete);
         if (entity.getmUser() != null && entity.getmUser().getAvatar() != null) {
             String avatar = entity.getmUser().getAvatar();
             GlideImgManager.loadCircleImage(context, avatar, R.drawable.user_default, R.drawable.user_default, iv_ico);
@@ -62,21 +60,5 @@ public class WSMemberAdapter extends BaseArrayRecyclerAdapter<WorkShopMobileUser
             tv_realName.setText("");
             tv_deptName.setVisibility(View.GONE);
         }
-//        bt_delete.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (onItemDeleteListener != null) {
-//                    onItemDeleteListener.onItemDelete(entity, position);
-//                }
-//            }
-//        });
-    }
-
-    public interface OnItemDeleteListener {
-        void onItemDelete(WorkShopMobileUser entity, int position);
-    }
-
-    public void setOnItemDeleteListener(OnItemDeleteListener onItemDeleteListener) {
-        this.onItemDeleteListener = onItemDeleteListener;
     }
 }
