@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.haoyu.app.swipe.SwipeMenuLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/swipeLayout"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white">
 
+    <Button
+        android:id="@+id/bt_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:background="@color/red"
+        android:focusable="true"
+        android:paddingLeft="@dimen/margin_size_20"
+        android:paddingRight="@dimen/margin_size_20"
+        android:text="删除"
+        android:textColor="@color/white"
+        android:textSize="@dimen/font_size_16" />
+
     <LinearLayout
+        android:id="@+id/ll_rowFG"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:clickable="true"
+        android:elevation="4dp"
+        android:focusable="true"
         android:orientation="vertical">
 
         <LinearLayout
@@ -61,14 +78,4 @@
             android:background="@color/spaceColor" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/bt_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="@color/red"
-        android:paddingLeft="@dimen/margin_size_20"
-        android:paddingRight="@dimen/margin_size_20"
-        android:text="删除"
-        android:textColor="@color/white"
-        android:textSize="@dimen/font_size_16" />
-</com.haoyu.app.swipe.SwipeMenuLayout>
+</RelativeLayout>

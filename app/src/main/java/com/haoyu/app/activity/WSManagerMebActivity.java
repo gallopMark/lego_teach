@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -12,10 +13,13 @@ import android.widget.TextView;
 import com.haoyu.app.adapter.WSMemberAdapter;
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
+import com.haoyu.app.entity.MobileUser;
 import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.entity.WSMobileUsers;
 import com.haoyu.app.entity.WorkShopMobileUser;
 import com.haoyu.app.lego.teach.R;
+import com.haoyu.app.swipe.OnActivityTouchListener;
+import com.haoyu.app.swipe.RecyclerTouchListener;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.AppToolBar;
@@ -35,7 +39,7 @@ import okhttp3.Request;
  * 作者:xiaoma
  */
 
-public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.LoadingListener {
+public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.LoadingListener, RecyclerTouchListener.RecyclerTouchListenerHelper {
     private WSManagerMebActivity context;
     @BindView(R.id.toolBar)
     AppToolBar toolBar;
@@ -56,6 +60,8 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
     private boolean isRefresh, isLoadMore, firstLoad = true;
     private List<WorkShopMobileUser> mDatas = new ArrayList<>();
     private WSMemberAdapter adapter;
+    private RecyclerTouchListener onTouchListener;
+    private OnActivityTouchListener touchListener;
     private DeleteReceiver receiver;
 
     @Override
@@ -74,6 +80,8 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
         adapter = new WSMemberAdapter(context, mDatas);
         xRecyclerView.setAdapter(adapter);
         xRecyclerView.setLoadingListener(context);
+        onTouchListener = new RecyclerTouchListener(context, xRecyclerView);
+        xRecyclerView.addOnItemTouchListener(onTouchListener);
     }
 
     private void setToolBar() {
@@ -95,6 +103,17 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
                 registerReceiver(receiver, filter);
             }
         });
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (touchListener != null) touchListener.getTouchCoordinates(ev);
+        return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
+    public void setOnActivityTouchListener(OnActivityTouchListener listener) {
+        this.touchListener = listener;
     }
 
     @Override
@@ -167,6 +186,13 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
         } else if (isLoadMore) {
             xRecyclerView.loadMoreComplete(true);
         }
+        for (int i = 0; i < 16; i++) {
+            WorkShopMobileUser user = new WorkShopMobileUser();
+            MobileUser mobileUser = new MobileUser();
+            mobileUser.setRealName("测试教师" + (i + 1));
+            user.setmUser(mobileUser);
+            mDatas.add(user);
+        }
         mDatas.addAll(users);
         adapter.notifyDataSetChanged();
         if (paginator != null && paginator.getHasNextPage()) {
@@ -184,16 +210,22 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
                 initData();
             }
         });
-        adapter.setOnItemDeleteListener(new WSMemberAdapter.OnItemDeleteListener() {
+        onTouchListener.setSwipeOptionViews(R.id.bt_delete).setSwipeable(R.id.ll_rowFG, R.id.bt_delete, new RecyclerTouchListener.OnSwipeOptionsClickListener() {
             @Override
-            public void onItemDelete(WorkShopMobileUser entity, int position) {
-                delete(entity, position);
+            public void onSwipeOptionClicked(int viewID, int position) {
+                if (viewID == R.id.bt_delete) {
+                    int selected = position - 1;
+                    if (selected >= 0 && selected < mDatas.size()) {
+                        delete(selected);
+                    }
+                }
             }
         });
     }
 
-    private void delete(WorkShopMobileUser entity, final int position) {
-        String url = Constants.OUTRT_NET + "/master_" + workshopId + "/m/workshop_user/" + entity.getId();
+    private void delete(final int selected) {
+        String id = mDatas.get(selected).getId();
+        String url = Constants.OUTRT_NET + "/master_" + workshopId + "/m/workshop_user/" + id;
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
             public void onBefore(Request request) {
@@ -210,8 +242,8 @@ public class WSManagerMebActivity extends BaseActivity implements XRecyclerView.
             public void onResponse(BaseResponseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-                    mDatas.remove(position);
-                    adapter.notifyItemRemoved(position);
+                    mDatas.remove(selected);
+                    adapter.notifyDataSetChanged();
                     if (mDatas.size() == 0) {
                         xRecyclerView.setVisibility(View.GONE);
                         tv_empty.setVisibility(View.VISIBLE);
