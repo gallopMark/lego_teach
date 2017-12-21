@@ -132,8 +132,7 @@ public class CourseDiscussDetailActivity extends BaseActivity implements
             tv_userName.setText("匿名用户");
         }
         tv_createDate.setText("发表于" + TimeUtil.converTime(discussEntity.getCreateTime()));
-        if (discussEntity.getmDiscussionRelations() != null
-                && discussEntity.getmDiscussionRelations().size() > 0) {
+        if (discussEntity.getmDiscussionRelations().size() > 0) {
             discussRelationId = discussEntity.getmDiscussionRelations().get(0).getId();
             replyNum = discussEntity.getmDiscussionRelations().get(0).getReplyNum();
             tv_commentCount.setText(text_comment + "(" + replyNum + ")");

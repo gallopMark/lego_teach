@@ -9,8 +9,8 @@ import android.widget.TextView;
 
 import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
 import com.haoyu.app.entity.DiscussEntity;
-import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.imageloader.GlideImgManager;
+import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.utils.TimeUtil;
 
 import java.util.List;
@@ -73,8 +73,7 @@ public class PageDiscussionAdapter extends BaseArrayRecyclerAdapter<DiscussEntit
             userName.setText("");
         }
         createDate.setText("发表于" + TimeUtil.converTime(entity.getCreateTime()));
-        if (entity.getmDiscussionRelations() != null
-                && entity.getmDiscussionRelations().size() > 0) {
+        if (entity.getmDiscussionRelations().size() > 0) {
             int replyNum = entity.getmDiscussionRelations().get(0).getReplyNum();
             int supportNum = entity.getmDiscussionRelations().get(0).getSupportNum();
             discuss.setText(String.valueOf(replyNum));
