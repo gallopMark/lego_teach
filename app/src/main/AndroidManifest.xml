@@ -303,7 +303,7 @@
             android:configChanges="screenSize|orientation|keyboardHidden" />
         <!--评价总结及建议列表-->
         <activity android:name="com.haoyu.app.activity.WSTSSuggestActivity" />
-        <activity android:name="com.haoyu.app.activity.WorkshopHomeActivity" />
+        <activity android:name="com.haoyu.app.activity.WSHomePageActivity" />
         <!--工作坊修改阶段任务-->
         <activity
             android:name="com.haoyu.app.activity.WorkShopEditTaskActivity"

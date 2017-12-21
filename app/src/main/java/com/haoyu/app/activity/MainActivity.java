@@ -267,7 +267,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 WorkShopMobileEntity entity = mWorkshops.get(position);
                 String workshopId = entity.getId();
                 String workshopTitle = entity.getTitle();
-                Intent intent = new Intent(context, WorkshopHomeActivity.class);
+                Intent intent = new Intent(context, WSHomePageActivity.class);
                 intent.putExtra("workshopId", workshopId);
                 intent.putExtra("workshopTitle", workshopTitle);
                 startActivity(intent);
