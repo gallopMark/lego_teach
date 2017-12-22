@@ -1,24 +1,22 @@
 package com.haoyu.app.activity;
 
-import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
+import android.text.Editable;
 import android.text.TextUtils;
-import android.view.Gravity;
-import android.view.LayoutInflater;
+import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.haoyu.app.adapter.GridUserAdapter;
+import com.haoyu.app.adapter.PeerAdapter;
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
@@ -26,13 +24,13 @@ import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.entity.MobileUser;
 import com.haoyu.app.entity.MobileUserData;
 import com.haoyu.app.entity.Paginator;
+import com.haoyu.app.imageloader.GlideImgManager;
 import com.haoyu.app.lego.teach.R;
+import com.haoyu.app.swipe.OnActivityTouchListener;
+import com.haoyu.app.swipe.RecyclerTouchListener;
 import com.haoyu.app.utils.Common;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
-import com.haoyu.app.utils.PixelFormat;
-import com.haoyu.app.utils.ScreenUtils;
-import com.haoyu.app.view.AppToolBar;
 import com.haoyu.app.xrecyclerview.XRecyclerView;
 
 import java.io.Serializable;
@@ -48,88 +46,148 @@ import okhttp3.Request;
  * 作者:xiaoma
  */
 
-public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerView.LoadingListener, View.OnClickListener {
+public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerView.LoadingListener, RecyclerTouchListener.RecyclerTouchListenerHelper, View.OnClickListener {
     private MultiSearchUsersActivity context;
-    @BindView(R.id.toolBar)
-    AppToolBar toolBar;
+    @BindView(R.id.tv_cancel)
+    TextView tv_cancel;
     @BindView(R.id.et_name)
     EditText et_name;
-    @BindView(R.id.iv_search)
-    ImageView iv_search;
-    @BindView(R.id.tv_current)
-    TextView tv_current;
-    @BindView(R.id.tv_user)
-    TextView tv_user;
+    @BindView(R.id.tv_clear)
+    TextView tv_clear;
+    @BindView(R.id.tv_search)
+    TextView tv_search;
+    @BindView(R.id.radioGroup)
+    RadioGroup radioGroup;
+    @BindView(R.id.rb_result)
+    RadioButton rb_result;
+    @BindView(R.id.rb_list)
+    RadioButton rb_list;
+    @BindView(R.id.line_result)
+    View line_result;
+    @BindView(R.id.line_list)
+    View line_list;
     @BindView(R.id.rl_result)
     RelativeLayout rl_result;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
-    @BindView(R.id.tv_empty)
-    TextView tv_empty;
+    @BindView(R.id.tv_empty1)
+    TextView tv_empty1;
+    @BindView(R.id.rl_list)
+    RelativeLayout rl_list;
+    @BindView(R.id.rv_list)
+    RecyclerView rv_list;
+    @BindView(R.id.tv_empty2)
+    TextView tv_empty2;
+    @BindView(R.id.tv_finish)
+    TextView tv_finish;
     private List<MobileUser> mDatas = new ArrayList<>();
-    private GridUserAdapter adapter;
+    private PeerAdapter adapter;
     private boolean isRefresh, isLoadMore;
     private String userName;
     private int page = 1, limit = 30;
     private List<MobileUser> selectList = new ArrayList<>();   //已选择的人员集合
+    private MultiAdapter mAdapter;
+    private RecyclerTouchListener onTouchListener;
+    private OnActivityTouchListener touchListener;
 
     @Override
     public int setLayoutResID() {
-        return R.layout.activity_searchuser;
+        return R.layout.activity_searchusers;
     }
 
     @Override
     public void initView() {
         context = this;
-        setToolBar();
-        tv_current.setText("当前受邀人员：");
-        setUsers();
-        GridLayoutManager layoutManager = new GridLayoutManager(context, 3);
+        GridLayoutManager layoutManager = new GridLayoutManager(context, 4);
         layoutManager.setOrientation(GridLayoutManager.VERTICAL);
         xRecyclerView.setLayoutManager(layoutManager);
-        adapter = new GridUserAdapter(context, mDatas);
+        adapter = new PeerAdapter(context, mDatas);
         xRecyclerView.setAdapter(adapter);
         xRecyclerView.setPullRefreshEnabled(false);
         xRecyclerView.setLoadingListener(context);
+        LinearLayoutManager llm = new LinearLayoutManager(context);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        rv_list.setLayoutManager(llm);
+        mAdapter = new MultiAdapter(selectList);
+        rv_list.setAdapter(mAdapter);
+        onTouchListener = new RecyclerTouchListener(context, rv_list);
+        rv_list.addOnItemTouchListener(onTouchListener);
+        setUsers();
     }
 
     private void setUsers() {
-        Drawable drawable = ContextCompat.getDrawable(context, R.drawable.go_into);
-        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-        tv_user.setCompoundDrawables(null, null, drawable, null);
-        int drwablePadding = PixelFormat.dp2px(context, 12);
-        tv_user.setCompoundDrawablePadding(drwablePadding);
-        List<MobileUser> mDatas = (List<MobileUser>) getIntent().getSerializableExtra("mobileUserList");
+        List<MobileUser> mDatas = (List<MobileUser>) getIntent().getSerializableExtra("users");
         if (mDatas != null) {
             selectList.addAll(mDatas);
         }
-        setUser_text();
+        mAdapter.notifyDataSetChanged();
+        if (selectList.size() > 0) {
+            radioGroup.check(R.id.rb_list);
+            rl_list.setVisibility(View.VISIBLE);
+        }
+        setSelect_state();
     }
 
-    private void setToolBar() {
-        toolBar.setTitle_text("受邀人员");
-        toolBar.setRight_button_text("完成");
-        toolBar.setShow_right_button(true);
-        toolBar.setOnTitleClickListener(new AppToolBar.TitleOnClickListener() {
-            @Override
-            public void onLeftClick(View view) {
-                finish();
-            }
-
-            @Override
-            public void onRightClick(View view) {
-                Intent intent = new Intent();
-                intent.putExtra("mobileUserList", (Serializable) selectList);
-                setResult(RESULT_OK, intent);
-                finish();
-            }
-        });
+    private void setSelect_state() {
+        String text = "已选（" + selectList.size() + "）";
+        rb_list.setText(text);
+        tv_finish.setText("完成（" + selectList.size() + "）");
+        if (selectList.size() > 0) {
+            rv_list.setVisibility(View.VISIBLE);
+            tv_empty2.setVisibility(View.GONE);
+            tv_finish.setVisibility(View.VISIBLE);
+        } else {
+            tv_finish.setVisibility(View.GONE);
+            rv_list.setVisibility(View.GONE);
+            tv_empty2.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
     public void setListener() {
-        iv_search.setOnClickListener(context);
-        tv_user.setOnClickListener(context);
+        tv_cancel.setOnClickListener(context);
+        tv_search.setOnClickListener(context);
+        tv_finish.setOnClickListener(context);
+        tv_clear.setOnClickListener(context);
+        et_name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (TextUtils.isEmpty(charSequence)) {
+                    tv_clear.setVisibility(View.GONE);
+                } else {
+                    tv_clear.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkId) {
+                line_result.setVisibility(View.INVISIBLE);
+                line_list.setVisibility(View.INVISIBLE);
+                rl_result.setVisibility(View.GONE);
+                rl_list.setVisibility(View.GONE);
+                switch (checkId) {
+                    case R.id.rb_result:
+                        rl_result.setVisibility(View.VISIBLE);
+                        line_result.setVisibility(View.VISIBLE);
+                        break;
+                    case R.id.rb_list:
+                        rl_list.setVisibility(View.VISIBLE);
+                        line_list.setVisibility(View.VISIBLE);
+                        break;
+                }
+            }
+        });
         adapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
@@ -139,44 +197,31 @@ public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerV
                     if (!selectList.contains(user)) {
                         selectList.add(user);
                     }
-                    setUser_text();
+                    mAdapter.notifyDataSetChanged();
+                    setSelect_state();
                 }
             }
         });
-    }
-
-    private void setUser_text() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < selectList.size(); i++) {
-            String name = selectList.get(i).getRealName();
-            sb.append(name);
-            if (i < selectList.size() - 1) {
-                sb.append("，");
+        onTouchListener.setSwipeOptionViews(R.id.bt_delete).setSwipeable(R.id.ll_rowFG, R.id.bt_delete, new RecyclerTouchListener.OnSwipeOptionsClickListener() {
+            @Override
+            public void onSwipeOptionClicked(int viewID, int position) {
+                selectList.remove(position);
+                mAdapter.notifyDataSetChanged();
+                setSelect_state();
             }
-        }
-        tv_user.setText(sb);
-        if (overLine(tv_user)) {
-            tv_user.setEllipsize(TextUtils.TruncateAt.MIDDLE);
-            sb.append(" 等人");
-            tv_user.setText(sb);
-        }
-    }
-
-    private boolean overLine(TextView tv) {
-        Layout layout = tv.getLayout();
-        if (layout != null && layout.getLineCount() > 0) {
-            int lines = layout.getLineCount();//获取textview行数
-            if (layout.getEllipsisCount(lines - 1) > 0) {//获取最后一行省略掉的字符数，大于0就代表超过行数
-                return true;
-            }
-        }
-        return false;
+        });
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.iv_search:
+            case R.id.tv_cancel:
+                finish();
+                break;
+            case R.id.tv_clear:
+                et_name.setText(null);
+                break;
+            case R.id.tv_search:
                 init();
                 userName = et_name.getText().toString().trim();
                 if (TextUtils.isEmpty(userName)) {
@@ -185,13 +230,17 @@ public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerV
                     searchUsers();
                 }
                 return;
-            case R.id.tv_user:
-                showSelects();
-                return;
+            case R.id.tv_finish:
+                Intent intent = new Intent();
+                intent.putExtra("users", (Serializable) selectList);
+                setResult(RESULT_OK, intent);
+                finish();
+                break;
         }
     }
 
     private void init() {
+        radioGroup.check(R.id.rb_result);
         Common.hideSoftInput(context, et_name);
         isRefresh = true;
         isLoadMore = false;
@@ -225,7 +274,7 @@ public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerV
                         xRecyclerView.setLoadingMoreEnabled(false);
                     } else {
                         xRecyclerView.setVisibility(View.GONE);
-                        tv_empty.setVisibility(View.VISIBLE);
+                        tv_empty1.setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -233,8 +282,11 @@ public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerV
     }
 
     private void updateUI(List<MobileUser> users, Paginator paginator) {
-        if (rl_result.getVisibility() != View.VISIBLE) {
-            rl_result.setVisibility(View.VISIBLE);
+        if (xRecyclerView.getVisibility() != View.VISIBLE) {
+            xRecyclerView.setVisibility(View.VISIBLE);
+        }
+        if (tv_empty1.getVisibility() != View.GONE) {
+            tv_empty1.setVisibility(View.GONE);
         }
         if (isRefresh) {
             mDatas.clear();
@@ -243,52 +295,22 @@ public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerV
         }
         mDatas.addAll(users);
         adapter.notifyDataSetChanged();
-        if (paginator != null && paginator.getHasNextPage()) {
-            xRecyclerView.setLoadingMoreEnabled(true);
+        int totalCount = 0;
+        if (paginator != null) {
+            totalCount = paginator.getTotalCount();
+            if (paginator.getHasNextPage()) {
+                xRecyclerView.setLoadingMoreEnabled(true);
+            } else {
+                xRecyclerView.setLoadingMoreEnabled(false);
+            }
         } else {
             xRecyclerView.setLoadingMoreEnabled(false);
         }
+        setResult_text(totalCount);
     }
 
-    private void showSelects() {
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_multiuser, null);
-        final AlertDialog dialog = new AlertDialog.Builder(context).create();
-        TextView tv_current = view.findViewById(R.id.tv_current);
-        final RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
-        final TextView tv_empty = view.findViewById(R.id.tv_empty);
-        tv_current.setText("当前受邀人员");
-        tv_empty.setText("没有受邀人员~");
-        if (selectList.size() == 0) {
-            recyclerView.setVisibility(View.GONE);
-            tv_empty.setVisibility(View.VISIBLE);
-        } else {
-            LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            recyclerView.setLayoutManager(layoutManager);
-            final MultiAdapter adapter = new MultiAdapter(selectList);
-            recyclerView.setAdapter(adapter);
-            adapter.setOnItemRemoveListener(new OnItemRemoveListener() {
-                @Override
-                public void onItemRemove(int positioin) {
-                    selectList.remove(positioin);
-                    adapter.notifyDataSetChanged();
-                    setUser_text();
-                    if (selectList.size() == 0) {
-                        recyclerView.setVisibility(View.GONE);
-                        tv_empty.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
-        }
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.setCancelable(true);
-        dialog.show();
-        int width = ScreenUtils.getScreenWidth(context);
-        int height = ScreenUtils.getScreenHeight(context) / 2;
-        dialog.getWindow().setLayout(width, height);
-        dialog.getWindow().setWindowAnimations(R.style.dialog_anim);
-        dialog.getWindow().setContentView(view);
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
+    private void setResult_text(int totalCount) {
+        rb_result.setText("全部（" + totalCount + "）");
     }
 
     @Override
@@ -304,15 +326,54 @@ public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerV
         searchUsers();
     }
 
+    @Override
+    public void setOnActivityTouchListener(OnActivityTouchListener listener) {
+        this.touchListener = listener;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            if (isShouldHideInput(et_name, ev)) {
+                Common.hideSoftInput(context, et_name);
+            }
+            return super.dispatchTouchEvent(ev);
+        }
+        if (touchListener != null) touchListener.getTouchCoordinates(ev);
+        // 必不可少，否则所有的组件都不会有TouchEvent了
+        if (getWindow().superDispatchTouchEvent(ev)) {
+            return true;
+        }
+        return onTouchEvent(ev);
+    }
+
+    public boolean isShouldHideInput(EditText et, MotionEvent event) {
+        int[] leftTop = {0, 0};
+        //获取输入框当前的location位置
+        et.getLocationInWindow(leftTop);
+        int left = leftTop[0];
+        int top = leftTop[1];
+        int bottom = top + et.getHeight();
+        int right = left + et.getWidth();
+        if (event.getX() > left && event.getX() < right
+                && event.getY() > top && event.getY() < bottom) {
+            // 点击的是输入框区域，保留点击EditText的事件
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(0, 0);//用于屏蔽 activity 默认的转场动画效果
+    }
+
     private class MultiAdapter extends BaseArrayRecyclerAdapter<MobileUser> {
-        private OnItemRemoveListener onItemRemoveListener;
 
         public MultiAdapter(List<MobileUser> mDatas) {
             super(mDatas);
-        }
-
-        public void setOnItemRemoveListener(OnItemRemoveListener onItemRemoveListener) {
-            this.onItemRemoveListener = onItemRemoveListener;
         }
 
         @Override
@@ -322,21 +383,17 @@ public class MultiSearchUsersActivity extends BaseActivity implements XRecyclerV
 
         @Override
         public void onBindHoder(RecyclerHolder holder, MobileUser user, final int position) {
-            Button bt_delete = holder.obtainView(R.id.bt_delete);
+            ImageView iv_ico = holder.obtainView(R.id.iv_ico);
             TextView tv_name = holder.obtainView(R.id.tv_name);
+            TextView tv_dept = holder.obtainView(R.id.tv_dept);
             tv_name.setText(user.getRealName());
-            bt_delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (onItemRemoveListener != null) {
-                        onItemRemoveListener.onItemRemove(position);
-                    }
-                }
-            });
+            GlideImgManager.loadCircleImage(context, user.getAvatar(), R.drawable.user_default, R.drawable.user_default, iv_ico);
+            if (TextUtils.isEmpty(user.getDeptName())) {
+                tv_dept.setVisibility(View.GONE);
+            } else {
+                tv_dept.setText(user.getDeptName());
+                tv_dept.setVisibility(View.VISIBLE);
+            }
         }
-    }
-
-    public interface OnItemRemoveListener {
-        void onItemRemove(int positioin);
     }
 }

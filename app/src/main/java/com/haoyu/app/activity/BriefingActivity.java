@@ -2,6 +2,7 @@ package com.haoyu.app.activity;
 
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -9,11 +10,12 @@ import android.widget.LinearLayout;
 import com.haoyu.app.adapter.BriefingAdapter;
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
-import com.haoyu.app.basehelper.BaseRecyclerAdapter;
 import com.haoyu.app.entity.BriefingEntity;
 import com.haoyu.app.entity.BriefingsResult;
 import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.lego.teach.R;
+import com.haoyu.app.swipe.OnActivityTouchListener;
+import com.haoyu.app.swipe.RecyclerTouchListener;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.AppToolBar;
@@ -32,7 +34,7 @@ import okhttp3.Request;
  * 描述:研修简报列表
  * 作者:马飞奔 Administrator
  */
-public class BriefingActivity extends BaseActivity implements XRecyclerView.LoadingListener {
+public class BriefingActivity extends BaseActivity implements XRecyclerView.LoadingListener, RecyclerTouchListener.RecyclerTouchListenerHelper {
     private BriefingActivity context = this;
     @BindView(R.id.toolBar)
     AppToolBar toolBar;
@@ -42,16 +44,18 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
     LoadFailView loadFailView;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
-    @BindView(R.id.emptyBrief)
-    LinearLayout emptyBrief;
-    @BindView(R.id.bt_addBrief)
-    ImageView bt_addBrief;
-    private List<BriefingEntity> brirfList = new ArrayList<>();
+    @BindView(R.id.ll_empty)
+    LinearLayout ll_empty;
+    @BindView(R.id.iv_add)
+    ImageView iv_add;
+    private List<BriefingEntity> mDatas = new ArrayList<>();
     private BriefingAdapter adapter;
     private String relationId, relationType, type;
     private int page = 1;
     private boolean isRefresh, isLoadMore;
     private int index = -1;
+    private RecyclerTouchListener onTouchListener;
+    private OnActivityTouchListener touchListener;
 
     @Override
     public int setLayoutResID() {
@@ -66,10 +70,11 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         xRecyclerView.setLayoutManager(layoutManager);
-        adapter = new BriefingAdapter(brirfList, true);
+        adapter = new BriefingAdapter(mDatas);
         xRecyclerView.setAdapter(adapter);
         xRecyclerView.setLoadingListener(context);
-        bt_addBrief.setVisibility(View.VISIBLE);
+        onTouchListener = new RecyclerTouchListener(context, xRecyclerView);
+        xRecyclerView.addOnItemTouchListener(onTouchListener);
     }
 
     public void initData() {
@@ -114,9 +119,11 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
                         xRecyclerView.refreshComplete(true);
                     } else if (isLoadMore) {
                         xRecyclerView.loadMoreComplete(true);
+                        xRecyclerView.setLoadingMoreEnabled(false);
                     } else {
+                        xRecyclerView.setLoadingMoreEnabled(false);
                         xRecyclerView.setVisibility(View.GONE);
-                        emptyBrief.setVisibility(View.VISIBLE);
+                        ll_empty.setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -128,11 +135,11 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
             xRecyclerView.setVisibility(View.VISIBLE);
         if (isRefresh) {
             xRecyclerView.refreshComplete(true);
-            brirfList.clear();
+            mDatas.clear();
         } else if (isLoadMore) {
             xRecyclerView.loadMoreComplete(true);
         }
-        brirfList.addAll(announcements);
+        mDatas.addAll(announcements);
         adapter.notifyDataSetChanged();
         if (paginator != null && paginator.getHasNextPage()) {
             xRecyclerView.setLoadingMoreEnabled(true);
@@ -149,7 +156,7 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
                 finish();
             }
         });
-        bt_addBrief.setOnClickListener(new View.OnClickListener() {
+        iv_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, BriefingEditActivity.class);
@@ -158,34 +165,42 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
                 startActivityForResult(intent, 1);
             }
         });
-        adapter.setDisposeCallBack(new BriefingAdapter.onDisposeCallBack() {
+        onTouchListener.setClickable(new RecyclerTouchListener.OnRowClickListener() {
             @Override
-            public void onAlter(int position, BriefingEntity entity) {
-                index = position;
-                Intent intent = new Intent(context, BriefingEditActivity.class);
-                intent.putExtra("briefId", entity.getId());
-                intent.putExtra("isAlter", true);
-                startActivityForResult(intent, 2);
-            }
-
-            @Override
-            public void onDelete(int position, BriefingEntity entity) {
-                deleteBrief(entity.getId(), position);
-            }
-        });
-        adapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
+            public void onRowClicked(int position) {
                 int select = position - 1;
-                if (select >= 0 && select < brirfList.size()) {
-                    String id = brirfList.get(select).getId();
+                if (select >= 0 && select < mDatas.size()) {
+                    String id = mDatas.get(select).getId();
                     Intent intent = new Intent(context, BriefingDetailActivity.class);
                     intent.putExtra("relationId", id);
                     startActivity(intent);
                 }
             }
-        });
 
+            @Override
+            public void onIndependentViewClicked(int independentViewID, int position) {
+
+            }
+        }).setSwipeOptionViews(R.id.bt_alter, R.id.bt_delete).setSwipeable(R.id.ll_rowFG, R.id.ll_rowBG, new RecyclerTouchListener.OnSwipeOptionsClickListener() {
+            @Override
+            public void onSwipeOptionClicked(int viewID, int position) {
+                int selected = position - 1;
+                if (viewID == R.id.bt_alter) {
+                    if (selected >= 0 && selected < mDatas.size()) {
+                        index = selected;
+                        String briefId = mDatas.get(index).getId();
+                        Intent intent = new Intent(context, BriefingEditActivity.class);
+                        intent.putExtra("briefId", briefId);
+                        intent.putExtra("isAlter", true);
+                        startActivityForResult(intent, 2);
+                    }
+                } else if (viewID == R.id.bt_delete) {
+                    if (selected >= 0 && selected < mDatas.size()) {
+                        delete(selected);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -204,7 +219,8 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
         initData();
     }
 
-    private void deleteBrief(String id, final int position) {
+    private void delete(final int position) {
+        String id = mDatas.get(position).getId();
         String url = Constants.OUTRT_NET + "/m/briefing/" + id;
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
@@ -222,10 +238,10 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
             public void onResponse(BaseResponseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-                    brirfList.remove(position);
+                    mDatas.remove(position);
                     adapter.notifyDataSetChanged();
-                    if (brirfList.size() == 0) {
-                        emptyBrief.setVisibility(View.VISIBLE);
+                    if (mDatas.size() == 0) {
+                        ll_empty.setVisibility(View.VISIBLE);
                         xRecyclerView.setVisibility(View.GONE);
                     }
                 } else {
@@ -242,19 +258,39 @@ public class BriefingActivity extends BaseActivity implements XRecyclerView.Load
             case 1:
                 if (resultCode == RESULT_OK && data != null) {
                     BriefingEntity entity = (BriefingEntity) data.getSerializableExtra("entity");
-                    brirfList.add(0, entity);
-                    adapter.notifyDataSetChanged();
-                    xRecyclerView.setVisibility(View.VISIBLE);
-                    emptyBrief.setVisibility(View.GONE);
+                    if (!xRecyclerView.isLoadingMoreEnabled()) {
+                        mDatas.add(entity);
+                        adapter.notifyDataSetChanged();
+                    }
+                    if (mDatas.size() > 0) {
+                        if (xRecyclerView.getVisibility() != View.VISIBLE) {
+                            xRecyclerView.setVisibility(View.VISIBLE);
+                        }
+                        if (ll_empty.getVisibility() != View.GONE) {
+                            ll_empty.setVisibility(View.GONE);
+                        }
+                    }
                 }
                 break;
             case 2:
                 if (resultCode == RESULT_OK && data != null) {
                     BriefingEntity entity = (BriefingEntity) data.getSerializableExtra("entity");
-                    brirfList.set(index, entity);
+                    mDatas.set(index, entity);
                     adapter.notifyDataSetChanged();
                 }
                 break;
         }
+    }
+
+
+    @Override
+    public void setOnActivityTouchListener(OnActivityTouchListener listener) {
+        touchListener = listener;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (touchListener != null) touchListener.getTouchCoordinates(ev);
+        return super.dispatchTouchEvent(ev);
     }
 }

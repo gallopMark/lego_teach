@@ -61,7 +61,7 @@ public class WSSearchMebActivity extends BaseActivity implements View.OnClickLis
 
     @Override
     public int setLayoutResID() {
-        return R.layout.activity_wssearchmeb;
+        return R.layout.activity_searchuser;
     }
 
     @Override

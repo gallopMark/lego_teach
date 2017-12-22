@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.ContextCompat;
-import android.text.Layout;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -277,8 +276,9 @@ public class CmtsMovEditActivity extends BaseActivity implements View.OnClickLis
                 break;
             case R.id.ll_partUser:
                 Intent intent = new Intent(context, MultiSearchUsersActivity.class);
-                intent.putExtra("mobileUserList", (Serializable) selectUsers);
+                intent.putExtra("users", (Serializable) selectUsers);
                 startActivityForResult(intent, 1);
+                overridePendingTransition(0, 0);//用于屏蔽 activity 默认的转场动画效果
                 break;
         }
     }
@@ -441,11 +441,11 @@ public class CmtsMovEditActivity extends BaseActivity implements View.OnClickLis
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == 1) {
-            List<MobileUser> mobileUserList = (List<MobileUser>) data.getSerializableExtra("mobileUserList");
-            if (mobileUserList != null && mobileUserList.size() > 0) {
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+            List<MobileUser> users = (List<MobileUser>) data.getSerializableExtra("users");
+            if (users != null && users.size() > 0) {
                 selectUsers.clear();
-                selectUsers.addAll(mobileUserList);
+                selectUsers.addAll(users);
                 setUser_text();
             }
         }
@@ -461,22 +461,11 @@ public class CmtsMovEditActivity extends BaseActivity implements View.OnClickLis
             }
         }
         tv_partUser.setText(sb);
-        if (overLine(tv_partUser)) {
-            tv_partUser.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+        if (selectUsers.size() > 4) {
             sb.append(" 等人");
             tv_partUser.setText(sb);
+            tv_partUser.setEllipsize(TextUtils.TruncateAt.MIDDLE);
         }
-    }
-
-    private boolean overLine(TextView tv) {
-        Layout layout = tv.getLayout();
-        if (layout != null && layout.getLineCount() > 0) {
-            int lines = layout.getLineCount();//获取textview行数
-            if (layout.getEllipsisCount(lines - 1) > 0) {//获取最后一行省略掉的字符数，大于0就代表超过行数
-                return true;
-            }
-        }
-        return false;
     }
 
     private void setTimeDialog(final TextView tv, final int type) {

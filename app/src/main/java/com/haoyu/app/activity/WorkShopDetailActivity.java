@@ -132,7 +132,7 @@ public class WorkShopDetailActivity extends BaseActivity implements PullToLoadMo
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new BriefingAdapter(mDatas, false);
+        adapter = new BriefingAdapter(mDatas);
         recyclerView.setAdapter(adapter);
     }
 

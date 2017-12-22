@@ -463,15 +463,13 @@
 
                 <TextView
                     android:id="@+id/tv_partUser"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_weight="1"
                     android:drawablePadding="@dimen/margin_size_10"
                     android:drawableRight="@drawable/go_into"
-                    android:ellipsize="end"
                     android:hint="点击选择受邀人员"
-                    android:maxLines="1"
+                    android:singleLine="true"
                     android:padding="@dimen/margin_size_14"
                     android:textColor="@color/darkorange"
                     android:textSize="@dimen/font_size_16" />
