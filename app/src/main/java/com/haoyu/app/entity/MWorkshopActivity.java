@@ -10,7 +10,7 @@ import java.io.Serializable;
  * 描述:
  * 作者:马飞奔 Administrator
  */
-public class MWorkshopActivity implements Serializable {
+public class MWorkshopActivity implements Serializable, MultiItemEntity {
     /**
      * id	活动ID	String	Y
      * title	活动标题	String	Y
@@ -25,20 +25,6 @@ public class MWorkshopActivity implements Serializable {
      * 已完成
      * 进行中
      */
-    public static String TYPE_DISCUSSION = "discussion";
-    public static String TYPE_LESSONPLAN = "lesson_plan";
-    public static String TYPE_LCEC = "lcec";
-    public static String TYPE_TEST = "test";
-    public static String TYPE_DEBATE = "debate";
-    public static String TYPE_SURVEY = "survey";
-    public static String TYPE_VIDEO = "video";
-    public static String DISCUSSION_CONTENT = "教学研讨";
-    public static String LESSONPLAN_CONTENT = "集体备课";
-    public static String LCEC_CONTENT = "听课评课";
-    public static String TEST_CONTENT = "在线测验";
-    public static String DEBATE_CONTENT = "在线辩论";
-    public static String SURVEY_CONTENT = "调查问卷";
-    public static String VIDEO_CONTENT = "教学观摩";
     @Expose
     @SerializedName("id")
     private String id;
@@ -62,6 +48,9 @@ public class MWorkshopActivity implements Serializable {
     @Expose
     @SerializedName("position")
     private int position;
+
+    private boolean visible;
+    private MWorkshopSection tag;
 
     public TimePeriod getTimePeriod() {
         return timePeriod;
@@ -117,5 +106,42 @@ public class MWorkshopActivity implements Serializable {
 
     public void setCompleteState(String completeState) {
         this.completeState = completeState;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public MWorkshopSection getTag() {
+        return tag;
+    }
+
+    public void setTag(MWorkshopSection tag) {
+        this.tag = tag;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof MWorkshopActivity)) {
+            return false;
+        }
+        MWorkshopActivity section = (MWorkshopActivity) obj;
+        if (this.id.equals(section.id)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int getItemType() {
+        return 2;
     }
 }

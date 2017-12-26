@@ -1,6 +1,5 @@
 package com.haoyu.app.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
@@ -14,6 +13,7 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.haoyu.app.adapter.WorkShopSectionAdapter;
+import com.haoyu.app.adapter.WSTaskAdapter;
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.dialog.CommentDialog;
@@ -31,8 +31,11 @@ import com.haoyu.app.entity.AppActivityViewEntity;
 import com.haoyu.app.entity.AppActivityViewResult;
 import com.haoyu.app.entity.CourseSectionActivity;
 import com.haoyu.app.entity.DiscussEntity;
+import com.haoyu.app.entity.MWSActivityCrease;
+import com.haoyu.app.entity.MWSSectionCrease;
 import com.haoyu.app.entity.MWorkshopActivity;
 import com.haoyu.app.entity.MWorkshopSection;
+import com.haoyu.app.entity.MultiItemEntity;
 import com.haoyu.app.entity.TimePeriod;
 import com.haoyu.app.entity.VideoMobileEntity;
 import com.haoyu.app.entity.WSActivities;
@@ -41,6 +44,8 @@ import com.haoyu.app.entity.WorkShopMobileUser;
 import com.haoyu.app.entity.WorkShopResult;
 import com.haoyu.app.entity.WorkshopPhaseResult;
 import com.haoyu.app.lego.teach.R;
+import com.haoyu.app.swipe.OnActivityTouchListener;
+import com.haoyu.app.swipe.RecyclerTouchListener;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.NetStatusUtil;
 import com.haoyu.app.utils.OkHttpClientManager;
@@ -71,7 +76,7 @@ import okhttp3.Request;
  * 描述:工作坊首页
  * 作者:马飞奔 Administrator
  */
-public class WSHomePageActivity extends BaseActivity implements View.OnClickListener {
+public class WSHomePageActivity extends BaseActivity implements View.OnClickListener, RecyclerTouchListener.RecyclerTouchListenerHelper {
     private WSHomePageActivity context;
     @BindView(R.id.toolBar)
     AppToolBar toolBar;
@@ -102,11 +107,13 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
     @BindView(R.id.tv_bottom)
     TextView tv_bottom;
     private String workshopId, role;
-    private List<MWorkshopSection> sectionList = new ArrayList<>();
-    private WorkShopSectionAdapter mAdapter;
-    private int alterPosition, activityIndex;
-    private final int REQUEST_ACTIVITY = 1;
+    private List<MultiItemEntity> mDatas = new ArrayList<>();
+    private WSTaskAdapter mAdapter;
+    private int stageIndex;
+    private final int REQUEST_STAGE = 1, REQUEST_ACTIVITY = 2;
     private int qualifiedPoint;  //工作坊达标积分
+    private RecyclerTouchListener onTouchListener;
+    private OnActivityTouchListener touchListener;
 
     @Override
     public int setLayoutResID() {
@@ -124,8 +131,10 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-        mAdapter = new WorkShopSectionAdapter(context, sectionList);
+        mAdapter = new WSTaskAdapter(context, mDatas);
         recyclerView.setAdapter(mAdapter);
+        onTouchListener = new RecyclerTouchListener(context, recyclerView);
+        recyclerView.addOnItemTouchListener(onTouchListener);
     }
 
     private void setToolBar() {
@@ -282,10 +291,24 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
     }
 
     private void updateUI(List<MWorkshopSection> sections) {
-        if (sections != null && sections.size() > 0) {
+        if (sections.size() > 0) {
+            List<MultiItemEntity> list = new ArrayList<>();
             recyclerView.setVisibility(View.VISIBLE);
-            mAdapter.addAll(sections);
-            mAdapter.notifyDataSetChanged();
+            for (int i = 0; i < sections.size(); i++) {
+                MWorkshopSection section = sections.get(i);
+                section.setPosition(i);
+                MWSActivityCrease crease = new MWSActivityCrease();
+                crease.setTag(section);
+                section.setCrease(crease);
+                list.add(section);
+                for (int j = 0; j < section.getActivities().size(); j++) {
+                    MWorkshopActivity activity = section.getActivities().get(j);
+                    activity.setTag(section);
+                    list.add(activity);
+                }
+                list.add(crease);
+            }
+            mAdapter.addItemEntities(list);
         } else {
             recyclerView.setVisibility(View.GONE);
             tv_emptyTask.setVisibility(View.VISIBLE);
@@ -303,44 +326,45 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
         ll_question.setOnClickListener(context);
         ll_exchange.setOnClickListener(context);
         tv_bottom.setOnClickListener(context);
-        mAdapter.setOnSectionLongClickListener(new WorkShopSectionAdapter.OnSectionLongClickListener() {
+        setTaskAdapter();
+    }
+
+    private void setTaskAdapter() {
+        onTouchListener.setClickable(new RecyclerTouchListener.OnRowClickListener() {
+            @Override
+            public void onRowClicked(int position) {
+                mAdapter.setSelected(position);
+                MWorkshopActivity activity = (MWorkshopActivity) mDatas.get(position);
+                getActivityInfo(activity.getId());
+            }
+
+            @Override
+            public void onIndependentViewClicked(int independentViewID, int position) {
+
+            }
+        }).setIgnoredViewTypes(1, 3, 4).setSwipeOptionViews(R.id.bt_delete).setSwipeable(R.id.ll_rowFG, R.id.bt_delete, new RecyclerTouchListener.OnSwipeOptionsClickListener() {
+            @Override
+            public void onSwipeOptionClicked(int viewID, final int position) {
+                MaterialDialog dialog = new MaterialDialog(context);
+                dialog.setTitle("温馨提示");
+                dialog.setMessage("确定删除此任务吗？");
+                dialog.setPositiveButton("确定", new MaterialDialog.ButtonClickListener() {
+                    @Override
+                    public void onClick(View v, AlertDialog dialog) {
+                        deleteActivity(position);
+                    }
+                });
+                dialog.setNegativeButton("取消", null);
+                dialog.show();
+            }
+        });
+        mAdapter.setOnSectionLongClickListener(new WSTaskAdapter.OnSectionLongClickListener() {
             @Override
             public void onLongClickListener(String taskId, int position, MWorkshopSection entity) {
                 showTaskEditDialog(taskId, position, entity);
             }
         });
-        mAdapter.setItemCallBack(new WorkShopSectionAdapter.ActivityItemCallBack() {
-            @Override
-            public void itemCallBack(final MWorkshopActivity activity, final int position) {
-                  /*进入活动*/
-                String url = Constants.OUTRT_NET + "/student_" + workshopId + "/m/activity/wsts/" + activity.getId() + "/view";
-                addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<AppActivityViewResult>() {
-                    @Override
-                    public void onBefore(Request request) {
-                        showTipDialog();
-                    }
-
-                    @Override
-                    public void onError(Request request, Exception e) {
-                        hideTipDialog();
-                        onNetWorkError(context);
-                    }
-
-                    @Override
-                    public void onResponse(AppActivityViewResult response) {
-                        hideTipDialog();
-                        EnterActivity(response);
-                    }
-                }));
-            }
-
-            @Override
-            public void onDelete(int mainIndex, int position) {
-                deleteActivity(mainIndex, position);
-            }
-        });
-
-        mAdapter.setAddTaskListener(new WorkShopSectionAdapter.OnAddTaskListener() {
+        mAdapter.setAddTaskListener(new WSTaskAdapter.OnAddTaskListener() {
             private String startTime, endTime;
 
             @Override
@@ -380,27 +404,26 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
                 } else if (time.length() == 0) {
                     toast(context, "请选择研修时间");
                 } else {
+                    removeFromBottom();
                     addStage(title, startTime, endTime, sortNum);
                     task_title.setText(null);
                     tv_researchTime.setText(null);
-                    mAdapter.setAddTask(false);
-                    tv_bottom.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void cancel() {
-                tv_bottom.setVisibility(View.VISIBLE);
+                removeFromBottom();
             }
         });
 
-        mAdapter.setAddActivityCallBack(new WorkShopSectionAdapter.AddActivityCallBack() {
+        mAdapter.setOnTaskEditListener(new WSTaskAdapter.OnTaskEditListener() {
             @Override
-            public void addActivity(int type, String workSectionId, int position) {
-                activityIndex = position;
+            public void onTaskEdit(int type, String sectionId, int position) {
+                stageIndex = position;
                 Intent intent = new Intent();
                 intent.putExtra("workshopId", workshopId);
-                intent.putExtra("workSectionId", workSectionId);
+                intent.putExtra("workSectionId", sectionId);
                 if (type == 1) {
                     intent.setClass(context, WSTDEditActivity.class);
                 } else if (type == 2) {
@@ -413,73 +436,31 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
         });
     }
 
-    private void showTaskEditDialog(final String taskId, final int position, final MWorkshopSection entity) {
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_edit_workshop_task, null);
-        TextView tv_addTask = view.findViewById(R.id.tv_addTask);
-        TextView tv_alterTask = view.findViewById(R.id.tv_alterTask);
-        TextView tv_deleteTask = view.findViewById(R.id.tv_deleteTask);
-        TextView tv_cancel = view.findViewById(R.id.tv_cancel);
-        final AlertDialog dialog = new AlertDialog.Builder(context).create();
-        View.OnClickListener listener = new View.OnClickListener() {
+    /*获取活动相关信息*/
+    private void getActivityInfo(String activityId) {
+        String url = Constants.OUTRT_NET + "/student_" + workshopId + "/m/activity/wsts/" + activityId + "/view";
+        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<AppActivityViewResult>() {
             @Override
-            public void onClick(View view) {
-                switch (view.getId()) {
-                    case R.id.tv_addTask:
-                        smoothToBottom();
-                        break;
-                    case R.id.tv_alterTask:
-                        alterPosition = position;
-                        Intent intent = new Intent(context, WorkShopEditTaskActivity.class);
-                        intent.putExtra("title", entity.getTitle());
-                        if (entity.getTimePeriod() != null) {
-                            intent.putExtra("startTime", entity.getTimePeriod().getStartTime());
-                            intent.putExtra("endTime", entity.getTimePeriod().getEndTime());
-                        }
-                        intent.putExtra("workShopId", workshopId);
-                        intent.putExtra("relationId", taskId);
-                        startActivityForResult(intent, 200);
-                        break;
-                    case R.id.tv_deleteTask:
-                        deleteTask(taskId, position);
-                        break;
-                    case R.id.tv_cancel:
-                        break;
-                }
-                dialog.dismiss();
+            public void onBefore(Request request) {
+                showTipDialog();
             }
-        };
-        tv_addTask.setOnClickListener(listener);
-        tv_alterTask.setOnClickListener(listener);
-        tv_deleteTask.setOnClickListener(listener);
-        tv_cancel.setOnClickListener(listener);
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.setCancelable(true);
-        dialog.show();
-        dialog.getWindow().setLayout(ScreenUtils.getScreenWidth(context), LinearLayout.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setWindowAnimations(R.style.dialog_anim);
-        dialog.getWindow().setContentView(view);
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
+
+            @Override
+            public void onError(Request request, Exception e) {
+                hideTipDialog();
+                onNetWorkError(context);
+            }
+
+            @Override
+            public void onResponse(AppActivityViewResult response) {
+                hideTipDialog();
+                getIntoActivity(response);
+            }
+        }));
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK && requestCode == 200) {
-            String title = data.getStringExtra("title");
-            TimePeriod timePeriod = (TimePeriod) data.getSerializableExtra("timePeriod");
-            sectionList.get(alterPosition).setTitle(title);
-            sectionList.get(alterPosition).setTimePeriod(timePeriod);
-            mAdapter.notifyItemChanged(alterPosition);
-        } else if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_ACTIVITY) {
-            if (data != null) {
-                MWorkshopActivity mWorkshopActivity = (MWorkshopActivity) data.getSerializableExtra("activity");
-                sectionList.get(activityIndex).getActivities().add(mWorkshopActivity);
-                mAdapter.notifyItemChanged(activityIndex);
-            }
-        }
-    }
-
-    private void EnterActivity(AppActivityViewResult response) {
+    /*进入活动*/
+    private void getIntoActivity(AppActivityViewResult response) {
         if (response != null && response.getResponseData() != null
                 && response.getResponseData().getmActivityResult() != null
                 && response.getResponseData().getmActivityResult().getmActivity() != null) {
@@ -684,8 +665,9 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
     }
 
     //删除活动
-    private void deleteActivity(final int mainIndex, final int position) {
-        String activityId = sectionList.get(mainIndex).getActivities().get(position).getId();
+    private void deleteActivity(final int position) {
+        MWorkshopActivity activity = (MWorkshopActivity) mDatas.get(position);
+        String activityId = activity.getId();
         String url = Constants.OUTRT_NET + "/master_" + workshopId + "/unique_uid_" + getUserId() + "/m/activity/wsts/" + activityId;
         Map<String, String> map = new HashMap<>();
         map.put("_method", "delete");
@@ -705,15 +687,94 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
             public void onResponse(BaseResponseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-                    sectionList.get(mainIndex).getActivities().remove(position);
-                    mAdapter.setPressIndex(mainIndex, position);
-                    mAdapter.notifyItemChanged(mainIndex);
+                    mAdapter.removeActivity(position);
                 } else {
                     toast(context, "删除失败，请稍后再试");
                 }
             }
         }, map));
+    }
 
+    private void showTaskEditDialog(final String taskId, final int position, final MWorkshopSection entity) {
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_edit_workshop_task, null);
+        TextView tv_addTask = view.findViewById(R.id.tv_addTask);
+        TextView tv_alterTask = view.findViewById(R.id.tv_alterTask);
+        TextView tv_deleteTask = view.findViewById(R.id.tv_deleteTask);
+        TextView tv_cancel = view.findViewById(R.id.tv_cancel);
+        final AlertDialog dialog = new AlertDialog.Builder(context).create();
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (view.getId()) {
+                    case R.id.tv_addTask:
+                        smoothToBottom();
+                        break;
+                    case R.id.tv_alterTask:
+                        stageIndex = position;
+                        Intent intent = new Intent(context, WorkShopEditTaskActivity.class);
+                        intent.putExtra("title", entity.getTitle());
+                        if (entity.getTimePeriod() != null) {
+                            intent.putExtra("startTime", entity.getTimePeriod().getStartTime());
+                            intent.putExtra("endTime", entity.getTimePeriod().getEndTime());
+                        }
+                        intent.putExtra("workShopId", workshopId);
+                        intent.putExtra("relationId", taskId);
+                        startActivityForResult(intent, REQUEST_STAGE);
+                        break;
+                    case R.id.tv_deleteTask:
+                        MaterialDialog mDialog = new MaterialDialog(context);
+                        mDialog.setTitle("温馨提示");
+                        mDialog.setMessage("确定删除此阶段吗？");
+                        mDialog.setPositiveButton("确定", new MaterialDialog.ButtonClickListener() {
+                            @Override
+                            public void onClick(View v, AlertDialog dialog) {
+                                deleteTask(taskId, position);
+                            }
+                        });
+                        mDialog.setNegativeButton("取消", null);
+                        mDialog.show();
+                        break;
+                    case R.id.tv_cancel:
+                        break;
+                }
+                dialog.dismiss();
+            }
+        };
+        tv_addTask.setOnClickListener(listener);
+        tv_alterTask.setOnClickListener(listener);
+        tv_deleteTask.setOnClickListener(listener);
+        tv_cancel.setOnClickListener(listener);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.setCancelable(true);
+        dialog.show();
+        dialog.getWindow().setLayout(ScreenUtils.getScreenWidth(context), LinearLayout.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setWindowAnimations(R.style.dialog_anim);
+        dialog.getWindow().setContentView(view);
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_STAGE:
+                if (resultCode == RESULT_OK && data != null) {
+                    String title = data.getStringExtra("title");
+                    TimePeriod timePeriod = (TimePeriod) data.getSerializableExtra("timePeriod");
+                    MWorkshopSection section = (MWorkshopSection) mDatas.get(stageIndex);
+                    section.setTitle(title);
+                    section.setTimePeriod(timePeriod);
+                    mDatas.set(stageIndex, section);
+                    mAdapter.notifyItemChanged(stageIndex);
+                }
+                break;
+            case REQUEST_ACTIVITY:
+                if (resultCode == RESULT_OK && data != null) {
+                    MWorkshopActivity activity = (MWorkshopActivity) data.getSerializableExtra("activity");
+                    mAdapter.addActivity(stageIndex, activity);
+                }
+                break;
+        }
     }
 
     @Override
@@ -737,19 +798,32 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
     }
 
     private void smoothToBottom() {
-        mAdapter.setAddTask(true);
+        if (mDatas.size() == 0) {
+            recyclerView.setVisibility(View.VISIBLE);
+            tv_emptyTask.setVisibility(View.GONE);
+        }
+        MWSSectionCrease crease = new MWSSectionCrease();
+        mAdapter.addItem(crease);
+        tv_bottom.setVisibility(View.GONE);
         ssv_content.postDelayed(new Runnable() {
             @Override
             public void run() {
                 ssv_content.fullScroll(ScrollView.FOCUS_DOWN);
-                tv_bottom.setVisibility(View.GONE);
             }
         }, 10);
     }
 
+    private void removeFromBottom() {
+        if (mDatas.size() == 0) {
+            recyclerView.setVisibility(View.GONE);
+            tv_emptyTask.setVisibility(View.VISIBLE);
+        }
+        mAdapter.removeItem(mDatas.size() - 1);
+        tv_bottom.setVisibility(View.VISIBLE);
+    }
+
     //添加新阶段
     private void addStage(String title, String startTime, String endTime, int sortNum) {
-        showTipDialog();
         String url = Constants.OUTRT_NET + "/master_" + workshopId + "/unique_uid_" + getUserId() + "/m/workshop_section";
         Map<String, String> map = new HashMap<>();
         map.put("workshopId", workshopId);
@@ -758,6 +832,11 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
         map.put("endTime", endTime);
         map.put("sortNum", String.valueOf(sortNum));
         addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<WorkshopPhaseResult>() {
+            @Override
+            public void onBefore(Request request) {
+                showTipDialog();
+            }
+
             @Override
             public void onError(Request request, Exception e) {
                 hideTipDialog();
@@ -773,8 +852,11 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
                         recyclerView.setVisibility(View.VISIBLE);
                     }
                     MWorkshopSection section = response.getResponseData();
-                    sectionList.add(section);
-                    mAdapter.notifyItemInserted(sectionList.indexOf(section));
+                    MWSActivityCrease crease = new MWSActivityCrease();
+                    crease.setTag(section);
+                    section.setCrease(crease);
+                    mAdapter.addItem(section);
+                    mAdapter.addItem(crease);
                 } else {
                     toastFullScreen("添加失败", false);
                 }
@@ -803,10 +885,8 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
             public void onResponse(BaseResponseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-                    sectionList.remove(position);
-                    mAdapter.notifyItemRangeRemoved(position, 1);
-                    mAdapter.notifyItemRangeChanged(position, sectionList.size());
-                    if (sectionList.size() == 0) {
+                    mAdapter.removeItem(position);
+                    if (mDatas.size() == 0) {
                         tv_empty.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
                     }
@@ -891,5 +971,20 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
         pw.setOutsideTouchable(true);
         View view = toolBar.getIv_rightImage();
         pw.showAsDropDown(view, 0, -10);
+    }
+
+    @Override
+    public void setOnActivityTouchListener(OnActivityTouchListener listener) {
+        this.touchListener = listener;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (touchListener != null) touchListener.getTouchCoordinates(ev);
+        // 必不可少，否则所有的组件都不会有TouchEvent了
+        if (getWindow().superDispatchTouchEvent(ev)) {
+            return true;
+        }
+        return onTouchEvent(ev);
     }
 }
