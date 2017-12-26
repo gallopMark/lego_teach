@@ -21,7 +21,7 @@
         android:id="@+id/ll_rowFG"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/margin_size_23"
+        android:layout_marginLeft="@dimen/margin_size_22"
         android:background="@drawable/item_click_selector"
         android:orientation="horizontal">
 

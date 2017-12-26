@@ -1,6 +1,6 @@
 package com.haoyu.app.adapter;
 
-import android.app.Activity;
+import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.RecyclerView;
@@ -28,14 +28,14 @@ import java.util.List;
  */
 
 public class WSTaskAdapter extends BaseArrayRecyclerAdapter<MultiItemEntity> {
-    private Activity context;
+    private Context context;
     private ArrayMap<Integer, Boolean> collapses = new ArrayMap<>();
     private int selected = -1, sectionSize;
     private OnSectionLongClickListener onSectionLongClickListener;
     private OnAddTaskListener addTaskListener;
     private OnTaskEditListener onTaskEditListener;
 
-    public WSTaskAdapter(Activity context, List<MultiItemEntity> mDatas) {
+    public WSTaskAdapter(Context context, List<MultiItemEntity> mDatas) {
         super(mDatas);
         this.context = context;
     }

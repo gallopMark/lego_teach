@@ -753,75 +753,6 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
         dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case REQUEST_STAGE:
-                if (resultCode == RESULT_OK && data != null) {
-                    String title = data.getStringExtra("title");
-                    TimePeriod timePeriod = (TimePeriod) data.getSerializableExtra("timePeriod");
-                    MWorkshopSection section = (MWorkshopSection) mDatas.get(stageIndex);
-                    section.setTitle(title);
-                    section.setTimePeriod(timePeriod);
-                    mDatas.set(stageIndex, section);
-                    mAdapter.notifyItemChanged(stageIndex);
-                }
-                break;
-            case REQUEST_ACTIVITY:
-                if (resultCode == RESULT_OK && data != null) {
-                    MWorkshopActivity activity = (MWorkshopActivity) data.getSerializableExtra("activity");
-                    mAdapter.addActivity(stageIndex, activity);
-                }
-                break;
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.ll_question:
-                Intent intent = new Intent(context, WorkshopQuestionActivity.class);
-                intent.putExtra("relationId", workshopId);
-                startActivity(intent);
-                break;
-            case R.id.ll_exchange:
-                Intent intent2 = new Intent(context, FreeChatActiviy.class);
-                intent2.putExtra("relationId", workshopId);
-                intent2.putExtra("role", role);
-                startActivity(intent2);
-                break;
-            case R.id.tv_bottom:
-                smoothToBottom();
-                break;
-        }
-    }
-
-    private void smoothToBottom() {
-        if (mDatas.size() == 0) {
-            recyclerView.setVisibility(View.VISIBLE);
-            tv_emptyTask.setVisibility(View.GONE);
-        }
-        MWSSectionCrease crease = new MWSSectionCrease();
-        mAdapter.addItem(crease);
-        tv_bottom.setVisibility(View.GONE);
-        ssv_content.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ssv_content.fullScroll(ScrollView.FOCUS_DOWN);
-            }
-        }, 10);
-    }
-
-    private void removeFromBottom() {
-        if (mDatas.size() == 0) {
-            recyclerView.setVisibility(View.GONE);
-            tv_emptyTask.setVisibility(View.VISIBLE);
-        }
-        mAdapter.removeItem(mDatas.size() - 1);
-        tv_bottom.setVisibility(View.VISIBLE);
-    }
-
     //添加新阶段
     private void addStage(String title, String startTime, String endTime, int sortNum) {
         String url = Constants.OUTRT_NET + "/master_" + workshopId + "/unique_uid_" + getUserId() + "/m/workshop_section";
@@ -895,6 +826,75 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
                 }
             }
         }, map));
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_STAGE:
+                if (resultCode == RESULT_OK && data != null) {
+                    String title = data.getStringExtra("title");
+                    TimePeriod timePeriod = (TimePeriod) data.getSerializableExtra("timePeriod");
+                    MWorkshopSection section = (MWorkshopSection) mDatas.get(stageIndex);
+                    section.setTitle(title);
+                    section.setTimePeriod(timePeriod);
+                    mDatas.set(stageIndex, section);
+                    mAdapter.notifyItemChanged(stageIndex);
+                }
+                break;
+            case REQUEST_ACTIVITY:
+                if (resultCode == RESULT_OK && data != null) {
+                    MWorkshopActivity activity = (MWorkshopActivity) data.getSerializableExtra("activity");
+                    mAdapter.addActivity(stageIndex, activity);
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.ll_question:
+                Intent intent = new Intent(context, WorkshopQuestionActivity.class);
+                intent.putExtra("relationId", workshopId);
+                startActivity(intent);
+                break;
+            case R.id.ll_exchange:
+                Intent intent2 = new Intent(context, FreeChatActiviy.class);
+                intent2.putExtra("relationId", workshopId);
+                intent2.putExtra("role", role);
+                startActivity(intent2);
+                break;
+            case R.id.tv_bottom:
+                smoothToBottom();
+                break;
+        }
+    }
+
+    private void smoothToBottom() {
+        if (mDatas.size() == 0) {
+            recyclerView.setVisibility(View.VISIBLE);
+            tv_emptyTask.setVisibility(View.GONE);
+        }
+        MWSSectionCrease crease = new MWSSectionCrease();
+        mAdapter.addItem(crease);
+        tv_bottom.setVisibility(View.GONE);
+        ssv_content.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ssv_content.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        }, 10);
+    }
+
+    private void removeFromBottom() {
+        if (mDatas.size() == 0) {
+            recyclerView.setVisibility(View.GONE);
+            tv_emptyTask.setVisibility(View.VISIBLE);
+        }
+        mAdapter.removeItem(mDatas.size() - 1);
+        tv_bottom.setVisibility(View.VISIBLE);
     }
 
     private void showPopupWindow() {
