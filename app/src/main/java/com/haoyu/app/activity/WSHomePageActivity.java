@@ -28,7 +28,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.haoyu.app.adapter.WSTaskAdapter;
+import com.haoyu.app.adapter.WSTaskEditAdapter;
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.dialog.DatePickerDialog;
@@ -119,7 +119,7 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
     TextView tv_bottom;
     private String workshopId, role;
     private List<MultiItemEntity> mDatas = new ArrayList<>();
-    private WSTaskAdapter mAdapter;
+    private WSTaskEditAdapter mAdapter;
     private int activityIndex;
     private final int REQUEST_ACTIVITY = 1;
     private int qualifiedPoint;  //工作坊达标积分
@@ -141,7 +141,7 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-        mAdapter = new WSTaskAdapter(context, mDatas);
+        mAdapter = new WSTaskEditAdapter(context, mDatas);
         recyclerView.setAdapter(mAdapter);
     }
 
@@ -356,12 +356,12 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
             public void onIndependentViewClicked(int independentViewID, int position) {
 
             }
-        }).setSwipeOptionViews(R.id.bt_alert, R.id.bt_delete)
+        }).setSwipeOptionViews(R.id.ll_alert, R.id.ll_delete)
                 .setSwipeable(R.id.ll_rowFG, R.id.ll_rowBG, new RecyclerTouchListener.OnSwipeOptionsClickListener() {
                     @Override
                     public void onSwipeOptionClicked(int viewID, final int position) {
                         int itemType = mDatas.get(position).getItemType();
-                        if (viewID == R.id.bt_alert) {
+                        if (viewID == R.id.ll_alert) {
                             if (itemType == 1) {
                                 MWorkshopSection section = (MWorkshopSection) mDatas.remove(position);
                                 MWSSectionCrease crease = new MWSSectionCrease();
@@ -427,7 +427,7 @@ public class WSHomePageActivity extends BaseActivity implements View.OnClickList
             }
         });
         recyclerView.addOnItemTouchListener(independentListener);
-        mAdapter.setOnEditTaskListener(new WSTaskAdapter.OnEditTaskListener() {
+        mAdapter.setOnEditTaskListener(new WSTaskEditAdapter.OnEditTaskListener() {
             private String startTime, endTime;
 
             @Override
