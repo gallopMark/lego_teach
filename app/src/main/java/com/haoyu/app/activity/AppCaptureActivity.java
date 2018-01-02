@@ -75,7 +75,7 @@ public class AppCaptureActivity extends BaseActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == CAMERA_OK && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == CAMERA_OK && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             requestCamera();
         } else {
             ll_noCamera.setVisibility(View.VISIBLE);
