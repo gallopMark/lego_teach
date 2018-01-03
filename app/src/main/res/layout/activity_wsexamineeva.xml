@@ -70,7 +70,7 @@
                 android:layout_marginLeft="@dimen/margin_size_16"
                 android:layout_marginRight="@dimen/margin_size_16"
                 android:layout_marginTop="@dimen/margin_size_12"
-                android:text="@string/wsexamine_excellent"
+                android:text="@string/wsexamine_qualified"
                 android:textSize="@dimen/font_size_16" />
 
 
@@ -94,7 +94,7 @@
                 android:layout_marginLeft="@dimen/margin_size_16"
                 android:layout_marginRight="@dimen/margin_size_16"
                 android:layout_marginTop="@dimen/margin_size_12"
-                android:text="@string/wsexamine_excellent"
+                android:text="@string/wsexamine_fail"
                 android:textSize="@dimen/font_size_16" />
         </RadioGroup>
     </ScrollView>

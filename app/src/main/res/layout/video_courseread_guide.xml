@@ -36,6 +36,7 @@
             android:layout_below="@+id/read_guide"
             android:layout_toRightOf="@+id/pop_close"
             android:orientation="vertical"
+            android:paddingBottom="@dimen/margin_size_80"
             android:scrollbars="vertical">
 
             <LinearLayout
@@ -49,7 +50,7 @@
                     android:layout_height="wrap_content"
                     android:padding="@dimen/margin_size_12"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/font_size_14" />
+                    android:textSize="@dimen/font_size_16" />
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recyclerView"
