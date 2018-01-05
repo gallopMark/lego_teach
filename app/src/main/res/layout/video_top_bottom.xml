@@ -69,7 +69,9 @@
             android:layout_width="@dimen/margin_size_40"
             android:layout_height="@dimen/margin_size_40"
             android:layout_margin="10dp"
-            app:srcCompat="@drawable/ic_play_arrow_24dp" />
+            app:srcCompat="@drawable/ic_play_arrow_24dp"
+            android:scaleType="centerCrop"
+            />
 
         <SeekBar
             android:id="@+id/video_seekbar"
