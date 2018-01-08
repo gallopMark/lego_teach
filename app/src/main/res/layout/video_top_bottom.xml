@@ -69,7 +69,8 @@
             android:layout_width="@dimen/margin_size_40"
             android:layout_height="@dimen/margin_size_40"
             android:layout_margin="10dp"
-            app:srcCompat="@drawable/ic_play_arrow_24dp" />
+            app:srcCompat="@drawable/ic_play_arrow_24dp"
+            android:scaleType="centerCrop" />
 
         <SeekBar
             android:id="@+id/video_seekbar"
@@ -88,18 +89,16 @@
             android:thumb="@drawable/mn_player_thumb"
             android:thumbOffset="0dp" />
 
-
         <TextView
             android:id="@+id/currentTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_margin="@dimen/margin_minus_5"
+            android:layout_margin="@dimen/margin_size_5"
             android:text="00:00"
             android:textColor="@color/colorPlayerProgressSecond"
             android:textSize="@dimen/font_size_16" />
-
 
     </RelativeLayout>
 

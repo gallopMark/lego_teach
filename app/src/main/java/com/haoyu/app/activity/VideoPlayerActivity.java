@@ -374,7 +374,6 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
         mVideoView.setOnCompletionListener(mOnCompletionListener);
         mVideoView.setOnErrorListener(mOnErrorListener);
         mVideoView.setOnPreparedListener(mOnPreparedListener);
-        //   mVideoView.setDisplayAspectRatio(PLVideoView.ASPECT_RATIO_PAVED_PARENT);
         // 手势监听
         gestureDetector = new GestureDetector(context, new PlayerGestureListener());
         framelayout.setClickable(true);
@@ -490,15 +489,13 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
                     showToastTips(message);
                     videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
                     break;
-                case IMediaPlayer.MEDIA_ERROR_UNSUPPORTED:
-                    message = "不支持该格式视频";
+                case -10000:
+                    message = "该视频暂时无法播放,请稍后重试";
                     showToastTips(message);
-                    //videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
                     break;
                 default:
                     message = "该视频暂时无法播放,请稍后重试";
                     showToastTips(message);
-                    videoHandler.sendEmptyMessageDelayed(VIDEO_WARN_MESSAGE, 2000);
                     break;
             }
             return false;
