@@ -121,7 +121,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="left|center"
-                        android:text="（共260条建议）"
+                        android:text=""
                         android:textColor="@color/blow_gray"
                         android:textSize="@dimen/font_size_15" />
                 </LinearLayout>
