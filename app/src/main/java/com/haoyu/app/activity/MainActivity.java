@@ -254,7 +254,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 }
                 String courseId = entity.getId();
                 String courseTitle = entity.getTitle();
-                Intent intent = new Intent(context, TeacherCourseTabActivity.class);
+                Intent intent = new Intent(context, CourseTabActivity.class);
                 intent.putExtra("courseId", courseId);
                 intent.putExtra("courseTitle", courseTitle);
                 startActivity(intent);

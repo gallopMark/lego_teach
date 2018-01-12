@@ -61,7 +61,7 @@ import okhttp3.Request;
  * 描述:
  * 作者:马飞奔 Administrator
  */
-public class TeacherCourseFragment extends BaseFragment {
+public class PageCourseFragment extends BaseFragment {
     @BindView(R.id.loadView)
     LoadingView loadView;
     @BindView(R.id.loadFailView)
