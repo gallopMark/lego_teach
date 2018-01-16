@@ -12,7 +12,7 @@ import com.haoyu.app.activity.MFileInfoActivity;
 import com.haoyu.app.activity.ResourcesUploadActivity;
 import com.haoyu.app.adapter.PageResourcesAdapter;
 import com.haoyu.app.base.BaseFragment;
-import com.haoyu.app.entity.CourseResourceListResult;
+import com.haoyu.app.entity.CourseResources;
 import com.haoyu.app.entity.MFileInfo;
 import com.haoyu.app.entity.Paginator;
 import com.haoyu.app.entity.ResourcesEntity;
@@ -82,7 +82,7 @@ public class PageResourcesFragment extends BaseFragment implements XRecyclerView
         String url = Constants.OUTRT_NET + "/m/resource/ncts?resourceRelations[0].relation.id="
                 + courseId + "&resourceRelations[0].relation.type=course" + "&page=" + page
                 + "&limit=" + limit + "&orders=" + orders;
-        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<CourseResourceListResult>() {
+        addSubscription(OkHttpClientManager.getAsyn(context, url, new OkHttpClientManager.ResultCallback<CourseResources>() {
             @Override
             public void onError(Request request, Exception e) {
                 xRecyclerView.refreshComplete(false);
@@ -98,7 +98,7 @@ public class PageResourcesFragment extends BaseFragment implements XRecyclerView
             }
 
             @Override
-            public void onResponse(CourseResourceListResult response) {
+            public void onResponse(CourseResources response) {
                 hideTipDialog();
                 loadView.setVisibility(View.GONE);
                 xRecyclerView.setVisibility(View.VISIBLE);
