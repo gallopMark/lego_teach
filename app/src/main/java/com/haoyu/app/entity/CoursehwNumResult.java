@@ -2,61 +2,15 @@ package com.haoyu.app.entity;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import java.io.Serializable;
+import com.haoyu.app.base.BaseResponseResult;
 
 /**
  * 创建日期：2017/2/6 on 11:33
  * 描述:作业相关数量结果集
  * 作者:马飞奔 Administrator
  */
-public class AssignmentUserNumResult implements Serializable{
-    @Expose
-    @SerializedName("responseCode")
-    private String responseCode;
-    @Expose
-    @SerializedName("responseData")
-    private AssignmentUserNumData responseData;
-    @Expose
-    @SerializedName("responseMsg")
-    private String responseMsg;
-    @Expose
-    @SerializedName("success")
-    private Boolean success;
-
-    public String getResponseCode() {
-        return responseCode;
-    }
-
-    public void setResponseCode(String responseCode) {
-        this.responseCode = responseCode;
-    }
-
-    public AssignmentUserNumData getResponseData() {
-        return responseData;
-    }
-
-    public void setResponseData(AssignmentUserNumData responseData) {
-        this.responseData = responseData;
-    }
-
-    public String getResponseMsg() {
-        return responseMsg;
-    }
-
-    public void setResponseMsg(String responseMsg) {
-        this.responseMsg = responseMsg;
-    }
-
-    public Boolean getSuccess() {
-        return success;
-    }
-
-    public void setSuccess(Boolean success) {
-        this.success = success;
-    }
-
-    public class AssignmentUserNumData implements Serializable{
+public class CoursehwNumResult extends BaseResponseResult<CoursehwNumResult.MData> {
+    public class MData {
         @Expose
         @SerializedName("notReceivedNum")
         private int notReceivedNum;  //待领取数

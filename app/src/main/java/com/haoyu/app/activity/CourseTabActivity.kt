@@ -10,7 +10,6 @@ import com.haoyu.app.base.BaseActivity
 import com.haoyu.app.fragment.*
 import com.haoyu.app.lego.teach.R
 import com.haoyu.app.view.AppToolBar
-import java.util.*
 
 /**
  * 创建日期：2018/1/12.
@@ -19,20 +18,9 @@ import java.util.*
  */
 class CourseTabActivity : BaseActivity() {
     private val context = this
-    private val PAGE_COURSE = 0  //学习
-    private val PAGE_RESOURCES = 1    //资源
-    private val PAGE_DISCUSSION = 2   //讨论
-    private val PAGE_QUESTION = 3 //问答
-    private val PAGE_HOMEWORK = 4 //作业
-    private val PAGE_STATISTICS = 5 //统计
-    private val fragments = ArrayList<Fragment>()
+    private val tabs = intArrayOf(1,2,3,4,5,6) //学习、资源、讨论、问答、作业、统计
     private var courseId: String? = null
-    private var pageCourseFragmemt: PageCourseFragment? = null
-    private var pageResourcesFragment: PageResourcesFragment? = null
-    private var pageDiscussionFragment: PageDiscussionFragment? = null
-    private var pageQuestionFragment: PageQuestionFragment? = null
-    private var pageHomeWorkFragment: PageHomeWorkFragment? = null
-    private var pageStatisticsFragment: PageStatisticsFragment? = null
+    private val fragments = arrayOfNulls<Fragment>(6)
     override fun setLayoutResID(): Int {
         return R.layout.activity_course_tab
     }
@@ -41,26 +29,26 @@ class CourseTabActivity : BaseActivity() {
         setToolBar()
         courseId = intent.getStringExtra("courseId")
         val radioGroup = findViewById<RadioGroup>(R.id.radioGroup)
-        setTab(PAGE_COURSE)
-        radioGroup.setOnCheckedChangeListener({ radioGroup, checkId ->
+        setTab(tabs[0])
+        radioGroup.setOnCheckedChangeListener({ _, checkId ->
             when (checkId) {
                 R.id.rb_section -> {
-                    setTab(PAGE_COURSE)
+                    setTab(tabs[0])
                 }
                 R.id.rb_resources -> {
-                    setTab(PAGE_RESOURCES)
+                    setTab(tabs[1])
                 }
                 R.id.rb_discuss -> {
-                    setTab(PAGE_DISCUSSION)
+                    setTab(tabs[2])
                 }
                 R.id.rb_wenda -> {
-                    setTab(PAGE_QUESTION)
+                    setTab(tabs[3])
                 }
                 R.id.rb_homeWork -> {
-                    setTab(PAGE_HOMEWORK)
+                    setTab(tabs[4])
                 }
                 R.id.rb_Statistics -> {
-                    setTab(PAGE_STATISTICS)
+                    setTab(tabs[5])
                 }
             }
         })
@@ -85,76 +73,82 @@ class CourseTabActivity : BaseActivity() {
         val transaction = supportFragmentManager.beginTransaction()
         hideFragments(transaction)
         when (index) {
-            PAGE_COURSE -> {
-                if (pageCourseFragmemt == null) {
-                    pageCourseFragmemt = PageCourseFragment()
-                    val bundle = Bundle()
-                    bundle.putString("entityId", courseId)
-                    pageCourseFragmemt!!.arguments = bundle
-                    transaction.add(R.id.content, pageCourseFragmemt)
-                    fragments.add(pageCourseFragmemt!!)
+            tabs[0] -> {
+                if (fragments[0] == null) {
+                    fragments[0] = PageCourseFragment()
+                    fragments[0]?.let {
+                        val bundle = Bundle()
+                        bundle.putString("entityId", courseId)
+                        it.arguments = bundle
+                        transaction.add(R.id.content, it)
+                    }
                 } else {
-                    transaction.show(pageCourseFragmemt!!)
+                    transaction.show(fragments[0])
                 }
             }
-            PAGE_RESOURCES -> {
-                if (pageResourcesFragment == null) {
-                    pageResourcesFragment = PageResourcesFragment()
-                    val bundle = Bundle()
-                    bundle.putString("entityId", courseId)
-                    pageResourcesFragment!!.arguments = bundle
-                    transaction.add(R.id.content, pageResourcesFragment!!)
-                    fragments.add(pageResourcesFragment!!)
+            tabs[1] -> {
+                if (fragments[1] == null) {
+                    fragments[1] = PageResourcesFragment()
+                    fragments[1]?.let {
+                        val bundle = Bundle()
+                        bundle.putString("entityId", courseId)
+                        it.arguments = bundle
+                        transaction.add(R.id.content, it)
+                    }
                 } else {
-                    transaction.show(pageResourcesFragment!!)
+                    transaction.show(fragments[1])
                 }
             }
-            PAGE_DISCUSSION -> {
-                if (pageDiscussionFragment == null) {
-                    pageDiscussionFragment = PageDiscussionFragment()
-                    val bundle = Bundle()
-                    bundle.putString("entityId", courseId)
-                    pageDiscussionFragment!!.arguments = bundle
-                    transaction.add(R.id.content, pageDiscussionFragment!!)
-                    fragments.add(pageDiscussionFragment!!)
+            tabs[2] -> {
+                if (fragments[2] == null) {
+                    fragments[2] = PageDiscussionFragment()
+                    fragments[2]?.let {
+                        val bundle = Bundle()
+                        bundle.putString("entityId", courseId)
+                        it.arguments = bundle
+                        transaction.add(R.id.content, it)
+                    }
                 } else {
-                    transaction.show(pageDiscussionFragment!!)
+                    transaction.show(fragments[2])
                 }
             }
-            PAGE_QUESTION -> {
-                if (pageQuestionFragment == null) {
-                    pageQuestionFragment = PageQuestionFragment()
-                    val bundle = Bundle()
-                    bundle.putString("entityId", courseId)
-                    pageQuestionFragment!!.arguments = bundle
-                    transaction.add(R.id.content, pageQuestionFragment!!)
-                    fragments.add(pageQuestionFragment!!)
+            tabs[3] -> {
+                if (fragments[3] == null) {
+                    fragments[3] = PageQuestionFragment()
+                    fragments[3]?.let {
+                        val bundle = Bundle()
+                        bundle.putString("entityId", courseId)
+                        it.arguments = bundle
+                        transaction.add(R.id.content, it)
+                    }
                 } else {
-                    transaction.show(pageQuestionFragment!!)
+                    transaction.show(fragments[3])
                 }
             }
-            PAGE_HOMEWORK -> {
-                if (pageHomeWorkFragment == null) {
-                    pageHomeWorkFragment = PageHomeWorkFragment()
-                    val bundle = Bundle()
-                    bundle.putString("entityId", courseId)
-                    pageHomeWorkFragment!!.arguments = bundle
-                    transaction.add(R.id.content, pageHomeWorkFragment!!)
-                    fragments.add(pageHomeWorkFragment!!)
+            tabs[4] -> {
+                if (fragments[4] == null) {
+                    fragments[4] = PageHomeWorkFragment()
+                    fragments[4]?.let {
+                        val bundle = Bundle()
+                        bundle.putString("entityId", courseId)
+                        it.arguments = bundle
+                        transaction.add(R.id.content, it)
+                    }
                 } else {
-                    transaction.show(pageHomeWorkFragment)
+                    transaction.show(fragments[4])
                 }
             }
-            PAGE_STATISTICS -> {
-                if (pageStatisticsFragment == null) {
-                    pageStatisticsFragment = PageStatisticsFragment()
-                    val bundle = Bundle()
-                    bundle.putString("entityId", courseId)
-                    pageStatisticsFragment!!.arguments = bundle
-                    transaction.add(R.id.content, pageStatisticsFragment!!)
-                    fragments.add(pageStatisticsFragment!!)
+            tabs[5] -> {
+                if (fragments[5] == null) {
+                    fragments[5] = PageStatisticsFragment()
+                    fragments[5]?.let {
+                        val bundle = Bundle()
+                        bundle.putString("entityId", courseId)
+                        it.arguments = bundle
+                        transaction.add(R.id.content, it)
+                    }
                 } else {
-                    transaction.show(pageStatisticsFragment!!)
+                    transaction.show(fragments[5])
                 }
             }
         }
@@ -162,9 +156,9 @@ class CourseTabActivity : BaseActivity() {
     }
 
     private fun hideFragments(transaction: FragmentTransaction) {
-        for (fragment in fragments) {
-            if (fragment != null) {
-                transaction.hide(fragment)
+        for (i in 0 until fragments.size) {
+            fragments[i]?.let {
+                transaction.hide(it)
             }
         }
     }

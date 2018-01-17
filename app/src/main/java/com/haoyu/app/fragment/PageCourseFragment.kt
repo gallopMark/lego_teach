@@ -37,24 +37,22 @@ import java.util.*
 class PageCourseFragment : BaseFragment() {
     private lateinit var loadView: LoadingView
     private lateinit var loadFailView: LoadFailView
-    private lateinit var empty_list: TextView
+    private lateinit var tvEmpty: TextView
     private lateinit var recyclerView: RecyclerView
     private var courseId: String? = null
     private var mDatas: MutableList<MultiItemEntity> = ArrayList()
     private lateinit var adapter: CourseStudyAdapter
-    private val STUDY_CODE = 1
+    private val requestCode = 1
 
     override fun createView(): Int {
         return R.layout.fragment_page_course
     }
 
     override fun initView(view: View) {
-        arguments?.let {
-            courseId = it.getString("entityId")
-        }
+        courseId = arguments?.getString("entityId")
         loadView = view.findViewById(R.id.loadView)
         loadFailView = view.findViewById(R.id.loadFailView)
-        empty_list = view.findViewById(R.id.empty_list)
+        tvEmpty = view.findViewById(R.id.empty_list)
         recyclerView = view.findViewById(R.id.recyclerView)
         (recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         val layoutManager = LinearLayoutManager(context)
@@ -67,7 +65,7 @@ class PageCourseFragment : BaseFragment() {
     override fun initData() {
         loadView.visibility = View.VISIBLE
         val url = Constants.OUTRT_NET + "/" + courseId + "/teach/m/course/" + courseId + "/teach"
-        addSubscription(Flowable.just(url).map(@Throws(Exception::class) { url -> getData(url) })
+        addSubscription(Flowable.just(url).map(@Throws(Exception::class) { _ -> getData(url) })
                 .map(@Throws(Exception::class) { response -> doWith(response) }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ response ->
@@ -79,7 +77,7 @@ class PageCourseFragment : BaseFragment() {
                     } else if (activities != null && activities.size > 0) {
                         updateAT(activities)
                     } else {
-                        empty_list.visibility = View.VISIBLE
+                        tvEmpty.visibility = View.VISIBLE
                     }
                 }) {
                     loadView.visibility = View.GONE
@@ -98,7 +96,7 @@ class PageCourseFragment : BaseFragment() {
         response?.responseData?.getmCourse()?.getmSections()?.size?.let {
             for (i in 0 until it) {
                 val entity = response.responseData.getmCourse().getmSections()[i]
-                entity.childSections.size?.let {
+                entity.childSections.size.let {
                     for (j in 0 until it) {
                         val sectionId = entity.childSections[j].id
                         val result = getActvityList(sectionId)
@@ -139,11 +137,11 @@ class PageCourseFragment : BaseFragment() {
         for (i in list.indices) {
             val entity = list[i]
             mDatas.add(entity)
-            entity.childSections.size?.let {
+            entity.childSections.size.let {
                 for (j in 0 until it) {
                     val childEntity = entity.childSections[j]
                     mDatas.add(childEntity)
-                    childEntity.activities.size?.let {
+                    childEntity.activities.size.let {
                         for (k in 0 until it) {
                             mDatas.add(childEntity.activities[k])
                         }
@@ -189,7 +187,7 @@ class PageCourseFragment : BaseFragment() {
         recyclerView.visibility = View.VISIBLE
         val mAdapter = CourseActivityAdapter(context, mDatas)
         recyclerView.adapter = mAdapter
-        mAdapter.onItemClickListener = BaseRecyclerAdapter.OnItemClickListener { adapter, holder, view, position ->
+        mAdapter.onItemClickListener = BaseRecyclerAdapter.OnItemClickListener { _, _, _, position ->
             mAdapter.setSelected(mDatas[position].id)
             val activity = mDatas[position]
             enterActivity(activity)
@@ -278,7 +276,7 @@ class PageCourseFragment : BaseFragment() {
                     } else {
                         intent.putExtra("videoUrl", video.urls)
                     }
-                    startActivityForResult(intent, STUDY_CODE)
+                    startActivityForResult(intent, requestCode)
                 } else if (video.videoFiles.size > 0) {
                     val url = video.videoFiles[0].url
                     val fileInfo = FileDownloader.getDownloadFile(url)
@@ -287,7 +285,7 @@ class PageCourseFragment : BaseFragment() {
                     } else {
                         intent.putExtra("videoUrl", url)
                     }
-                    startActivityForResult(intent, STUDY_CODE)
+                    startActivityForResult(intent, requestCode)
                 } else {
                     toast("系统暂不支持浏览，请到网站完成。")
                 }
@@ -322,21 +320,21 @@ class PageCourseFragment : BaseFragment() {
                 intent.putExtra("type", "file")
                 intent.putExtra("url", pdfUrl)
                 intent.setClass(context, CoursewareViewerActivity::class.java)
-                startActivityForResult(intent, STUDY_CODE)
+                startActivityForResult(intent, requestCode)
             } else if (mTextInfoUser.getmTextInfo() != null && mTextInfoUser.getmTextInfo().type != null
                     && mTextInfoUser.getmTextInfo().type == "link") {  //课件类型为外链
                 val webUrl = mTextInfoUser.getmTextInfo().content
                 intent.setClass(context, CoursewareViewerActivity::class.java)
                 intent.putExtra("type", "link")
                 intent.putExtra("url", webUrl)
-                startActivityForResult(intent, STUDY_CODE)
+                startActivityForResult(intent, requestCode)
             } else if (mTextInfoUser.getmTextInfo() != null && mTextInfoUser.getmTextInfo().type != null
                     && mTextInfoUser.getmTextInfo().type == "editor") {  // 课件类型为文本
                 val editor = mTextInfoUser.getmTextInfo().content
                 intent.setClass(context, CoursewareViewerActivity::class.java)
                 intent.putExtra("type", "editor")
                 intent.putExtra("editor", editor)
-                startActivityForResult(intent, STUDY_CODE)
+                startActivityForResult(intent, requestCode)
             } else {
                 toast("系统暂不支持浏览，请到网站完成。")
             }
@@ -368,7 +366,7 @@ class PageCourseFragment : BaseFragment() {
                 intent.putExtra("needMainNum", entity.mainPostNum)
                 intent.putExtra("needSubNum", entity.subPostNum)
             }
-            startActivityForResult(intent, STUDY_CODE)
+            startActivityForResult(intent, requestCode)
         } else
             toast("系统暂不支持浏览，请到网站完成。")
     }
@@ -390,7 +388,7 @@ class PageCourseFragment : BaseFragment() {
         }
         intent.putExtra("activityId", activity.id)
         intent.putExtra("activityTitle", activity.title)
-        startActivityForResult(intent, STUDY_CODE)
+        startActivityForResult(intent, requestCode)
     }
 
     /*打开测验*/
@@ -420,7 +418,7 @@ class PageCourseFragment : BaseFragment() {
         } else {
             intent.setClass(context, AppTestHomeActivity::class.java)
         }
-        startActivityForResult(intent, STUDY_CODE)
+        startActivityForResult(intent, requestCode)
     }
 
     /*打开作业*/
@@ -441,7 +439,7 @@ class PageCourseFragment : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == STUDY_CODE && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == requestCode && resultCode == Activity.RESULT_OK && data != null) {
             val activity = data.getSerializableExtra("activity") as CourseSectionActivity
             if (mDatas.indexOf(activity) != -1) {
                 val index = mDatas.indexOf(activity)

@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.base.BaseResponseResult;
-import com.haoyu.app.entity.AssignmentUserNumResult;
+import com.haoyu.app.entity.CoursehwNumResult;
 import com.haoyu.app.lego.teach.R;
 import com.haoyu.app.rxBus.MessageEvent;
 import com.haoyu.app.rxBus.RxBus;
@@ -50,14 +50,14 @@ public class AssignmentShakeActivity extends BaseActivity {
     @Override
     public void initView() {
         courseId = getIntent().getStringExtra("courseId");
-        AssignmentUserNumResult numResult = (AssignmentUserNumResult) getIntent().getSerializableExtra("numResult");
+        CoursehwNumResult numResult = (CoursehwNumResult) getIntent().getSerializableExtra("numResult");
         shakeListener = new ShakeSensorListener();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         vibrator = (Vibrator) getSystemService(Service.VIBRATOR_SERVICE);
         updateUI(numResult);
     }
 
-    private void updateUI(AssignmentUserNumResult userNumResult) {
+    private void updateUI(CoursehwNumResult userNumResult) {
         if (userNumResult != null && userNumResult.getResponseData() != null) {
             tv_readOverNum.setText(userNumResult.getResponseData().getMarkNum() + "/" + userNumResult.getResponseData().getAllNum());
             if (userNumResult.getResponseData().getNotMarkedNum() == 0
