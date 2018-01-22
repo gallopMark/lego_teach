@@ -160,6 +160,9 @@ public class TeachingMovementEntity implements Serializable {
     }
 
     public List<MFileInfo> getmFileInfos() {
+        if (mFileInfos == null) {
+            return new ArrayList<>();
+        }
         return mFileInfos;
     }
 

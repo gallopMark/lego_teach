@@ -13,148 +13,148 @@ import java.util.List;
 public class Paginator {
     @SerializedName("limit")
     @Expose
-    private Integer limit;
+    private int limit;
     @SerializedName("page")
     @Expose
-    private Integer page;
+    private int page;
     @SerializedName("totalCount")
     @Expose
-    private Integer totalCount;
+    private int totalCount;
     @SerializedName("offset")
     @Expose
-    private Integer offset;
+    private int offset;
     @SerializedName("firstPage")
     @Expose
-    private Boolean firstPage;
+    private boolean firstPage;
     @SerializedName("lastPage")
     @Expose
-    private Boolean lastPage;
+    private boolean lastPage;
     @SerializedName("prePage")
     @Expose
-    private Integer prePage;
+    private int prePage;
     @SerializedName("nextPage")
     @Expose
-    private Integer nextPage;
+    private int nextPage;
     @SerializedName("hasPrePage")
     @Expose
-    private Boolean hasPrePage;
+    private boolean hasPrePage;
     @SerializedName("hasNextPage")
     @Expose
-    private Boolean hasNextPage;
+    private boolean hasNextPage;
     @SerializedName("startRow")
     @Expose
-    private Integer startRow;
+    private int startRow;
     @SerializedName("endRow")
     @Expose
-    private Integer endRow;
+    private int endRow;
     @SerializedName("totalPages")
     @Expose
-    private Integer totalPages;
+    private int totalPages;
     @SerializedName("slider")
     @Expose
     private List<Integer> slider = null;
 
-    public Integer getLimit() {
+    public int getLimit() {
         return limit;
     }
 
-    public void setLimit(Integer limit) {
+    public void setLimit(int limit) {
         this.limit = limit;
     }
 
-    public Integer getPage() {
+    public int getPage() {
         return page;
     }
 
-    public void setPage(Integer page) {
+    public void setPage(int page) {
         this.page = page;
     }
 
-    public Integer getTotalCount() {
+    public int getTotalCount() {
         return totalCount;
     }
 
-    public void setTotalCount(Integer totalCount) {
+    public void setTotalCount(int totalCount) {
         this.totalCount = totalCount;
     }
 
-    public Integer getOffset() {
+    public int getOffset() {
         return offset;
     }
 
-    public void setOffset(Integer offset) {
+    public void setOffset(int offset) {
         this.offset = offset;
     }
 
-    public Boolean getFirstPage() {
+    public boolean getFirstPage() {
         return firstPage;
     }
 
-    public void setFirstPage(Boolean firstPage) {
+    public void setFirstPage(boolean firstPage) {
         this.firstPage = firstPage;
     }
 
-    public Boolean getLastPage() {
+    public boolean getLastPage() {
         return lastPage;
     }
 
-    public void setLastPage(Boolean lastPage) {
+    public void setLastPage(boolean lastPage) {
         this.lastPage = lastPage;
     }
 
-    public Integer getPrePage() {
+    public int getPrePage() {
         return prePage;
     }
 
-    public void setPrePage(Integer prePage) {
+    public void setPrePage(int prePage) {
         this.prePage = prePage;
     }
 
-    public Integer getNextPage() {
+    public int getNextPage() {
         return nextPage;
     }
 
-    public void setNextPage(Integer nextPage) {
+    public void setNextPage(int nextPage) {
         this.nextPage = nextPage;
     }
 
-    public Boolean getHasPrePage() {
+    public boolean getHasPrePage() {
         return hasPrePage;
     }
 
-    public void setHasPrePage(Boolean hasPrePage) {
+    public void setHasPrePage(boolean hasPrePage) {
         this.hasPrePage = hasPrePage;
     }
 
-    public Boolean getHasNextPage() {
+    public boolean getHasNextPage() {
         return hasNextPage;
     }
 
-    public void setHasNextPage(Boolean hasNextPage) {
+    public void setHasNextPage(boolean hasNextPage) {
         this.hasNextPage = hasNextPage;
     }
 
-    public Integer getStartRow() {
+    public int getStartRow() {
         return startRow;
     }
 
-    public void setStartRow(Integer startRow) {
+    public void setStartRow(int startRow) {
         this.startRow = startRow;
     }
 
-    public Integer getEndRow() {
+    public int getEndRow() {
         return endRow;
     }
 
-    public void setEndRow(Integer endRow) {
+    public void setEndRow(int endRow) {
         this.endRow = endRow;
     }
 
-    public Integer getTotalPages() {
+    public int getTotalPages() {
         return totalPages;
     }
 
-    public void setTotalPages(Integer totalPages) {
+    public void setTotalPages(int totalPages) {
         this.totalPages = totalPages;
     }
 
