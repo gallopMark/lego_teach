@@ -14,7 +14,7 @@
         app:show_right_button="true"
         app:title_text="@string/teach_active" />
 
-    <ScrollView
+    <android.support.v4.widget.NestedScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -475,6 +475,6 @@
                     android:textSize="@dimen/font_size_16" />
             </LinearLayout>
         </LinearLayout>
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
 </LinearLayout>
