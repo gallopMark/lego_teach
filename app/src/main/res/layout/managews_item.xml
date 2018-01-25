@@ -15,7 +15,7 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/workshop_img"
+            android:id="@+id/ivImage"
             android:layout_width="100dp"
             android:layout_height="70dp"
             android:layout_gravity="center" />
@@ -28,7 +28,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/workshop_title"
+                android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
@@ -38,7 +38,7 @@
                 android:textSize="@dimen/font_size_16" />
 
             <TextView
-                android:id="@+id/workshop_trainName"
+                android:id="@+id/tvTrainName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_size_4"

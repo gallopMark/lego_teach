@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/title"
@@ -11,7 +12,7 @@
         android:background="@color/defaultColor">
 
         <ImageView
-            android:id="@+id/toggle"
+            android:id="@+id/ivToggle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/tv_title"
@@ -34,152 +35,157 @@
             android:textSize="@dimen/title_textsize" />
 
         <ImageView
-            android:id="@+id/iv_msg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/tv_title"
-            android:layout_alignParentRight="true"
-            android:layout_alignTop="@+id/tv_title"
-            android:paddingLeft="@dimen/margin_size_16"
-            android:paddingRight="@dimen/margin_size_16"
-            android:src="@drawable/xiaoxi"
-            android:visibility="gone" />
-
-        <ImageView
             android:id="@+id/iv_scan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/tv_title"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/tv_title"
-            android:layout_toLeftOf="@+id/iv_msg"
+            android:layout_toLeftOf="@+id/ivMsg"
             android:paddingLeft="@dimen/margin_size_16"
             android:paddingRight="@dimen/margin_size_16"
             android:src="@drawable/shaoshao"
             android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/ivMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/tv_title"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/tv_title"
+            android:paddingLeft="@dimen/margin_size_16"
+            android:paddingRight="@dimen/margin_size_16"
+            android:src="@drawable/xiaoxi" />
     </RelativeLayout>
 
-    <com.haoyu.app.view.LoadingView
-        android:id="@+id/loadingView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
-
-    <com.haoyu.app.view.LoadFailView
-        android:id="@+id/loadFailView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/empty_data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:drawablePadding="@dimen/margin_size_10"
-        android:drawableTop="@drawable/empty_list"
-        android:gravity="center"
-        android:text="没有培训信息~"
-        android:textColor="@color/gray"
-        android:textSize="@dimen/font_size_18"
-        android:visibility="gone" />
-
-    <ScrollView
-        android:id="@+id/contentView"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/title"
-        android:fillViewport="true"
-        android:overScrollMode="never"
-        android:visibility="gone">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <com.haoyu.app.view.LoadingView
+            android:id="@+id/loadingView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <com.haoyu.app.view.LoadFailView
+            android:id="@+id/loadFailView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:drawablePadding="@dimen/margin_size_12"
+            android:drawableTop="@drawable/empty_train_list"
+            android:gravity="center"
+            android:visibility="gone"
+            android:textColor="@color/gray"
+            android:textSize="@dimen/font_size_16" />
+
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/nsv_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/spaceColor"
-            android:orientation="vertical">
+            android:fillViewport="true"
+            android:overScrollMode="never"
+            android:visibility="gone">
 
-            <TextView
-                android:id="@+id/course"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/margin_size_1"
-                android:layout_marginTop="@dimen/margin_size_12"
-                android:background="@color/white"
-                android:drawableLeft="@drawable/biaotiyuan"
-                android:drawablePadding="@dimen/margin_size_6"
-                android:padding="@dimen/margin_size_12"
-                android:text="你参与辅导的课程"
-                android:textSize="@dimen/font_size_18" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:descendantFocusability="blocksDescendants">
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/courseRV"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:overScrollMode="never" />
-
-                <TextView
-                    android:id="@+id/empty_course"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/margin_size_30"
-                    android:drawableLeft="@drawable/empty_course"
-                    android:drawablePadding="@dimen/margin_size_16"
-                    android:gravity="center"
-                    android:text="暂无参与辅导的课程"
-                    android:textColor="@color/gray"
-                    android:textSize="@dimen/font_size_16"
-                    android:visibility="gone" />
-            </RelativeLayout>
-
-            <TextView
-                android:id="@+id/workshop"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/margin_size_1"
-                android:layout_marginTop="@dimen/margin_size_1"
-                android:background="@color/white"
-                android:drawableLeft="@drawable/biaotiyuan"
-                android:drawablePadding="@dimen/margin_size_6"
-                android:padding="@dimen/margin_size_12"
-                android:text="你参与管理的工作坊"
-                android:textSize="@dimen/font_size_18" />
-
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/white"
-                android:descendantFocusability="blocksDescendants">
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/workshopRV"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:overScrollMode="never" />
+                android:background="@color/spaceColor"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/empty_workshop"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/margin_size_30"
-                    android:drawableLeft="@drawable/empty_course"
-                    android:drawablePadding="@dimen/margin_size_16"
-                    android:gravity="center"
-                    android:text="暂无参与管理的工作坊"
-                    android:textColor="@color/gray"
-                    android:textSize="@dimen/font_size_16"
-                    android:visibility="gone" />
-            </RelativeLayout>
-        </LinearLayout>
-    </ScrollView>
-</RelativeLayout>
+                    android:layout_marginBottom="@dimen/margin_size_1"
+                    android:layout_marginTop="@dimen/margin_size_12"
+                    android:background="@color/white"
+                    android:drawableLeft="@drawable/biaotiyuan"
+                    android:drawablePadding="@dimen/margin_size_6"
+                    android:padding="@dimen/margin_size_12"
+                    android:text="你参与辅导的课程"
+                    android:textSize="@dimen/font_size_18" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:descendantFocusability="blocksDescendants">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rvCourse"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never" />
+
+                    <TextView
+                        android:id="@+id/tv_emptyCourse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="@dimen/margin_size_40"
+                        android:layout_marginTop="@dimen/margin_size_40"
+                        android:drawableLeft="@drawable/empty_course"
+                        android:drawablePadding="@dimen/margin_size_16"
+                        android:gravity="center"
+                        android:textColor="@color/gray"
+                        android:textSize="@dimen/font_size_16"
+                        android:visibility="gone" />
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/margin_size_1"
+                    android:layout_marginTop="@dimen/margin_size_1"
+                    android:background="@color/white"
+                    android:drawableLeft="@drawable/biaotiyuan"
+                    android:drawablePadding="@dimen/margin_size_6"
+                    android:padding="@dimen/margin_size_12"
+                    android:text="你参与管理的工作坊"
+                    android:textSize="@dimen/font_size_18" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+                    android:descendantFocusability="blocksDescendants">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rvWs"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never" />
+
+                    <TextView
+                        android:id="@+id/tv_emptyWS"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="@dimen/margin_size_40"
+                        android:layout_marginTop="@dimen/margin_size_40"
+                        android:drawableLeft="@drawable/empty_course"
+                        android:drawablePadding="@dimen/margin_size_16"
+                        android:gravity="center"
+                        android:text="暂无参与管理的工作坊"
+                        android:textColor="@color/gray"
+                        android:textSize="@dimen/font_size_16"
+                        android:visibility="gone" />
+                </RelativeLayout>
+            </LinearLayout>
+        </android.support.v4.widget.NestedScrollView>
+    </FrameLayout>
+</LinearLayout>
