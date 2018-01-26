@@ -196,7 +196,7 @@
         <!--通知公告详情-->
         <activity android:name="com.haoyu.app.activity.AnnouncementDetailActivity" />
         <!--工作坊简介-->
-        <activity android:name="com.haoyu.app.activity.WorkShopDetailActivity" />
+        <activity android:name="com.haoyu.app.activity.WSDetailActivity" />
         <!--更多工作坊简报-->
         <activity android:name="com.haoyu.app.activity.BriefingActivity" />
         <!--工作坊互助问答-->
