@@ -241,9 +241,8 @@
         <activity android:name="com.haoyu.app.activity.AppMoreCommentActivity" />
         <activity android:name="com.haoyu.app.activity.AppMoreReplyActivity" />
 
-        <activity android:name="com.haoyu.app.activity.FreeChatActiviy" />
-        <activity android:name="com.haoyu.app.activity.FreeChatEditActivity" />
-        <activity android:name="com.haoyu.app.activity.FreeChatDetailActivity" />
+        <activity android:name="com.haoyu.app.activity.WSFreeChatActiviy" />
+        <activity android:name="com.haoyu.app.activity.WSFreeChatDetailActivity" />
         <!--摇一摇领取作业-->
         <activity android:name="com.haoyu.app.activity.AssignmentShakeActivity" />
         <!--批改作业-->
