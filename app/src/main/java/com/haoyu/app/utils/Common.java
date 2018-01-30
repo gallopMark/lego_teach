@@ -23,6 +23,7 @@ import com.haoyu.app.lego.teach.R;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -260,5 +261,23 @@ public class Common {
             return true;
         }
         return false;
+    }
+
+    public static String formatNum(int num) {
+        if (num < 10 * 1000) {
+            return String.valueOf(num);
+        } else {
+            double count;
+            String nuit;
+            if (num > 10 * 1000 && num < 10 * 1000 * 10000) {
+                count = (double) num / (10 * 1000);
+                nuit = "万";
+            } else {
+                count = (double) num / (10 * 1000 * 10000);
+                nuit = "亿";
+            }
+            BigDecimal bd = new BigDecimal(count);
+            return bd.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue() + nuit;
+        }
     }
 }
