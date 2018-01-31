@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 回答列表结果集
  */
-public class FAQsAnswerListResult {
+public class FAQsAnswers {
     @Expose
     @SerializedName("responseCode")
     private String responseCode;

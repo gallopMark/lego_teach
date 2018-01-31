@@ -2,13 +2,14 @@ package com.haoyu.app.entity;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 public class FollowMobileEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Expose
 	@SerializedName("followNum")
-	private Integer followNum;
+	private int followNum;
 	@Expose
 	@SerializedName("id")
 	private String id;
