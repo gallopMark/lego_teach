@@ -74,7 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_size_4"
-                android:drawableLeft="@drawable/message_time"
+                android:drawableLeft="@drawable/announcements_createdate"
                 android:drawablePadding="@dimen/margin_size_4"
                 android:textColor="@color/blow_gray"
                 android:textSize="@dimen/font_size_14" />
